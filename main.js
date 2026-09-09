@@ -11,6 +11,7 @@ document.querySelectorAll('.nav-btn').forEach(btn => {
 
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.getElementById(`${currentMode}-view`).classList.add('active');
+    if (currentMode === 'chords') resetChordTracking();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 });
@@ -62,7 +63,7 @@ function loop() {
   if (currentMode === 'chords') {
     analyser.getFloatFrequencyData(freqData);
     chordLoop(freqData);
-  } else {
+  } else if (currentMode === 'tuner') {
     analyser.getFloatTimeDomainData(timeData);
     tunerLoop(timeData, audioCtx.sampleRate);
   }
@@ -70,7 +71,4 @@ function loop() {
   requestAnimationFrame(loop);
 }
 
-document.getElementById('clearHistory').onclick = () => {
-  history = [];
-  document.getElementById('history').innerHTML = '<span class="muted">Todavía no hay acordes</span>';
-};
+document.getElementById('clearHistory').onclick = () => { clearHistory(); };

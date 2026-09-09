@@ -25,7 +25,8 @@ function autoCorrelate(buffer, sampleRate) {
   for (let i = 0; i < SIZE / 2; i++) if (Math.abs(buffer[SIZE - 1 - i]) > thres) { end = SIZE - 1 - i; break; }
 
   const trimmed = buffer.slice(start, end);
-  const n = trimmed.length;
+  // límite de periodo para cubrir hasta C2 (~65 Hz), más grave que E2 en afinación estándar
+  const n = Math.min(trimmed.length, Math.floor(sampleRate / 65));
   if (n < 2) return -1;
 
   const c = new Array(n).fill(0);

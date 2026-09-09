@@ -1,4 +1,5 @@
 const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+const NOTE_ALIASES = { 'Cb': 'B', 'B#': 'C', 'Db': 'C#', 'Eb': 'D#', 'Fb': 'E', 'Gb': 'F#', 'Ab': 'G#', 'Bb': 'A#' };
 
 const CHORD_TYPES = {
   '': { label: '', intervals: [0, 4, 7], template: [1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0] },
@@ -26,6 +27,19 @@ const OPEN_SHAPES = {
   D7: { frets: [null, null, 0, 2, 1, 2], label: 'Forma abierta de D7' },
 };
 
+// formas móviles (barre) por calidad; E = raíz en 6ª cuerda, A = raíz en 5ª
+const MOBILE_SHAPES = {
+  '':    { E: [0, 2, 2, 1, 0, 0],  A: [null, 0, 2, 2, 2, 0] },
+  m:     { E: [0, 2, 2, 0, 0, 0],  A: [null, 0, 2, 2, 1, 0] },
+  '7':   { E: [0, 2, 0, 1, 0, 0],  A: [null, 0, 2, 0, 2, 0] },
+  maj7:  { E: [0, 2, 1, 1, 0, 0],  A: [null, 0, 2, 1, 2, 0] },
+  m7:    { E: [0, 2, 0, 0, 3, 0],  A: [null, 0, 2, 0, 1, 0] },
+  sus2:  { E: [0, 2, 4, 4, 0, 0],  A: [null, 0, 2, 2, 0, 0] },
+  sus4:  { E: [0, 2, 2, 2, 0, 0],  A: [null, 0, 2, 2, 3, 0] },
+  aug:   { E: [0, 3, 2, 1, 1, 0],  A: [null, 0, 3, 2, 2, 1] },
+  dim:   { E: [0, 1, 2, 0, 1, 0] }, // 7ª disminuida, única forma móvil correcta
+};
+
 let history = [];
 let smoothedChroma = new Array(12).fill(0);
 let candidateName = null;
@@ -44,8 +58,10 @@ function resetChordTracking() {
 function noteIndex(name) { return NOTE_NAMES.indexOf(name); }
 
 function parseChordName(chordName) {
-  const match = chordName.match(/^([A-G]#?)(m7|maj7|sus2|sus4|dim|aug|7|m)?$/);
-  return match ? { root: match[1], quality: match[2] || '' } : null;
+  const match = chordName.match(/^([A-G])([#b]?)(m7|maj7|sus2|sus4|dim|aug|7|m)?$/);
+  if (!match) return null;
+  const raw = match[1] + match[2];
+  return { root: NOTE_ALIASES[raw] || raw, quality: match[3] || '' };
 }
 
 function getNotes(root, quality) {
@@ -56,12 +72,17 @@ function getNotes(root, quality) {
 function getFingering(root, quality) {
   const open = OPEN_SHAPES[root + quality];
   if (open) return { frets: open.frets, label: open.label };
-  const shapeQuality = quality === 'm' || quality === 'm7' ? 'm' : quality === '7' ? '7' : '';
+  const shapes = MOBILE_SHAPES[quality] || MOBILE_SHAPES[''];
+  if (quality === 'dim') {
+    const offset = (noteIndex(root) - noteIndex('E') + 12) % 12;
+    return {
+      frets: shapes.E.map(fret => fret + offset),
+      label: 'Forma móvil de E (7ª disminuida)',
+    };
+  }
   const shapeRoot = ['E', 'A'][noteIndex(root) % 2];
   const offset = (noteIndex(root) - noteIndex(shapeRoot) + 12) % 12;
-  const base = shapeRoot === 'A'
-    ? (shapeQuality === 'm' ? [null, 0, 2, 2, 1, 0] : shapeQuality === '7' ? [null, 0, 2, 0, 2, 0] : [null, 0, 2, 2, 2, 0])
-    : (shapeQuality === 'm' ? [0, 2, 2, 0, 0, 0] : shapeQuality === '7' ? [0, 2, 0, 1, 0, 0] : [0, 2, 2, 1, 0, 0]);
+  const base = shapes[shapeRoot];
   return { frets: base.map(fret => fret === null ? null : fret + offset), label: `Forma móvil de ${shapeRoot}` };
 }
 
@@ -116,6 +137,11 @@ function renderHistory() {
   element.innerHTML = history.length
     ? history.map((chord, index) => `<span class="history-chip ${index === history.length - 1 ? 'current' : ''}">${chord}</span>`).join('')
     : '<span class="muted">Todavía no hay acordes</span>';
+}
+
+function clearHistory() {
+  history = [];
+  renderHistory();
 }
 
 function getChroma(data) {

@@ -19,7 +19,7 @@ function modeNote(interval) {
 function modeScale(mode) {
   const majorIntervals = [0, 2, 4, 5, 7, 9, 11];
   const modeIndex = MODE_DATA.indexOf(mode);
-  return majorIntervals.map((_, index) => modeNote(majorIntervals[(index + modeIndex) % 7] - mode.offset + mode.offset));
+  return majorIntervals.map((_, index) => modeNote(majorIntervals[(index + modeIndex) % 7]));
 }
 
 function renderModes() {

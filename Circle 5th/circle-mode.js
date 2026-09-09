@@ -1,5 +1,9 @@
 const CIRCLE_NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 const FIFTHS = ['C', 'G', 'D', 'A', 'E', 'B', 'F#', 'C#', 'G#', 'D#', 'A#', 'F'];
+const KEY_SIGNS = {
+  C: 'sin alteraciones', G: '1 sostenido', D: '2 sostenidos', A: '3 sostenidos', E: '4 sostenidos', B: '5 sostenidos',
+  'F#': '6 sostenidos', 'C#': '7 sostenidos', 'G#': '4 bemoles (Ab)', 'D#': '3 bemoles (Eb)', 'A#': '2 bemoles (Bb)', F: '1 bemol',
+};
 const MAJOR_INTERVALS = [0, 2, 4, 5, 7, 9, 11];
 const MAJOR_QUALITIES = ['', 'm', 'm', '', '', 'm', 'dim'];
 const MAJOR_ROMANS = ['I', 'ii', 'iii', 'IV', 'V', 'vi', 'vii°'];
@@ -26,9 +30,8 @@ function renderCircle(selected = 'C') {
     circle.appendChild(button);
   });
 
-  const keyIndex = FIFTHS.indexOf(selected);
   keyEl.textContent = selected;
-  relativeEl.textContent = `Relativa menor: ${circleNoteAt(selected, 9)}m · ${keyIndex <= 6 ? 'más sostenidos' : 'más bemoles'}`;
+  relativeEl.textContent = `Relativa menor: ${circleNoteAt(selected, 9)}m · ${KEY_SIGNS[selected]}`;
   renderKeyChords(selected);
   document.dispatchEvent(new CustomEvent('circle-key-selected', { detail: selected }));
 }
