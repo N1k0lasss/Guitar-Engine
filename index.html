@@ -39,6 +39,7 @@
         <button class="nav-btn" data-mode="harmony">Armonía</button>
         <button class="nav-btn" data-mode="modes">Modos</button>
         <button class="nav-btn" data-mode="tensions">Tensiones</button>
+        <button class="nav-btn" data-mode="prl">P/R/L</button>
         <button class="nav-btn" data-mode="proximity">Proximidad</button>
         <button class="nav-btn" data-mode="circle">Círculo</button>
         <button class="nav-btn" data-mode="scales">Escalas</button>
@@ -143,6 +144,29 @@
     </div>
   </section>
 
+<!-- ===== Vista: P/R/L Neoriemanniano ===== -->
+  <section id="prl-view" class="view">
+    <div class="view-heading"><div><p class="eyebrow">TEORÍA NEORIEMANNIANA · P/R/L</p><h2>Tres conexiones con una sola voz</h2></div><span class="signal-badge">P · R · L · 2 notas en común</span></div>
+    <div class="prl-toolbar panel">
+      <label>Triada</label>
+      <select id="prl-root"></select>
+      <select id="prl-quality"><option value="">Mayor</option><option value="m">Menor</option></select>
+      <button type="button" id="prl-reset" class="ghost-btn">Tónica</button>
+      <span id="prl-history" class="prl-history"></span>
+    </div>
+    <div class="prl-layout">
+      <div class="panel prl-source">
+        <p class="eyebrow">TRIADA ACTUAL</p>
+        <h3 id="prl-current">C</h3>
+        <p id="prl-source-notes" class="notes-list">C · E · G</p>
+        <div id="prl-source-diagram" aria-label="Diagrama de la triada"></div>
+        <p id="prl-source-barre" class="barre-label"></p>
+      </div>
+      <div id="prl-cards" class="prl-cards"></div>
+    </div>
+    <p id="prl-tip" class="prl-tip"></p>
+  </section>
+
 <!-- ===== Vista: Afinador ===== -->
   <section id="tuner-view" class="view">
     <div class="view-heading"><div><p class="eyebrow">AFINACIÓN ESTÁNDAR</p><h2>Deja cada cuerda en su sitio</h2></div></div>
@@ -192,6 +216,7 @@
 <script src="Modos/modes-mode.js"></script>
 <script src="tensions-mode.js"></script>
 <script src="Proximity/proximity-mode.js"></script>
+<script src="PRL/prl-mode.js"></script>
 <script src="Circle 5th/circle-mode.js"></script>
 <script src="Scales/scales-mode.js"></script>
 <script src="main.js"></script>
