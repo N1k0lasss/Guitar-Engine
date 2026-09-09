@@ -22,14 +22,28 @@
   </header>
 
   <nav id="nav" class="mode-switcher" aria-label="Herramienta activa">
-    <button class="nav-btn active" data-mode="chords">Detector de acordes</button>
-    <button class="nav-btn" data-mode="tuner">Afinador cromático</button>
-    <button class="nav-btn" data-mode="harmony">Armonía ilustrada</button>
-    <button class="nav-btn" data-mode="modes">Modos ilustrados</button>
-    <button class="nav-btn" data-mode="tensions">Tensiones ilustradas</button>
-    <button class="nav-btn" data-mode="proximity">Proximidad</button>
-    <button class="nav-btn" data-mode="circle">Círculo de quintas</button>
-    <button class="nav-btn" data-mode="scales">Escalas y modos</button>
+    <div class="mode-group" data-group="Detectar">
+      <button type="button" class="nav-group-btn" aria-haspopup="true" aria-expanded="false">
+        <span class="nav-group-name">Detectar</span><span class="nav-group-current">Acordes</span><span class="nav-caret">▾</span>
+      </button>
+      <div class="nav-menu">
+        <button class="nav-btn active" data-mode="chords">Acordes</button>
+        <button class="nav-btn" data-mode="tuner">Afinador</button>
+      </div>
+    </div>
+    <div class="mode-group" data-group="Estudiar">
+      <button type="button" class="nav-group-btn" aria-haspopup="true" aria-expanded="false">
+        <span class="nav-group-name">Estudiar</span><span class="nav-group-current">Armonía</span><span class="nav-caret">▾</span>
+      </button>
+      <div class="nav-menu">
+        <button class="nav-btn" data-mode="harmony">Armonía</button>
+        <button class="nav-btn" data-mode="modes">Modos</button>
+        <button class="nav-btn" data-mode="tensions">Tensiones</button>
+        <button class="nav-btn" data-mode="proximity">Proximidad</button>
+        <button class="nav-btn" data-mode="circle">Círculo</button>
+        <button class="nav-btn" data-mode="scales">Escalas</button>
+      </div>
+    </div>
   </nav>
 
 <!-- ===== Vista: Acordes ===== -->

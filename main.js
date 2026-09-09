@@ -2,6 +2,13 @@ let audioCtx, analyser, freqData, timeData, source, stream, running = false;
 let currentMode = 'chords';
 
 // --- dashboard: cambiar de vista sin tocar el audio ---
+function closeModeGroups() {
+  document.querySelectorAll('.mode-group.open').forEach(group => {
+    group.classList.remove('open');
+    group.querySelector('.nav-group-btn').setAttribute('aria-expanded', 'false');
+  });
+}
+
 document.querySelectorAll('.nav-btn').forEach(btn => {
   btn.onclick = () => {
     currentMode = btn.dataset.mode;
@@ -9,11 +16,35 @@ document.querySelectorAll('.nav-btn').forEach(btn => {
     document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
 
+    const group = btn.closest('.mode-group');
+    if (group) group.querySelector('.nav-group-current').textContent = btn.textContent;
+
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.getElementById(`${currentMode}-view`).classList.add('active');
     if (currentMode === 'chords') resetChordTracking();
+    closeModeGroups();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+});
+
+document.querySelectorAll('.nav-group-btn').forEach(groupBtn => {
+  groupBtn.onclick = () => {
+    const group = groupBtn.closest('.mode-group');
+    const shouldOpen = !group.classList.contains('open');
+    closeModeGroups();
+    if (shouldOpen) {
+      group.classList.add('open');
+      groupBtn.setAttribute('aria-expanded', 'true');
+    }
+  };
+});
+
+document.addEventListener('click', event => {
+  if (!event.target.closest('.mode-group')) closeModeGroups();
+});
+
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape') closeModeGroups();
 });
 
 // --- audio: un solo AudioContext/analyser para ambos modos ---
