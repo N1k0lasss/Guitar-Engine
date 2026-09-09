@@ -61,19 +61,27 @@
   <section id="harmony-view" class="view">
     <div class="view-heading"><div><p class="eyebrow">ARMONÍA ILUSTRADA</p><h2>Seguí las conexiones entre acordes</h2></div><span class="signal-badge">Mapa · tonalidad mayor</span></div>
     <div class="harmony-toolbar panel">
-      <label for="harmony-root">Tonalidad</label>
-      <select id="harmony-root"></select>
+      <label for="harmony-key">Tonalidad</label>
+      <select id="harmony-key"></select>
+      <label>Modo</label>
+      <div class="seg" id="harmony-mode-seg">
+        <button type="button" class="seg-btn active" data-hmode="funciones">Funciones</button>
+        <button type="button" class="seg-btn" data-hmode="prox">Proximidad</button>
+        <button type="button" class="seg-btn" data-hmode="cadencias">Cadencias</button>
+      </div>
       <button id="harmony-clear" class="ghost-btn">Limpiar recorrido</button>
     </div>
     <div class="harmony-layout">
       <div class="panel harmony-map-panel">
         <div class="harmony-map" id="harmony-map" aria-label="Mapa de conexiones armónicas"></div>
-        <p class="study-hint">Elegí un acorde para ver hacia dónde puede llevarte.</p>
+        <div id="harmony-legend" class="harmony-legend"></div>
+        <p id="harmony-hint" class="study-hint">Elegí un acorde para ver hacia dónde puede llevarte.</p>
       </div>
       <aside class="panel harmony-detail">
         <p class="eyebrow">CONEXIÓN SELECCIONADA</p>
         <h3 id="harmony-selected">I · C</h3>
         <p id="harmony-description" class="harmony-description">El centro de la tonalidad. Desde acá podés abrir varios recorridos.</p>
+        <p id="harmony-metric" class="harmony-metric"></p>
         <p class="label">RECORRIDO</p>
         <div id="harmony-path" class="harmony-path"><span>I · C</span></div>
       </aside>
