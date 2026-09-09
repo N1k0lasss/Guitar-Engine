@@ -40,6 +40,7 @@
         <button class="nav-btn" data-mode="modes">Modos</button>
         <button class="nav-btn" data-mode="tensions">Tensiones</button>
         <button class="nav-btn" data-mode="prl">P/R/L</button>
+        <button class="nav-btn" data-mode="tritone">Tritono</button>
         <button class="nav-btn" data-mode="proximity">Proximidad</button>
         <button class="nav-btn" data-mode="circle">Círculo</button>
         <button class="nav-btn" data-mode="scales">Escalas</button>
@@ -167,6 +168,39 @@
     <p id="prl-tip" class="prl-tip"></p>
   </section>
 
+<!-- ===== Vista: Tritono sustituto ===== -->
+  <section id="tritone-view" class="view">
+    <div class="view-heading"><div><p class="eyebrow">TRITONO SUSTITUTO · VOL. 1</p><h2>El dominante que guarda el mismo tritono</h2></div><span class="signal-badge">G7 ⇄ Db7 · mismo B·F</span></div>
+    <div class="tt-toolbar panel">
+      <label>Dominante</label>
+      <select id="tt-root"></select>
+      <span class="tt-note">Cualidad fija: 7 (dominante)</span>
+    </div>
+    <div class="tt-layout">
+      <div class="panel tt-chord">
+        <p class="eyebrow">DOMINANTE</p>
+        <h3 id="tt-sel">G7</h3>
+        <p id="tt-notes" class="notes-list">G · B · D · F</p>
+        <div id="tt-diagram" aria-label="Diagrama del dominante"></div>
+        <p id="tt-barre" class="barre-label"></p>
+        <p id="tt-resolves" class="tt-resolves"></p>
+      </div>
+      <div class="panel tt-chord">
+        <p class="eyebrow">TRITONO SUSTITUTO</p>
+        <h3 id="tt-sub-name">Db7</h3>
+        <p id="tt-sub-notes" class="notes-list">Db · F · Ab · Cb</p>
+        <div id="tt-sub-diagram" aria-label="Diagrama del sustituto"></div>
+        <p id="tt-sub-barre" class="barre-label"></p>
+        <p id="tt-sub-tip" class="tt-tip"></p>
+      </div>
+    </div>
+    <div class="panel tt-options">
+      <p class="eyebrow">LO QUE PUEDE HACER EL DOMINANTE</p>
+      <div id="tt-options-grid" class="tt-options-grid"></div>
+    </div>
+    <p id="tt-glue" class="tt-glue"></p>
+  </section>
+
 <!-- ===== Vista: Afinador ===== -->
   <section id="tuner-view" class="view">
     <div class="view-heading"><div><p class="eyebrow">AFINACIÓN ESTÁNDAR</p><h2>Deja cada cuerda en su sitio</h2></div></div>
@@ -217,6 +251,7 @@
 <script src="tensions-mode.js"></script>
 <script src="Proximity/proximity-mode.js"></script>
 <script src="PRL/prl-mode.js"></script>
+<script src="Tritone/tritone-mode.js"></script>
 <script src="Circle 5th/circle-mode.js"></script>
 <script src="Scales/scales-mode.js"></script>
 <script src="main.js"></script>
