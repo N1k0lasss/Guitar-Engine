@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guitar TOOLS</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<main class="app-shell">
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">♬</span>
+      <div><p class="eyebrow">GUITAR TOOLS</p></div>
+    </div>
+    <div class="audio-controls">
+      <span id="status" class="status"><span class="status-dot"></span> Detenido</span>
+      <button id="startBtn" class="primary-btn">Iniciar micrófono</button>
+      <button id="stopBtn" class="ghost-btn" disabled>Detener</button>
+    </div>
+  </header>
+
+  <nav id="nav" class="mode-switcher" aria-label="Herramienta activa">
+    <button class="nav-btn active" data-mode="chords">Detector de acordes</button>
+    <button class="nav-btn" data-mode="tuner">Afinador cromático</button>
+    <button class="nav-btn" data-mode="harmony">Armonía ilustrada</button>
+    <button class="nav-btn" data-mode="modes">Modos ilustrados</button>
+    <button class="nav-btn" data-mode="tensions">Tensiones ilustradas</button>
+    <button class="nav-btn" data-mode="circle">Círculo de quintas</button>
+    <button class="nav-btn" data-mode="scales">Escalas y modos</button>
+  </nav>
+
+<!-- ===== Vista: Acordes ===== -->
+  <section id="chords-view" class="view active">
+    <div class="view-heading"><div><p class="eyebrow">CAPTURA INTELIGENTE</p><h2>¿Qué acorde estás tocando?</h2></div><span class="signal-badge">Captura · pausa 3 s</span></div>
+    <div class="chord-stage"><p class="label">ACORDE DETECTADO</p><div id="chord">--</div><p id="confidence" class="confidence">Activa el micrófono para comenzar</p></div>
+    <div class="workspace-grid">
+      <div class="panel history-panel"><div class="panel-title"><span>Últimos acordes</span><button id="clearHistory" class="icon-btn" title="Limpiar historial" aria-label="Limpiar historial">×</button></div><div id="history" class="history-list"><span class="muted">Todavía no hay acordes</span></div></div>
+      <div id="info-panel" class="panel chord-panel"><div class="panel-title">Posición sugerida</div><p id="notes-list" class="notes-list">Las notas aparecerán aquí</p><div id="diagram" aria-label="Diagrama del acorde"></div><p id="barre-label" class="barre-label"></p></div>
+    </div>
+  </section>
+
+  <section id="harmony-view" class="view">
+    <div class="view-heading"><div><p class="eyebrow">ARMONÍA ILUSTRADA</p><h2>Seguí las conexiones entre acordes</h2></div><span class="signal-badge">Mapa · tonalidad mayor</span></div>
+    <div class="harmony-toolbar panel">
+      <label for="harmony-root">Tonalidad</label>
+      <select id="harmony-root"></select>
+      <button id="harmony-clear" class="ghost-btn">Limpiar recorrido</button>
+    </div>
+    <div class="harmony-layout">
+      <div class="panel harmony-map-panel">
+        <div class="harmony-map" id="harmony-map" aria-label="Mapa de conexiones armónicas"></div>
+        <p class="study-hint">Elegí un acorde para ver hacia dónde puede llevarte.</p>
+      </div>
+      <aside class="panel harmony-detail">
+        <p class="eyebrow">CONEXIÓN SELECCIONADA</p>
+        <h3 id="harmony-selected">I · C</h3>
+        <p id="harmony-description" class="harmony-description">El centro de la tonalidad. Desde acá podés abrir varios recorridos.</p>
+        <p class="label">RECORRIDO</p>
+        <div id="harmony-path" class="harmony-path"><span>I · C</span></div>
+      </aside>
+    </div>
+  </section>
+
+  <section id="tensions-view" class="view">
+    <div class="view-heading"><div><p class="eyebrow">TENSIONES ILUSTRADAS</p><h2>Agregá color sin perder el centro</h2></div><span class="signal-badge">Extensiones · función · sonido</span></div>
+    <div class="tensions-toolbar panel">
+      <label for="tension-root">Acorde base</label>
+      <select id="tension-root"></select>
+      <label for="tension-quality">Familia</label>
+      <select id="tension-quality"><option value="maj7">Maj7</option><option value="m7">m7</option><option value="7">Dominante 7</option></select>
+    </div>
+    <div class="tensions-layout">
+      <div class="panel tension-map-panel">
+        <div id="tension-map" class="tension-map" aria-label="Mapa de tensiones del acorde"></div>
+        <div class="tension-legend"><span><i class="legend-safe"></i> estable</span><span><i class="legend-color"></i> color</span><span><i class="legend-pull"></i> fricción</span></div>
+      </div>
+      <aside class="panel tension-detail">
+        <p class="eyebrow">TENSIÓN SELECCIONADA</p>
+        <h3 id="tension-selected">9 · D</h3>
+        <p id="tension-description" class="tension-description">Amplía el acorde sin cambiar su función principal.</p>
+        <div class="tension-chord"><span id="tension-symbol">Cmaj9</span><small id="tension-notes">C · E · G · B · D</small></div>
+        <button id="tension-clear" class="ghost-btn">Quitar tensión</button>
+      </aside>
+    </div>
+  </section>
+
+<!-- ===== Vista: Afinador ===== -->
+  <section id="tuner-view" class="view">
+    <div class="view-heading"><div><p class="eyebrow">AFINACIÓN ESTÁNDAR</p><h2>Deja cada cuerda en su sitio</h2></div></div>
+    <div class="tuner-stage"><div id="tuner-note">--</div><div id="tuner-freq">Activa el micrófono para comenzar</div><div id="meter" aria-label="Indicador de afinación"><span class="meter-mark mark-left">♭</span><span class="meter-mark mark-center">0</span><span class="meter-mark mark-right">♯</span><div id="meter-needle"></div><div id="meter-center"></div></div><p id="tuner-hint">Toca una cuerda al aire</p></div>
+    <div class="tuning-strip"><span>E2</span><span>A2</span><span>D3</span><span>G3</span><span>B3</span><span>E4</span></div>
+  </section>
+
+  <section id="modes-view" class="view">
+    <div class="view-heading"><div><p class="eyebrow">MODOS ILUSTRADOS</p><h2>Una misma escala, siete maneras de sentirla</h2></div><span class="signal-badge">Color · carácter · nota guía</span></div>
+    <div class="modes-toolbar panel">
+      <label for="modes-root">Tonalidad base</label>
+      <select id="modes-root"></select>
+    </div>
+    <div class="modes-layout">
+      <div class="panel modes-wheel-panel">
+        <div id="modes-wheel" class="modes-wheel" aria-label="Selector de modos musicales"></div>
+        <div id="modes-scale-strip" class="modes-scale-strip"></div>
+      </div>
+      <aside class="panel mode-detail">
+        <p class="eyebrow">MODO SELECCIONADO</p>
+        <h3 id="mode-name">Dórico</h3>
+        <p id="mode-chord" class="mode-chord">Dm7</p>
+        <p id="mode-description" class="mode-description">Menor con una sexta mayor: oscuro, pero con movimiento.</p>
+        <div class="mode-facts"><span><b>Grado</b><strong id="mode-degree">II</strong></span><span><b>Nota guía</b><strong id="mode-characteristic">B</strong></span></div>
+      </aside>
+    </div>
+  </section>
+
+  <section id="circle-view" class="view">
+    <div class="view-heading"><div><p class="eyebrow">ARMONÍA</p><h2>Encuentra la tonalidad vecina</h2></div><span class="signal-badge">Mayor · relativa menor</span></div>
+    <div class="study-grid">
+      <div class="panel circle-panel"><div id="circle-of-fifths" class="circle-of-fifths" aria-label="Círculo de quintas"></div><p class="study-hint">Selecciona una tonalidad para ver sus acordes diatónicos.</p></div>
+      <div class="panel detail-panel"><p class="eyebrow">TONALIDAD SELECCIONADA</p><h3 id="circle-key">C</h3><p id="circle-relative" class="notes-list">Relativa menor: Am</p><div id="key-chords" class="key-chords"></div></div>
+    </div>
+  </section>
+
+  <section id="scales-view" class="view">
+    <div class="view-heading"><div><p class="eyebrow">MAPA DEL MÁSTIL</p><h2>Escalas para improvisar</h2></div></div>
+    <div class="panel scale-controls"><label for="scale-root">Tónica</label><select id="scale-root"></select><label for="scale-type">Escala</label><select id="scale-type"></select></div>
+    <div class="panel scale-result"><div><p class="eyebrow">NOTAS DE LA ESCALA</p><h3 id="scale-title">C mayor</h3><p id="scale-notes" class="scale-notes"></p></div><div id="fretboard" class="fretboard" aria-label="Mástil de guitarra"></div></div>
+  </section>
+</main>
+
+<script src="Chords/chord-mode.js"></script>
+<script src="Tunner/tuner-mode.js"></script>
+<script src="Harmony/harmony-mode.js"></script>
+<script src="Modos/modes-mode.js"></script>
+<script src="tensions-mode.js"></script>
+<script src="Circle 5th/circle-mode.js"></script>
+<script src="Scales/scales-mode.js"></script>
+<script src="main.js"></script>
+</body>
+</html>
