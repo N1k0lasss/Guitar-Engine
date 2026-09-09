@@ -27,6 +27,7 @@
     <button class="nav-btn" data-mode="harmony">Armonía ilustrada</button>
     <button class="nav-btn" data-mode="modes">Modos ilustrados</button>
     <button class="nav-btn" data-mode="tensions">Tensiones ilustradas</button>
+    <button class="nav-btn" data-mode="proximity">Proximidad</button>
     <button class="nav-btn" data-mode="circle">Círculo de quintas</button>
     <button class="nav-btn" data-mode="scales">Escalas y modos</button>
   </nav>
@@ -86,6 +87,48 @@
     </div>
   </section>
 
+<!-- ===== Vista: Proximidad ===== -->
+  <section id="proximity-view" class="view">
+    <div class="view-heading"><div><p class="eyebrow">GLUE MÁGICO · BCM TOOLS</p><h2>¿Qué acordes son tus vecinos?</h2></div><span class="signal-badge">Vecinos · nota común</span></div>
+    <div class="proximity-toolbar panel">
+      <label>Herramienta</label>
+      <div class="seg">
+        <button type="button" class="seg-btn active" id="prox-mode-neighbors">Vecinos</button>
+        <button type="button" class="seg-btn" id="prox-mode-common">Nota común</button>
+      </div>
+      <label>Acorde</label>
+      <select id="prox-root"></select>
+      <select id="prox-quality"></select>
+      <label>Mover</label>
+      <select id="prox-moves"><option value="1">1 nota</option><option value="2">2 notas</option></select>
+      <label>Tonalidad</label>
+      <select id="prox-key"></select>
+      <label>Filtro</label>
+      <select id="prox-match" style="display:none">
+        <option value="any">Al menos 1</option>
+        <option value="two">Solo 2</option>
+        <option value="exact">Exactas</option>
+      </select>
+    </div>
+    <div id="prox-notes-picker" class="prox-notes-picker" style="display:none; margin-bottom:22px;"></div>
+    <div class="proximity-layout">
+      <div class="panel prox-result-panel">
+        <p id="prox-summary" class="prox-summary">Elegí un acorde para explorar sus vecinos.</p>
+        <div id="prox-grid" class="prox-grid"></div>
+        <p class="prox-legend"><i></i> sin coincidencia<span><i class="on"></i> nota en común (glue mágico)</span></p>
+        <p class="study-hint">Hacé clic en un acorde para ver su digitación y las notas que lo unen.</p>
+      </div>
+      <aside class="panel prox-detail">
+        <p class="eyebrow">ACORDE SELECCIONADO</p>
+        <h3 id="prox-selected">—</h3>
+        <p id="prox-notes" class="notes-list">Notas resaltadas = punto de unión.</p>
+        <div id="prox-diagram" aria-label="Diagrama del acorde"></div>
+        <p id="prox-barre" class="barre-label"></p>
+        <p id="prox-tip" class="prox-tip"></p>
+      </aside>
+    </div>
+  </section>
+
 <!-- ===== Vista: Afinador ===== -->
   <section id="tuner-view" class="view">
     <div class="view-heading"><div><p class="eyebrow">AFINACIÓN ESTÁNDAR</p><h2>Deja cada cuerda en su sitio</h2></div></div>
@@ -134,6 +177,7 @@
 <script src="Harmony/harmony-mode.js"></script>
 <script src="Modos/modes-mode.js"></script>
 <script src="tensions-mode.js"></script>
+<script src="Proximity/proximity-mode.js"></script>
 <script src="Circle 5th/circle-mode.js"></script>
 <script src="Scales/scales-mode.js"></script>
 <script src="main.js"></script>
