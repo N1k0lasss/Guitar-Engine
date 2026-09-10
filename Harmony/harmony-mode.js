@@ -164,6 +164,10 @@ function harmonyModeMeta() {
       legend: '<i class="on"></i> cada acorde tiene su dominante: la dominante que no es del centro es secundaria',
       hint: 'Toda dominante que no sea la del I es una dominante secundaria. Cualquier acorde puede ser alcanzado por "su" V7.',
     },
+    prog: {
+      legend: '<i class="on"></i> la línea dorada marca el orden de la progresión generada',
+      hint: 'Generá una progresión por estilo: cada paso se etiqueta con el tipo de enlace que usa.',
+    },
   };
   return byMode[harmonyMode];
 }
@@ -185,6 +189,7 @@ function renderHarmony() {
   const isCad = harmonyMode === 'cadencias';
   const isProx = harmonyMode === 'prox';
   const isDom = harmonyMode === 'dominantes';
+  const isProg = harmonyMode === 'prog';
 
   harmonyEdges(mod).forEach(([from, to]) => {
     const [x1, y1] = positions[from];
@@ -214,13 +219,31 @@ function renderHarmony() {
     button.style.left = `${left}%`;
     button.style.top = `${top}%`;
     const secDom = isDom ? `<em class="sec-dom">← ${harmonSecondaryDominant(def).name}</em>` : '';
-    button.innerHTML = `<span class="harmony-degree">${def.degree}</span><strong>${harmonyChord(def)}</strong><small>${def.role}</small>${secDom}${isProx ? `<em class="prox-badge">${harmonSharedWithTonic(mod, harmonyKey.root, def)}/3</em>` : ''}${isCad && harmonyKey.mod === 'min' && harmonyHarmonic && def.degree === 'v' ? `<em class="harmonic-dominant">V7 = ${harmonDominantName()}</em>` : ''}`;
+    const progIdx = isProg ? harmonyProgSeq.findIndex(s => s.degree === def.degree) : -1;
+    button.innerHTML = `<span class="harmony-degree">${def.degree}</span><strong>${harmonyChord(def)}</strong><small>${def.role}</small>${secDom}${progIdx > -1 ? `<em class="harmony-prog-badge">${progIdx + 1}</em>` : ''}${isProx ? `<em class="prox-badge">${harmonSharedWithTonic(mod, harmonyKey.root, def)}/3</em>` : ''}${isCad && harmonyKey.mod === 'min' && harmonyHarmonic && def.degree === 'v' ? `<em class="harmonic-dominant">V7 = ${harmonDominantName()}</em>` : ''}`;
     button.title = `${def.degree} · ${harmonyChord(def)}${def.origin === 'borrowed' ? ' · préstamo' : ''}`;
     button.addEventListener('click', () => selectHarmonyNode(def.degree));
     button.addEventListener('mouseenter', () => updateHarmonyLines(def.degree));
     button.addEventListener('mouseleave', () => updateHarmonyLines(harmonySelected));
     map.appendChild(button);
   });
+
+  if (isProg && harmonyProgMap && harmonyProgSeq.length > 1) {
+    for (let i = 1; i < harmonyProgSeq.length; i++) {
+      const a = harmonyProgSeq[i - 1];
+      const b = harmonyProgSeq[i];
+      const fromPos = positions[a.degree];
+      const toPos = positions[b.degree];
+      if (!fromPos || !toPos) continue;
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      line.setAttribute('x1', fromPos[0]);
+      line.setAttribute('y1', fromPos[1]);
+      line.setAttribute('x2', toPos[0]);
+      line.setAttribute('y2', toPos[1]);
+      line.setAttribute('class', 'prog-line');
+      svg.appendChild(line);
+    }
+  }
 
   updateHarmonyDetails();
   updateHarmonyControls();
@@ -310,6 +333,8 @@ function updateHarmonyDetails() {
   }).join('<b>→</b>');
 
   renderHarmonyDominantes();
+  renderHarmonyProgression();
+  renderHarmonyNexts();
   updateHarmonyLines(harmonySelected);
 }
 
@@ -336,13 +361,15 @@ function setHarmonyMode(mode) {
     btn.classList.toggle('active', btn.dataset.hmode === mode);
   });
   harmonySelected = harmonyKey.mod === 'min' ? 'i' : 'I';
+  if (mode === 'prog' && !harmonyProgGenerated) onHarmonyGenerate();
   renderHarmony();
 }
 
 function resetHarmony() {
   harmonySelected = harmonyKey.mod === 'min' ? 'i' : 'I';
   harmonyPath = [harmonySelected];
-  renderHarmony();
+  if (harmonyMode === 'prog') onHarmonyGenerate();
+  else renderHarmony();
 }
 
 function updateHarmonyControls() {
@@ -357,6 +384,309 @@ function toggleHarmonyHarmonic() {
   if (!check) return;
   harmonyHarmonic = check.checked;
   renderHarmony();
+}
+
+// ===== Generador de progresiones (todo lo que se sabe) =====
+
+const HARMONY_PROG_PALETTES = {
+  pop:        { label: 'Pop',       step: 1,    dom: 0.25, axis: 0,     tritone: 0,     borrow: 0.05, glueBias: 0.6, seventh: false, unison: 0 },
+  dominantes: { label: 'Dominantes', step: 0.5, dom: 1.5,  axis: 0,     tritone: 0.1,   borrow: 0,    glueBias: 0.3, seventh: true,  unison: 0 },
+  glue:       { label: 'Glue / Puente', step: 1, dom: 0.6, axis: 0,    tritone: 0,      borrow: 0.15, glueBias: 1.8, seventh: false, unison: 0 },
+  tritone:    { label: 'Tritono',    step: 0.4, dom: 1.0,  axis: 1.0,  tritone: 1.6,   borrow: 0.2,  glueBias: 0,   seventh: true,  unison: 0 },
+  bartok:     { label: 'Bartók',     step: 0.3, dom: 0.6,  axis: 2.0,  tritone: 1.2,   borrow: 0.1,  glueBias: 0,   seventh: false, unison: 0 },
+  libre:      { label: 'Libre',      step: 0.7, dom: 0.8,  axis: 0.6,  tritone: 0.6,   borrow: 0.5,  glueBias: 0.5, seventh: false, unison: 0.2 },
+};
+
+let harmonyProgPalette = 'libre';
+let harmonyProgLength = 8;
+let harmonyProgTonic = true;
+let harmonyProgMap = true;
+let harmonyProgSeq = [];
+let harmonyProgLabels = [];
+let harmonyProgSummary = [];
+let harmonyProgSelected = -1;
+let harmonyProgGenerated = false;
+
+function harmonProgQual(mod, degree, palette) {
+  const cfg = HARMONY_PROG_PALETTES[palette];
+  const up = cfg && cfg.seventh
+    ? (mod === 'min' ? { v: '7', 'ii°': 'dim', i: 'm7', IV: 'maj7' } : { ii: 'm7', V: '7', I: 'maj7' })
+    : {};
+  return up[degree] || HARMONY_DEGREES[mod].find(d => d.degree === degree).quality;
+}
+
+function harmonProgStep(name, mod, rootIdx, def, quality) {
+  const base = (rootIdx + def.interval + 12) % 12;
+  return {
+    degree: def.degree,
+    name: HARMONY_NOTES[base] + quality,
+    quality,
+    rootPc: base,
+    origin: def.origin,
+    notes: CHORD_TYPES[quality].intervals.map(iv => (base + iv) % 12),
+  };
+}
+
+function harmonProgGlue(prevNotes, nextNotes) {
+  return nextNotes.filter(pc => prevNotes.includes(pc)).length;
+}
+
+function harmonProgCandidates(mod, rootIdx, palette, fromIdx, fromDef, fromNotes) {
+  const cfg = HARMONY_PROG_PALETTES[palette];
+  const degrees = HARMONY_DEGREES[mod];
+  const tonicIdx = 0;
+  const fromPc = (rootIdx + fromDef.interval) % 12;
+  const candidates = [];
+  degrees.forEach((to, toIdx) => {
+    if (toIdx === fromIdx && cfg.unison <= 0) return;
+    const step = harmonProgStep(to.name, mod, rootIdx, to, harmonProgQual(mod, to.degree, palette));
+    const diff = (step.rootPc - fromPc + 12) % 12;
+    const tritone = diff === 6;
+    const axis = diff === 3 || diff === 9;
+    const fourthUp = diff === 5;
+    const hasEdge = HARMONY_EDGES[mod].some(([a, b]) => a === fromDef.degree && b === to.degree);
+    const glue = harmonProgGlue(fromNotes, step.notes);
+    let w = cfg.step + (hasEdge ? 1.2 : 0);
+    if (toIdx === tonicIdx) w += 3.2;
+    if (tritone) w += cfg.tritone * 5;
+    if (axis && !tritone) w += cfg.axis * 5;
+    if (fourthUp) w += cfg.dom * 4;
+    w += glue * cfg.glueBias;
+    if (to.origin === 'borrowed') w *= (cfg.borrow + 0.02);
+    if (w > 0) candidates.push({ toIdx, kind: hasEdge ? 'edge' : 'mov', w });
+  });
+  if (cfg.dom > 0) {
+    degrees.forEach((to, toIdx) => {
+      if (toIdx === fromIdx) return;
+      const domRoot = (rootIdx + to.interval + 7) % 12;
+      const domName = HARMONY_NOTES[domRoot] + '7';
+      candidates.push({ toIdx, kind: 'secdom', domName, domRoot, w: cfg.dom * 5 });
+    });
+  }
+  return candidates;
+}
+
+function harmonProgPick(candidates, avoidIdx) {
+  const viable = candidates.filter(c => c.toIdx !== avoidIdx);
+  const list = viable.length ? viable : candidates;
+  const total = list.reduce((s, c) => s + c.w, 0);
+  if (total <= 0) return list[0];
+  let r = Math.random() * total;
+  for (const c of list) { r -= c.w; if (r <= 0) return c; }
+  return list[list.length - 1];
+}
+
+function harmonProgDomStep(domRoot, domName) {
+  return {
+    degree: 'V',
+    name: domName,
+    quality: '7',
+    rootPc: domRoot,
+    origin: 'diatonic',
+    notes: CHORD_TYPES['7'].intervals.map(iv => (domRoot + iv) % 12),
+  };
+}
+
+function harmonProgGenerate(len, mod, root, palette, tonicCheck) {
+  const rootIdx = HARMONY_NOTES.indexOf(root);
+  const degrees = HARMONY_DEGREES[mod];
+  const tonicIdx = 0;
+  const steps = [];
+  const startIdx = tonicCheck ? 0 : Math.floor(Math.random() * degrees.length);
+  let curIdx = startIdx;
+  const pushCur = () => {
+    const def = degrees[curIdx];
+    const q = harmonProgQual(mod, def.degree, palette);
+    steps.push(harmonProgStep(def.name, mod, rootIdx, def, q));
+  };
+  pushCur();
+  for (let i = 1; i < len; i++) {
+    const fromDef = degrees[curIdx];
+    const fromNotes = CHORD_TYPES[harmonProgQual(mod, fromDef.degree, palette)].intervals
+      .map(iv => (rootIdx + fromDef.interval + iv) % 12);
+    const cands = harmonProgCandidates(mod, rootIdx, palette, curIdx, fromDef, fromNotes);
+    const picked = harmonProgPick(cands, curIdx);
+    if (picked && picked.kind === 'secdom') {
+      steps.push(harmonProgDomStep(picked.domRoot, picked.domName));
+      curIdx = picked.toIdx;
+    } else {
+      curIdx = picked ? picked.toIdx : curIdx;
+      pushCur();
+    }
+    if (steps.length >= len) break;
+  }
+  const tonicStep = () => harmonProgStep(degrees[tonicIdx].name, mod, rootIdx, degrees[tonicIdx], harmonProgQual(mod, degrees[tonicIdx].degree, palette));
+  if (tonicCheck) steps[len - 1] = tonicStep();
+  while (steps.length < len) steps.push(tonicStep());
+  return steps;
+}
+
+function harmonProgLabel(mod, rootIdx, prev, cur) {
+  const tonic = mod === 'min' ? 'i' : 'I';
+  const diff = (cur.rootPc - prev.rootPc + 12) % 12;
+  const prevIsDom7 = prev.quality.indexOf('7') >= 0 && prev.quality.indexOf('maj') < 0 && prev.quality.indexOf('m7') < 0 && prev.quality.indexOf('maj7') < 0;
+  const isDomOfCur = (cur.rootPc + 7) % 12 === prev.rootPc;
+  const isParallel = prev.rootPc === cur.rootPc;
+  const prevIsMajor = !/m|dim/.test(prev.quality) && prev.quality.indexOf('7') < 0;
+  const curIsMajor = !/m|dim/.test(cur.quality) && cur.quality.indexOf('7') < 0;
+  const isRelative = (prevIsMajor && !curIsMajor && diff === 9) || (curIsMajor && !prevIsMajor && diff === 3);
+  const isTritone = diff === 6;
+  const isAxisMate = diff === 3 || diff === 9;
+  const isFourth = diff === 5;
+  const prefix = cur.origin === 'borrowed' ? 'préstamo · ' : '';
+  const curIsDom7 = !/m|dim/.test(cur.quality) && cur.quality.indexOf('7') >= 0
+    && cur.quality.indexOf('maj') < 0 && cur.quality.indexOf('m7') < 0;
+  if (cur.degree === tonic) {
+    const subtype = mod === 'min'
+      ? (prevIsDom7 ? 'perfecta armonizada (V7→i)' : prev.degree === 'v' ? 'perfecta (v→i)' : prev.degree === 'iv' ? 'plagal (iv→i)' : 'cierre')
+      : prev.degree === 'V' || prevIsDom7 ? 'perfecta (V→I)'
+        : prev.degree === 'iv' ? 'amarga (4m→1)' : prev.degree === 'IV' ? 'plagal (IV→I)'
+          : prev.degree === 'vii°' ? 'sensible (vii°→I)' : 'cierre';
+    return { t: prefix ? prefix + subtype : subtype, kind: 'resol', subtype };
+  }
+  if (isParallel) return { t: 'paralela (P)', kind: 'prl' };
+  if (isRelative) return { t: 'relativa (R)', kind: 'prl' };
+  if (prevIsDom7 && curIsDom7 && isFourth) return { t: 'cadena por cuartas', kind: 'chain' };
+  if (prevIsDom7 && isDomOfCur) return { t: `${prev.name} → ${cur.name} (V de ${cur.degree})`, kind: 'secdom' };
+  if (isTritone) return { t: 'tritono · eje de Bartók', kind: 'axis' };
+  if (isAxisMate) return { t: 'eje de Bartók', kind: 'axis' };
+  if (isFourth && prevIsDom7) return { t: 'cadena por cuartas', kind: 'chain' };
+  return { t: prefix + 'movimiento', kind: 'mov' };
+}
+
+function harmonProgLabelsFor(steps, mod, rootIdx) {
+  const labels = [];
+  for (let i = 1; i < steps.length; i++) {
+    labels.push(harmonProgLabel(mod, rootIdx, steps[i - 1], steps[i]));
+  }
+  const tonic = mod === 'min' ? 'i' : 'I';
+  const is251 = (a, b, c) => {
+    const deg = s => s.degree;
+    if (mod === 'min') return deg(a) === 'ii°' && (deg(b) === 'v' || deg(b) === 'V') && deg(c) === 'i';
+    return deg(a) === 'ii' && deg(b) === 'V' && deg(c) === 'I';
+  };
+  const summary = {};
+  labels.forEach(l => { if (l.kind === 'resol') summary['cadencia'] = true; });
+  for (let i = 0; i + 2 < steps.length; i++) {
+    if (is251(steps[i], steps[i + 1], steps[i + 2])) {
+      labels[i + 1] = { t: '2-5-1 (ii→V→I)', kind: '251' };
+      summary['2-5-1'] = true;
+    }
+  }
+  labels.forEach(l => {
+    if (l.kind === 'secdom') summary['secdom'] = true;
+    if (l.kind === 'axis') summary[l.t.includes('tritono') ? 'tritono' : 'bartok'] = true;
+    if (l.kind === 'chain') summary['cuartas'] = true;
+    if (l.kind === 'prl') summary['prl'] = true;
+  });
+  steps.forEach(s => { if (s.origin === 'borrowed') summary['prestamo'] = true; });
+  const order = ['2-5-1', 'secdom', 'cadencia', 'cuartas', 'tritono', 'bartok', 'prl', 'prestamo'];
+  return { labels: labels.map(l => l.t), summary: order.filter(k => summary[k]) };
+}
+
+function renderHarmonyProgression() {
+  const panel = document.getElementById('harmony-gen');
+  if (!panel) return;
+  const visible = harmonyMode === 'prog';
+  panel.classList.toggle('hidden', !visible);
+  if (!visible) return;
+  const result = document.getElementById('harmony-prog-result');
+  const labelsEl = document.getElementById('harmony-prog-labels');
+  const summaryEl = document.getElementById('harmony-prog-summary');
+  const detailEl = document.getElementById('harmony-prog-detail');
+  if (!result) return;
+  const steps = harmonyProgSeq;
+  result.innerHTML = steps.map((s, i) => {
+    const sel = i === harmonyProgSelected ? 'selected' : '';
+    return `<span class="harmony-prog-chip ${sel}" data-idx="${i}" title="${s.name} · ${s.rootPc === 0 ? 'tónica' : ''}">${s.name}</span>` +
+      (i < steps.length - 1 ? '<b class="harmony-prog-sep">→</b>' : '');
+  }).join('');
+  result.querySelectorAll('.harmony-prog-chip').forEach(chip => {
+    chip.onclick = () => {
+      harmonyProgSelected = Number(chip.dataset.idx);
+      renderHarmonyProgression();
+      selectHarmonyNode(steps[Number(chip.dataset.idx)].degree);
+    };
+  });
+  labelsEl.innerHTML = harmonyProgLabels.map(t => `<span class="harmony-prog-label">${t}</span>`).join('<b class="harmony-prog-sep">·</b>');
+  summaryEl.innerHTML = harmonyProgSummary.map(t => `<span class="harmony-prog-tag">${t}</span>`).join('');
+  renderHarmonyProgDetail(detailEl, steps, harmonyProgSelected);
+}
+
+function renderHarmonyProgDetail(el, steps, idx) {
+  const step = steps[idx > -1 && steps[idx] ? idx : steps.length - 1];
+  if (!step) { el.classList.add('hidden'); return; }
+  el.classList.remove('hidden');
+  const prev = idx > 0 ? steps[idx - 1] : null;
+  const info = getChordInfo ? getChordInfo(step.name) : null;
+  const frets = info && info.fingering ? info.fingering.frets : null;
+  const barre = info && info.fingering ? info.fingering.label : '';
+  let cells = '';
+  if (frets) {
+    cells = ['E', 'A', 'D', 'G', 'B', 'e'].map((sn, i) => {
+      const f = frets[i];
+      return `<div class="diagram-cell"><span class="string-label">${sn}</span><b class="${f === null ? 'mute' : f === 0 ? 'open' : 'dot'}">${f === null ? '×' : f === 0 ? '○' : f}</b></div>`;
+    }).join('');
+  }
+  const prevTxt = prev ? `<p class="harmony-prog-prev">Desde <b>${prev.name}</b> (${harmonyProgLabels[idx - 1] || ''})</p>` : '';
+  el.innerHTML = `<p class="eyebrow">ACORDE GENERADO · ${step.degree}</p>
+    <h4>${step.name}${step.origin === 'borrowed' ? ' <em>(préstamo)</em>' : ''}</h4>
+    ${prevTxt}
+    <p class="harmony-prog-notes">${step.notes.map(pc => HARMONY_NOTES[pc]).join(' · ')}</p>
+    ${cells ? `<div class="harmony-prog-diagram">${cells}</div><p class="barre-label">${barre}</p>` : `<p class="study-hint">Busco digitación para ${step.name}…</p>`}
+    <button type="button" class="ghost-btn" data-harmony-prog-regen>Generar de nuevo</button>`;
+  const regen = el.querySelector('[data-harmony-prog-regen]');
+  if (regen) regen.onclick = () => onHarmonyGenerate();
+}
+
+function onHarmonyGenerate() {
+  const palette = harmonyProgPalette;
+  harmonyProgSeq = harmonProgGenerate(harmonyProgLength, harmonyKey.mod, harmonyKey.root, palette, harmonyProgTonic);
+  const res = harmonProgLabelsFor(harmonyProgSeq, harmonyKey.mod, harmonyRootIdx());
+  harmonyProgLabels = res.labels;
+  harmonyProgSummary = res.summary;
+  harmonyProgSelected = -1;
+  harmonyProgGenerated = true;
+  renderHarmony();
+}
+
+function renderHarmonyNexts() {
+  const el = document.getElementById('harmony-nexts');
+  if (!el) return;
+  const wrap = el.parentElement;
+  if (harmonyMode === 'prog') { el.innerHTML = ''; if (wrap) wrap.classList.add('hidden'); return; }
+  if (!wrap) return;
+  wrap.classList.remove('hidden');
+  const mod = harmonyKey.mod;
+  const degrees = harmonyDegrees(mod);
+  const rootIdx = harmonyRootIdx();
+  const selected = degrees.find(d => d.degree === harmonySelected);
+  if (!selected) { el.innerHTML = ''; return; }
+  const edges = HARMONY_EDGES[mod].filter(([a]) => a === selected.degree);
+  const secDom = harmonSecondaryDominant(selected);
+  el.innerHTML = edges.map(([, to, label]) => {
+    const def = degrees.find(d => d.degree === to);
+    const q = harmonProgQual(mod, to, 'pop');
+    const name = HARMONY_NOTES[(rootIdx + def.interval) % 12] + q;
+    return `<button type="button" class="harmony-next" data-idx="${to}">${name}<small>${label}</small></button>`;
+  }).join('') + `<button type="button" class="harmony-next" data-secdom="${secDom.name}"><b>${secDom.name}</b><small>V de ${selected.degree} (secundaria)</small></button>`;
+  el.querySelectorAll('.harmony-next').forEach(btn => {
+    btn.onclick = () => {
+      if (btn.dataset.idx) selectHarmonyNode(btn.dataset.idx);
+      else selectHarmonyNode(selected.degree);
+    };
+  });
+}
+
+function initializeHarmonyStaging() {
+  document.getElementById('harmony-gen-palette').innerHTML = Object.keys(HARMONY_PROG_PALETTES).map(k =>
+    `<option value="${k}">${HARMONY_PROG_PALETTES[k].label}</option>`).join('');
+  document.getElementById('harmony-gen-palette').value = harmonyProgPalette;
+  document.getElementById('harmony-gen-palette').onchange = e => { harmonyProgPalette = e.target.value; onHarmonyGenerate(); };
+  document.getElementById('harmony-gen-length').onchange = e => { harmonyProgLength = Number(e.target.value); onHarmonyGenerate(); };
+  document.getElementById('harmony-gen-tonic').onchange = e => { harmonyProgTonic = e.target.checked; onHarmonyGenerate(); };
+  document.getElementById('harmony-gen-map').onchange = e => { harmonyProgMap = e.target.checked; renderHarmony(); };
+  document.getElementById('harmony-gen-go').onclick = onHarmonyGenerate;
 }
 
 function initializeHarmony() {
@@ -378,6 +708,7 @@ function initializeHarmony() {
   });
   document.getElementById('harmony-clear').addEventListener('click', resetHarmony);
   document.getElementById('harmony-harmonic').addEventListener('change', toggleHarmonyHarmonic);
+  initializeHarmonyStaging();
   const btn251maj = document.getElementById('harmony-251-major');
   if (btn251maj) btn251maj.addEventListener('click', () => harmonSet251('maj'));
   const btn251min = document.getElementById('harmony-251-minor');

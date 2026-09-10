@@ -73,11 +73,35 @@
         <button type="button" class="seg-btn" data-hmode="prox">Proximidad</button>
         <button type="button" class="seg-btn" data-hmode="cadencias">Cadencias</button>
         <button type="button" class="seg-btn" data-hmode="dominantes">Dominantes</button>
+        <button type="button" class="seg-btn" data-hmode="prog">Progresiones</button>
       </div>
       <label class="harmony-harmonic hidden" id="harmony-harmonic-wrap" title="En menor natural la dominante es Gm; con la sensible (menor armónica) cierra como G7.">
         <input type="checkbox" id="harmony-harmonic"> Cierre armónico <b>V7→i</b>
       </label>
       <button id="harmony-clear" class="ghost-btn">Limpiar recorrido</button>
+    </div>
+    <div class="harmony-gen hidden" id="harmony-gen">
+      <div class="harmony-gen-controls">
+        <label for="harmony-gen-palette">Estilo</label>
+        <select id="harmony-gen-palette"></select>
+        <label for="harmony-gen-length">Pasos</label>
+        <select id="harmony-gen-length">
+          <option value="4">4</option>
+          <option value="6">6</option>
+          <option value="8" selected>8</option>
+          <option value="12">12</option>
+          <option value="16">16</option>
+        </select>
+        <label class="checkbox"><input type="checkbox" id="harmony-gen-tonic" checked>Terminar en la tónica</label>
+        <label class="checkbox"><input type="checkbox" id="harmony-gen-map" checked>Marcar en el mapa</label>
+        <button type="button" class="ghost-btn" id="harmony-gen-go">Generar</button>
+      </div>
+      <div class="harmony-prog-wrap">
+        <div id="harmony-prog-result" class="harmony-prog-result"></div>
+        <div id="harmony-prog-labels" class="harmony-prog-labels"></div>
+        <div id="harmony-prog-summary" class="harmony-prog-summary"></div>
+        <div id="harmony-prog-detail" class="harmony-prog-detail hidden"></div>
+      </div>
     </div>
     <div class="harmony-layout">
       <div class="panel harmony-map-panel">
@@ -92,6 +116,7 @@
         <p id="harmony-metric" class="harmony-metric"></p>
         <p class="label">RECORRIDO</p>
         <div id="harmony-path" class="harmony-path"><span>I · C</span></div>
+        <div class="harmony-nexts hidden"><p class="label">PUEDE SEGUIR CON</p><div id="harmony-nexts"></div></div>
         <div id="harmony-dom-panel" class="harmony-dom-panel hidden">
           <p class="label">CADENA DE DOMINANTES</p>
           <div id="harmony-dom-chain" class="harmony-dom-chain"></div>
