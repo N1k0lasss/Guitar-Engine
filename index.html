@@ -38,12 +38,14 @@
       <div class="nav-menu">
         <button class="nav-btn" data-mode="harmony">Armonía</button>
         <button class="nav-btn" data-mode="modes">Modos</button>
+        <button class="nav-btn" data-mode="cartography">Cartografía</button>
         <button class="nav-btn" data-mode="tensions">Tensiones</button>
         <button class="nav-btn" data-mode="prl">P/R/L</button>
         <button class="nav-btn" data-mode="tritone">Tritono</button>
         <button class="nav-btn" data-mode="proximity">Proximidad</button>
         <button class="nav-btn" data-mode="circle">Círculo</button>
         <button class="nav-btn" data-mode="scales">Escalas</button>
+        <button class="nav-btn" data-mode="polychords">Poliacordes</button>
       </div>
     </div>
   </nav>
@@ -258,6 +260,56 @@
     <div class="panel scale-controls"><label for="scale-root">Tónica</label><select id="scale-root"></select><label for="scale-type">Escala</label><select id="scale-type"></select></div>
     <div class="panel scale-result"><div><p class="eyebrow">NOTAS DE LA ESCALA</p><h3 id="scale-title">C mayor</h3><p id="scale-notes" class="scale-notes"></p></div><div id="fretboard" class="fretboard" aria-label="Mástil de guitarra"></div></div>
   </section>
+
+  <section id="polychords-view" class="view">
+    <div class="view-heading"><div><p class="eyebrow">POLIACORDES</p><h2>Calculadora de Poliacordes</h2></div><span class="signal-badge">Disonancia · ▲ tritono · ● b9</span></div>
+    <div class="poly-toolbar panel">
+      <label for="poly-base-root">Base</label>
+      <select id="poly-base-root"></select>
+      <select id="poly-base-quality"></select>
+      <label>Tríada superior</label>
+      <select id="poly-tri-quality"></select>
+      <label class="poly-opt"><input type="checkbox" id="poly-show-dis"> ▲● Disonancia</label>
+      <label class="poly-opt"><input type="checkbox" id="poly-filter-tri"> Tritono</label>
+      <label class="poly-opt"><input type="checkbox" id="poly-filter-b9"> b9</label>
+      <span class="poly-sort-group">
+        <button type="button" id="poly-sort-tri" class="ghost-btn">▲ Tritono</button>
+        <button type="button" id="poly-sort-b9" class="ghost-btn">● b9</button>
+        <button type="button" id="poly-sort-dis" class="ghost-btn">Ambos</button>
+      </span>
+    </div>
+    <div class="poly-layout">
+      <div class="panel poly-table-panel">
+        <p class="eyebrow">COMBINACIONES</p>
+        <div id="poly-table" class="poly-table"></div>
+      </div>
+      <div class="panel poly-star-panel">
+        <p class="eyebrow">ESTRELLA DE C</p>
+        <div id="poly-star" class="poly-star"></div>
+      </div>
+    </div>
+  <section id="cartography-view" class="view">
+    <div class="view-heading"><div><p class="eyebrow">CARTOGRAFÍA MODAL</p><h2>El mapa de los 13 modos</h2></div><span class="signal-badge">Arista = 1 nota · Anillo = distancia</span></div>
+    <div class="carto-toolbar panel">
+      <label for="carto-mode">Destino</label>
+      <select id="carto-mode"></select>
+      <label for="carto-root">Tónica</label>
+      <select id="carto-root"></select>
+      <div class="seg" aria-label="Voicing">
+        <button type="button" data-carto-voicing="triad" class="seg-btn active">Tríadas</button>
+        <button type="button" data-carto-voicing="tetrad" class="seg-btn">Tétradas</button>
+      </div>
+    </div>
+    <div class="carto-layout">
+      <div class="panel carto-graph-panel">
+        <p class="eyebrow">GRAFO · CLIC EN UN MODO</p>
+        <div id="carto-graph" class="carto-graph"></div>
+      </div>
+      <div class="panel carto-card-panel">
+        <div id="carto-card" class="carto-card"></div>
+      </div>
+    </div>
+  </section>
 </main>
 
 <script src="Chords/chord-mode.js"></script>
@@ -270,6 +322,8 @@
 <script src="Tritone/tritone-mode.js"></script>
 <script src="Circle 5th/circle-mode.js"></script>
 <script src="Scales/scales-mode.js"></script>
+<script src="Polychords/polychord-mode.js"></script>
+<script src="Modos/cartography-mode.js"></script>
 <script src="main.js"></script>
 </body>
 </html>
