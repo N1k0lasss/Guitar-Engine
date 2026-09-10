@@ -15,6 +15,7 @@ const HARMONY_DEGREES = {
     { degree: 'V', quality: '', interval: 7, origin: 'diatonic', role: 'Dominante', description: 'Tensa el recorrido y pide volver al centro de la tonalidad.' },
     { degree: 'vi', quality: 'm', interval: 9, origin: 'diatonic', role: 'Relativa menor', description: 'Comparte notas con la tónica, pero cambia el color hacia una sensación más íntima.' },
     { degree: 'vii°', quality: 'dim', interval: 11, origin: 'diatonic', role: 'Sensible', description: 'El grado sensible: resuelve al centro con tensión concentrada (B°≈G7).' },
+    { degree: 'iv', quality: 'm', interval: 5, origin: 'borrowed', role: 'Plagal menor', description: 'La subdominante menor de la tonalidad paralela: la cadencia "amarga" 4→4m→1.' },
     { degree: 'bVII', quality: '', interval: 10, origin: 'borrowed', role: 'Préstamo', description: 'Un color tomado de la tonalidad paralela para salir del camino esperado.' },
   ],
   min: [
@@ -34,6 +35,7 @@ const HARMONY_EDGES = {
     ['vi', 'IV', 'continúa'], ['IV', 'V', 'prepara'], ['V', 'I', 'resuelve'],
     ['ii', 'V', 'prepara'], ['iii', 'vi', 'conecta'], ['IV', 'bVII', 'cambia el color'],
     ['vii°', 'I', 'resuelve'], ['vii°', 'V', 'sinónimo'], ['IV', 'I', 'plagal'],
+    ['IV', 'iv', 'plagal menor'], ['iv', 'I', 'resuelve'],
   ],
   min: [
     ['i', 'VI', 'continúa'], ['i', 'III', 'relativa'], ['i', 'v', 'tensiona'],
@@ -44,12 +46,13 @@ const HARMONY_EDGES = {
 };
 
 const HARMONY_POSITIONS = {
-  maj: { I: [50, 50], ii: [27, 76], iii: [73, 76], IV: [50, 17], V: [82, 28], vi: [18, 28], 'vii°': [84, 52], bVII: [50, 91] },
+  maj: { I: [50, 50], ii: [27, 76], iii: [73, 76], IV: [50, 17], V: [82, 28], vi: [18, 28], 'vii°': [84, 52], iv: [18, 52], bVII: [50, 91] },
   min: { i: [50, 50], 'ii°': [27, 76], III: [73, 76], iv: [50, 17], v: [82, 28], VI: [18, 28], VII: [50, 91] },
 };
 
 let harmonyKey = { root: 'C', mod: 'maj' };
 let harmonyMode = 'funciones';
+let harmonyHarmonic = false;
 let harmonySelected = 'I';
 let harmonyPath = ['I'];
 
@@ -75,6 +78,10 @@ function harmonSharedWithTonic(mod, root, def) {
 function harmonTonicEdges(mod) {
   const tonic = HARMONY_TONIC[mod];
   return HARMONY_EDGES[mod].filter(([from, to]) => to === tonic);
+}
+
+function harmonDominantName() {
+  return HARMONY_NOTES[(harmonyRootIdx() + HARMONY_SCALE_INTERVALS.maj[4]) % 12] + '7';
 }
 
 function harmonyChord(def) {
@@ -104,8 +111,12 @@ function harmonyModeMeta() {
       hint: 'El libro de Callipari: a más notas en común, más cerca (2 = casi mismo acorde).',
     },
     cadencias: {
-      legend: '<i class="on"></i> hacia la tónica = cierre de frase',
-      hint: 'Perfecta (V→I), plagal (IV→I) y sensible (vii°→I): los finales que cierran.',
+      legend: harmonyKey.mod === 'min' && harmonyHarmonic
+        ? '<i class="on"></i> hacia la tónica = cierre · en menor la dominante suena como V7 (armónica)'
+        : '<i class="on"></i> hacia la tónica = cierre de frase',
+      hint: harmonyKey.mod === 'min'
+        ? 'Perfecta (v→i · con sensible V7→i), plagal (iv→i): los finales que cierran en menor.'
+        : 'Perfecta (V→I), plagal (IV→I), amarga (4→4m→1) y sensible (vii°→I): los finales que cierran.',
     },
   };
   return byMode[harmonyMode];
@@ -155,7 +166,7 @@ function renderHarmony() {
     button.className = classes;
     button.style.left = `${left}%`;
     button.style.top = `${top}%`;
-    button.innerHTML = `<span class="harmony-degree">${def.degree}</span><strong>${harmonyChord(def)}</strong><small>${def.role}</small>${isProx ? `<em class="prox-badge">${harmonSharedWithTonic(mod, harmonyKey.root, def)}/3</em>` : ''}`;
+    button.innerHTML = `<span class="harmony-degree">${def.degree}</span><strong>${harmonyChord(def)}</strong><small>${def.role}</small>${isProx ? `<em class="prox-badge">${harmonSharedWithTonic(mod, harmonyKey.root, def)}/3</em>` : ''}${isCad && harmonyKey.mod === 'min' && harmonyHarmonic && def.degree === 'v' ? `<em class="harmonic-dominant">V7 = ${harmonDominantName()}</em>` : ''}`;
     button.title = `${def.degree} · ${harmonyChord(def)}${def.origin === 'borrowed' ? ' · préstamo' : ''}`;
     button.addEventListener('click', () => selectHarmonyNode(def.degree));
     button.addEventListener('mouseenter', () => updateHarmonyLines(def.degree));
@@ -164,6 +175,7 @@ function renderHarmony() {
   });
 
   updateHarmonyDetails();
+  updateHarmonyControls();
 }
 
 function selectHarmonyNode(degree) {
@@ -214,9 +226,11 @@ function updateHarmonyDetails() {
     metric = `Comparte <b>${shared}/3</b> notas con ${harmonyChord(degrees[0])}${near}.`;
   } else if (harmonyMode === 'cadencias') {
     if (selected.degree === tonic) {
-      metric = '<b>Perfecta</b> V→I · <b>plagal</b> IV→I · <b>sensible</b> vii°→I. Elegí una para ver su camino.';
+      metric = harmonyKey.mod === 'min'
+        ? 'Perfecta v→i (y <b>V7→i</b> con la sensible) · plagal iv→i · sensible ii°→i. Elegí una para ver su camino.'
+        : '<b>Perfecta</b> V→I · <b>plagal</b> IV→I · <b>amarga</b> 4→4m→1 · <b>sensible</b> vii°→I. Elegí una para ver su camino.';
     } else {
-      metric = 'Cierre aún no tocado: los finales llegan al centro (I).';
+      metric = 'Cierre aún no tocado: los finales llegan al centro (' + tonic + ').';
     }
   } else if (selected.origin === 'borrowed') {
     metric = 'Préstamo: viene de la tonalidad paralela (menor).';
@@ -248,6 +262,20 @@ function resetHarmony() {
   renderHarmony();
 }
 
+function updateHarmonyControls() {
+  const wrap = document.getElementById('harmony-harmonic-wrap');
+  if (!wrap) return;
+  const visible = harmonyMode === 'cadencias' && harmonyKey.mod === 'min';
+  wrap.classList.toggle('hidden', !visible);
+}
+
+function toggleHarmonyHarmonic() {
+  const check = document.getElementById('harmony-harmonic');
+  if (!check) return;
+  harmonyHarmonic = check.checked;
+  renderHarmony();
+}
+
 function initializeHarmony() {
   const keySelect = document.getElementById('harmony-key');
   if (!keySelect) return;
@@ -266,6 +294,7 @@ function initializeHarmony() {
     btn.addEventListener('click', () => setHarmonyMode(btn.dataset.hmode));
   });
   document.getElementById('harmony-clear').addEventListener('click', resetHarmony);
+  document.getElementById('harmony-harmonic').addEventListener('change', toggleHarmonyHarmonic);
 
   renderHarmony();
 }

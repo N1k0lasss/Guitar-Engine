@@ -69,6 +69,9 @@
         <button type="button" class="seg-btn" data-hmode="prox">Proximidad</button>
         <button type="button" class="seg-btn" data-hmode="cadencias">Cadencias</button>
       </div>
+      <label class="harmony-harmonic hidden" id="harmony-harmonic-wrap" title="En menor natural la dominante es Gm; con la sensible (menor armónica) cierra como G7.">
+        <input type="checkbox" id="harmony-harmonic"> Cierre armónico <b>V7→i</b>
+      </label>
       <button id="harmony-clear" class="ghost-btn">Limpiar recorrido</button>
     </div>
     <div class="harmony-layout">
@@ -221,6 +224,11 @@
     <div class="modes-toolbar panel">
       <label for="modes-root">Tonalidad base</label>
       <select id="modes-root"></select>
+      <label>Acorde</label>
+      <div class="seg" id="modes-voicing-seg">
+        <button type="button" class="seg-btn active" data-voicing="triad">Tríada</button>
+        <button type="button" class="seg-btn" data-voicing="tetrad">Tétrada</button>
+      </div>
     </div>
     <div class="modes-layout">
       <div class="panel modes-wheel-panel">
@@ -232,7 +240,7 @@
         <h3 id="mode-name">Dórico</h3>
         <p id="mode-chord" class="mode-chord">Dm7</p>
         <p id="mode-description" class="mode-description">Menor con una sexta mayor: oscuro, pero con movimiento.</p>
-        <div class="mode-facts"><span><b>Grado</b><strong id="mode-degree">II</strong></span><span><b>Nota guía</b><strong id="mode-characteristic">B</strong></span></div>
+        <div class="mode-facts"><span><b>Grado</b><strong id="mode-degree">II</strong></span><span><b>Nota guía</b><strong id="mode-characteristic">B</strong></span><span><b>Con tensión</b><strong id="mode-tension">D6</strong></span></div>
       </aside>
     </div>
   </section>
