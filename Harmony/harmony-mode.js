@@ -84,6 +84,48 @@ function harmonDominantName() {
   return HARMONY_NOTES[(harmonyRootIdx() + HARMONY_SCALE_INTERVALS.maj[4]) % 12] + '7';
 }
 
+function harmonSecondaryDominant(def) {
+  const idx = (harmonyRootIdx() + def.interval + 7) % 12;
+  return { name: HARMONY_NOTES[idx] + '7', root: HARMONY_NOTES[idx] };
+}
+
+function harmonDomChain() {
+  const start = (harmonyRootIdx() + HARMONY_SCALE_INTERVALS.maj[4]) % 12;
+  const chain = [];
+  let pc = start;
+  do {
+    chain.push(HARMONY_NOTES[pc] + '7');
+    pc = (pc + 5) % 12;
+  } while (pc !== start);
+  chain.push(HARMONY_NOTES[start] + '7');
+  return chain;
+}
+
+function harmonTwoFiveOne() {
+  const get = (mod, deg) => harmonyDegrees(mod).find(d => d.degree === deg);
+  const root = harmonyKey.root;
+  const major = ['ii', 'V', 'I'].map((deg, i) => {
+    const q = ['m7', '7', 'maj7'][i];
+    const d = get('maj', deg);
+    return d ? harmonChordName('maj', root, { ...d, quality: q }) : '';
+  });
+  const minor = [['ii°', 'dim'], ['v', '7'], ['i', 'm']].map(([deg, q]) => {
+    const d = get('min', deg);
+    return d ? harmonChordName('min', root, { ...d, quality: q }) : '';
+  });
+  return { major, minor };
+}
+
+function harmonSet251(which) {
+  harmonyKey.mod = which === 'min' ? 'min' : 'maj';
+  const keySelect = document.getElementById('harmony-key');
+  if (keySelect) keySelect.value = harmonyKey.mod + ':' + harmonyKey.root;
+  const path = which === 'min' ? ['ii°', 'v', 'i'] : ['ii', 'V', 'I'];
+  harmonySelected = path[path.length - 1];
+  harmonyPath = path.slice();
+  renderHarmony();
+}
+
 function harmonyChord(def) {
   return harmonChordName(harmonyKey.mod, harmonyKey.root, def);
 }
@@ -118,6 +160,10 @@ function harmonyModeMeta() {
         ? 'Perfecta (v→i · con sensible V7→i), plagal (iv→i): los finales que cierran en menor.'
         : 'Perfecta (V→I), plagal (IV→I), amarga (4→4m→1) y sensible (vii°→I): los finales que cierran.',
     },
+    dominantes: {
+      legend: '<i class="on"></i> cada acorde tiene su dominante: la dominante que no es del centro es secundaria',
+      hint: 'Toda dominante que no sea la del I es una dominante secundaria. Cualquier acorde puede ser alcanzado por "su" V7.',
+    },
   };
   return byMode[harmonyMode];
 }
@@ -138,6 +184,7 @@ function renderHarmony() {
 
   const isCad = harmonyMode === 'cadencias';
   const isProx = harmonyMode === 'prox';
+  const isDom = harmonyMode === 'dominantes';
 
   harmonyEdges(mod).forEach(([from, to]) => {
     const [x1, y1] = positions[from];
@@ -166,7 +213,8 @@ function renderHarmony() {
     button.className = classes;
     button.style.left = `${left}%`;
     button.style.top = `${top}%`;
-    button.innerHTML = `<span class="harmony-degree">${def.degree}</span><strong>${harmonyChord(def)}</strong><small>${def.role}</small>${isProx ? `<em class="prox-badge">${harmonSharedWithTonic(mod, harmonyKey.root, def)}/3</em>` : ''}${isCad && harmonyKey.mod === 'min' && harmonyHarmonic && def.degree === 'v' ? `<em class="harmonic-dominant">V7 = ${harmonDominantName()}</em>` : ''}`;
+    const secDom = isDom ? `<em class="sec-dom">← ${harmonSecondaryDominant(def).name}</em>` : '';
+    button.innerHTML = `<span class="harmony-degree">${def.degree}</span><strong>${harmonyChord(def)}</strong><small>${def.role}</small>${secDom}${isProx ? `<em class="prox-badge">${harmonSharedWithTonic(mod, harmonyKey.root, def)}/3</em>` : ''}${isCad && harmonyKey.mod === 'min' && harmonyHarmonic && def.degree === 'v' ? `<em class="harmonic-dominant">V7 = ${harmonDominantName()}</em>` : ''}`;
     button.title = `${def.degree} · ${harmonyChord(def)}${def.origin === 'borrowed' ? ' · préstamo' : ''}`;
     button.addEventListener('click', () => selectHarmonyNode(def.degree));
     button.addEventListener('mouseenter', () => updateHarmonyLines(def.degree));
@@ -188,11 +236,19 @@ function selectHarmonyNode(degree) {
 function updateHarmonyLines(focusDegree) {
   const tonic = HARMONY_TONIC[harmonyKey.mod];
   const isCad = harmonyMode === 'cadencias';
+  const isDom = harmonyMode === 'dominantes';
   document.querySelectorAll('.harmony-lines line').forEach(line => {
     if (isCad) {
       const active = line.dataset.to === tonic;
       line.classList.toggle('active', active);
       line.classList.toggle('muted', !active);
+      return;
+    }
+    if (isDom) {
+      const dominantish = line.dataset.from === 'ii' || line.dataset.from === 'V'
+        || line.dataset.from === 'iv' || line.dataset.from === 'v' || line.dataset.from === 'vii°';
+      line.classList.toggle('active', dominantish);
+      line.classList.toggle('muted', !dominantish);
       return;
     }
     const active = line.dataset.from === focusDegree || line.dataset.to === focusDegree;
@@ -232,6 +288,15 @@ function updateHarmonyDetails() {
     } else {
       metric = 'Cierre aún no tocado: los finales llegan al centro (' + tonic + ').';
     }
+  } else if (harmonyMode === 'dominantes') {
+    const dom = harmonSecondaryDominant(selected);
+    if (selected.degree === tonic) {
+      metric = `<b>${dom.name}</b> es la dominante que llega al centro: resuelve a <b>${harmonyChord(selected)}</b> o a su paralela menor (doble resolución). El famoso <b>F → Fm → C</b>.`;
+    } else if (selected.degree === 'V' || selected.degree === 'v') {
+      metric = `<b>${dom.name}</b>: la dominante del V (la clásica "V del V"), el pivote natural para modular hacia otra región.`;
+    } else {
+      metric = `La dominante que tira hacia <b>${harmonyChord(selected)}</b> es <b>${dom.name}</b> (V de ${harmonyChord(selected)}).`;
+    }
   } else if (selected.origin === 'borrowed') {
     metric = 'Préstamo: viene de la tonalidad paralela (menor).';
   } else if (selected.origin === 'diatonic' && selected.degree !== undefined) {
@@ -244,7 +309,25 @@ function updateHarmonyDetails() {
     return `<span>${degree} · ${harmonyChord(node)}</span>`;
   }).join('<b>→</b>');
 
+  renderHarmonyDominantes();
   updateHarmonyLines(harmonySelected);
+}
+
+function renderHarmonyDominantes() {
+  const panel = document.getElementById('harmony-dom-panel');
+  if (!panel) return;
+  const visible = harmonyMode === 'dominantes';
+  panel.classList.toggle('hidden', !visible);
+  if (!visible) return;
+  const chainEl = document.getElementById('harmony-dom-chain');
+  const majEl = document.getElementById('harmony-251-major-names');
+  const minEl = document.getElementById('harmony-251-minor-names');
+  if (!chainEl) return;
+  const join = (arr) => arr.map((c, i, a) => `<span>${c}</span>${i < a.length - 1 ? '<b>→</b>' : ''}`).join('');
+  chainEl.innerHTML = join(harmonDomChain());
+  const { major, minor } = harmonTwoFiveOne();
+  majEl.innerHTML = join(major);
+  minEl.innerHTML = join(minor);
 }
 
 function setHarmonyMode(mode) {
@@ -295,6 +378,10 @@ function initializeHarmony() {
   });
   document.getElementById('harmony-clear').addEventListener('click', resetHarmony);
   document.getElementById('harmony-harmonic').addEventListener('change', toggleHarmonyHarmonic);
+  const btn251maj = document.getElementById('harmony-251-major');
+  if (btn251maj) btn251maj.addEventListener('click', () => harmonSet251('maj'));
+  const btn251min = document.getElementById('harmony-251-minor');
+  if (btn251min) btn251min.addEventListener('click', () => harmonSet251('min'));
 
   renderHarmony();
 }

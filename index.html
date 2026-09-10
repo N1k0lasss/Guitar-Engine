@@ -39,6 +39,8 @@
         <button class="nav-btn" data-mode="harmony">Armonía</button>
         <button class="nav-btn" data-mode="modes">Modos</button>
         <button class="nav-btn" data-mode="cartography">Cartografía</button>
+        <button class="nav-btn" data-mode="sabores">Sabores</button>
+        <button class="nav-btn" data-mode="ejes">Ejes</button>
         <button class="nav-btn" data-mode="tensions">Tensiones</button>
         <button class="nav-btn" data-mode="prl">P/R/L</button>
         <button class="nav-btn" data-mode="tritone">Tritono</button>
@@ -70,6 +72,7 @@
         <button type="button" class="seg-btn active" data-hmode="funciones">Funciones</button>
         <button type="button" class="seg-btn" data-hmode="prox">Proximidad</button>
         <button type="button" class="seg-btn" data-hmode="cadencias">Cadencias</button>
+        <button type="button" class="seg-btn" data-hmode="dominantes">Dominantes</button>
       </div>
       <label class="harmony-harmonic hidden" id="harmony-harmonic-wrap" title="En menor natural la dominante es Gm; con la sensible (menor armónica) cierra como G7.">
         <input type="checkbox" id="harmony-harmonic"> Cierre armónico <b>V7→i</b>
@@ -89,6 +92,15 @@
         <p id="harmony-metric" class="harmony-metric"></p>
         <p class="label">RECORRIDO</p>
         <div id="harmony-path" class="harmony-path"><span>I · C</span></div>
+        <div id="harmony-dom-panel" class="harmony-dom-panel hidden">
+          <p class="label">CADENA DE DOMINANTES</p>
+          <div id="harmony-dom-chain" class="harmony-dom-chain"></div>
+          <p class="label">2-5-1</p>
+          <div class="harmony-251s">
+            <div class="harmony-251"><button type="button" class="ghost-btn" id="harmony-251-major">Ver mayor</button><span id="harmony-251-major-names"></span></div>
+            <div class="harmony-251"><button type="button" class="ghost-btn" id="harmony-251-minor">Ver menor</button><span id="harmony-251-minor-names"></span></div>
+          </div>
+        </div>
       </aside>
     </div>
   </section>
@@ -105,11 +117,13 @@
       <div class="panel tension-map-panel">
         <div id="tension-map" class="tension-map" aria-label="Mapa de tensiones del acorde"></div>
         <div class="tension-legend"><span><i class="legend-safe"></i> estable</span><span><i class="legend-color"></i> color</span><span><i class="legend-pull"></i> fricción</span></div>
+        <div class="tension-dis-legend"><span><i class="ten-dot safe"></i> aceptada</span><span><i class="ten-dot care"></i> cuidado</span><span><i class="ten-dot avoid"></i> evitada</span><span class="ten-symbols">● b9 · ▲ tritono (contra las notas del acorde)</span></div>
       </div>
       <aside class="panel tension-detail">
         <p class="eyebrow">TENSIÓN SELECCIONADA</p>
         <h3 id="tension-selected">9 · D</h3>
         <p id="tension-description" class="tension-description">Amplía el acorde sin cambiar su función principal.</p>
+        <div id="tension-level" class="tension-level"></div>
         <div class="tension-chord"><span id="tension-symbol">Cmaj9</span><small id="tension-notes">C · E · G · B · D</small></div>
         <button id="tension-clear" class="ghost-btn">Quitar tensión</button>
       </aside>
@@ -124,10 +138,14 @@
       <div class="seg">
         <button type="button" class="seg-btn active" id="prox-mode-neighbors">Vecinos</button>
         <button type="button" class="seg-btn" id="prox-mode-common">Nota común</button>
+        <button type="button" class="seg-btn" id="prox-mode-bridge">Puente</button>
       </div>
       <label>Acorde</label>
       <select id="prox-root"></select>
       <select id="prox-quality"></select>
+      <label id="prox-bridge-label" style="display:none">→ resuelve en</label>
+      <select id="prox-bridge-root" style="display:none"></select>
+      <select id="prox-bridge-quality" style="display:none"></select>
       <label>Mover</label>
       <select id="prox-moves"><option value="1">1 nota</option><option value="2">2 notas</option></select>
       <label>Tonalidad</label>
@@ -288,6 +306,7 @@
         <div id="poly-star" class="poly-star"></div>
       </div>
     </div>
+  </section>
   <section id="cartography-view" class="view">
     <div class="view-heading"><div><p class="eyebrow">CARTOGRAFÍA MODAL</p><h2>El mapa de los 13 modos</h2></div><span class="signal-badge">Arista = 1 nota · Anillo = distancia</span></div>
     <div class="carto-toolbar panel">
@@ -310,9 +329,61 @@
       </div>
     </div>
   </section>
+<section id="sabores-view" class="view">
+    <div class="view-heading"><div><p class="eyebrow">MODOS ILUSTRADOS · P. 184–188</p><h2>Cada nota tiene su propio sabor</h2></div><span class="signal-badge">6 sabores · contra la tónica</span></div>
+    <div class="sabor-toolbar panel">
+      <label for="sabor-root">Tónica</label>
+      <select id="sabor-root"></select>
+    </div>
+    <div class="sabor-layout">
+      <div class="panel sabor-grid-panel">
+        <p class="eyebrow">NOTAS A PARTIR DE LA TÓNICA</p>
+        <div id="sabor-grid" class="sabor-grid" aria-label="Notas con su sabor"></div>
+        <p class="sabor-legend">
+          <i class="dot casa"></i> casa · <i class="dot flamenco"></i> flamenco · <i class="dot antiguo"></i> antiguo · <i class="dot magia"></i> magia · <i class="dot dulce"></i> dulce · <i class="dot epico"></i> épico · <i class="dot dominante"></i> dominante
+        </p>
+        <p class="study-hint">En el libro el sabor se mide siempre contra C (la "casa"). Mover la tónica transpone los sabores a la nota correspondiente.</p>
+      </div>
+      <aside class="panel sabor-detail" id="sabor-detail">
+        <p class="eyebrow">SABOR · C</p>
+        <h3>Casa</h3>
+        <span class="sabor-mode">Jónico (I) · unísono</span>
+        <p class="sabor-desc">El centro: la nota neutra y de reposo. Todo lo demás se mide contra ella.</p>
+      </aside>
+    </div>
+  </section>
+  <section id="ejes-view" class="view">
+    <div class="view-heading"><div><p class="eyebrow">ARMONÍA ILUSTRADA 2 · P. 196–214</p><h2>Ejes de Bartók</h2></div><span class="signal-badge">3 cruces · tritonos · sumatoria</span></div>
+    <div class="ejes-toolbar panel">
+      <label for="ejes-anchor">Polo</label>
+      <select id="ejes-anchor"></select>
+      <label class="ejes-toggle"><input type="checkbox" id="ejes-minor"> Sumar eje menor (dominantes compartidas)</label>
+      <label class="ejes-toggle"><input type="checkbox" id="ejes-excl-toggle"> Polo excluido</label>
+      <select id="ejes-excluded"></select>
+    </div>
+    <div class="ejes-layout">
+      <div class="panel ejes-main">
+        <p class="eyebrow">LOS TRES EJES · POLOS OPUESTOS A TRITONO</p>
+        <div id="ejes-grid" class="ejes-grid"></div>
+        <div id="ejes-summary" class="ejes-summary"><p class="study-hint">Elegí un polo: dentro de su eje podés saltar a las otras tres cruces. Opuestos = tritono (C ↔ F#, como los sustitutos tritonales pero con acordes mayores).</p></div>
+      </div>
+      <aside class="panel ejes-aside">
+        <div id="ejes-dominant" class="ejes-block hidden"></div>
+        <div class="ejes-tool">
+          <label>Completá una escala</label>
+          <div class="ejes-free-pickers">
+            <select id="ejes-free-a"></select>
+            <select id="ejes-free-b"></select>
+          </div>
+          <div id="ejes-free-output"></div>
+        </div>
+      </aside>
+    </div>
+  </section>
 </main>
 
 <script src="Chords/chord-mode.js"></script>
+<script src="Shared/dissonance.js"></script>
 <script src="Tunner/tuner-mode.js"></script>
 <script src="Harmony/harmony-mode.js"></script>
 <script src="Modos/modes-mode.js"></script>
@@ -324,6 +395,8 @@
 <script src="Scales/scales-mode.js"></script>
 <script src="Polychords/polychord-mode.js"></script>
 <script src="Modos/cartography-mode.js"></script>
+<script src="Modos/sabores-mode.js"></script>
+<script src="Ejes/bartok-mode.js"></script>
 <script src="main.js"></script>
 </body>
 </html>

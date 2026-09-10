@@ -128,6 +128,70 @@ function findCommonChords(selectedPcs, mode) {
   return results;
 }
 
+// ===== Puente / Glue Tension (Illustrated Chord Extensions, pp 174–189) =====
+
+const GLUE_EXT = [[1, 'b9'], [2, '9'], [3, '#9'], [5, '11'], [6, '#11'], [8, 'b13'], [9, '13']];
+
+function glueExtOf(rel) {
+  const f = GLUE_EXT.find(([e]) => e === rel);
+  return f ? f[1] : null;
+}
+
+function glueScan(originRootIdx, originQuality, foreignPcs) {
+  const originPcs = CHORD_TYPES[originQuality].intervals.map(iv => (originRootIdx + iv) % 12);
+  const intervals = CHORD_TYPES[originQuality].intervals;
+  const thirdRel = intervals.length > 1 && intervals[1] > 0 && intervals[1] <= 4 ? intervals[1] : null;
+  const rows = [];
+  foreignPcs.forEach(pc => {
+    const rel = (pc - originRootIdx + 12) % 12;
+    const ext = glueExtOf(rel);
+    if (!ext) return;
+    let b9 = 0, tri = 0;
+    originPcs.forEach(b => {
+      const d = Math.abs(pc - b);
+      const dist = Math.min(d, 12 - d);
+      if (dist === 1) b9++;
+      if (dist === 6) tri++;
+    });
+    const clashes3rd = thirdRel !== null && Math.abs(rel - thirdRel) === 1;
+    rows.push({ pc, note: NOTE_NAMES[pc], rel, ext, allowed: !clashes3rd, b9, tri });
+  });
+  rows.sort((a, b) => a.rel - b.rel);
+  return { rows, originPcs };
+}
+
+function glueSymbol(originRootIdx, originQuality, rows) {
+  const allowed = rows.filter(r => r.allowed).sort((a, b) => a.rel - b.rel).map(r => r.ext);
+  const base = NOTE_NAMES[originRootIdx] + originQuality;
+  return allowed.length ? base + '(add' + allowed.join(',') + ')' : base;
+}
+
+function proxBridgeScan(targetRootIdx, targetQuality) {
+  const bridges = [];
+  const targetPcs = CHORD_TYPES[targetQuality].intervals.map(iv => (targetRootIdx + iv) % 12);
+  const originRootIdx = proxRootIndex(proxRoot);
+  const originQuality = proxQuality;
+  const scan = glueScan(originRootIdx, originQuality, targetPcs);
+  const originPcs = scan.originPcs;
+  const shared = targetPcs.filter(pc => originPcs.includes(pc));
+  const domRootIdx = (targetRootIdx + 7) % 12;
+  const domPcs = CHORD_TYPES['7'].intervals.map(iv => (domRootIdx + iv) % 12);
+  const viaDom = glueScan(originRootIdx, originQuality, domPcs);
+  bridges.push({
+    kind: 'direct',
+    label: `${NOTE_NAMES[originRootIdx]}${originQuality} → ${NOTE_NAMES[targetRootIdx]}${targetQuality}`,
+    headline: `${NOTE_NAMES[originRootIdx]}${originQuality} → ${glueSymbol(originRootIdx, originQuality, scan.rows)} → ${NOTE_NAMES[targetRootIdx]}${targetQuality}`,
+    rows: scan.rows, shared, targetPcs,
+  });
+  bridges.push({
+    kind: 'via',
+    label: `vía V (${NOTE_NAMES[domRootIdx]}7) de ${NOTE_NAMES[targetRootIdx]}`,
+    headline: `${NOTE_NAMES[originRootIdx]}${originQuality} → ${glueSymbol(originRootIdx, originQuality, viaDom.rows)} → ${NOTE_NAMES[targetRootIdx]}${targetQuality}`,
+    rows: viaDom.rows, shared: domPcs.filter(pc => originPcs.includes(pc)), targetPcs: domPcs,
+  });
+  return bridges;
+}
+
 // ===== Estado de la vista =====
 
 let proxTool = 'neighbors';
@@ -139,6 +203,9 @@ let proxSelected = [];
 let proxMatch = 'any';
 let proxResultClicked = null;
 let PROX_LAST_RESULTS = [];
+let proxBridgeRoot = 'C';
+let proxBridgeQuality = 'maj7';
+let PROX_LAST_BRIDGES = [];
 
 // ===== Render =====
 
@@ -173,7 +240,7 @@ function renderProxDetail(chordName, noteNames, pcsToAccent, tipLines) {
     notesEl.appendChild(span);
   });
   renderProxDiagram(chordName);
-  document.getElementById('prox-tip').innerHTML = tipLines;
+  document.getElementById('prox-tip').innerHTML = tipLines.join ? tipLines.join('') : String(tipLines);
 }
 
 function renderProxDetailPlaceholder() {
@@ -258,8 +325,51 @@ function renderCommon(grid, summary) {
   if (proxResultClicked && !results.some(c => c.name === proxResultClicked)) proxResultClicked = null;
 }
 
+function renderBridge(grid, summary) {
+  const targetRootIdx = proxRootIndex(proxBridgeRoot);
+  const bridges = proxBridgeScan(targetRootIdx, proxBridgeQuality);
+  PROX_LAST_BRIDGES = bridges;
+  const originName = proxRoot + proxQuality;
+  const targetName = proxBridgeRoot + proxBridgeQuality;
+  summary.innerHTML = `De <b>${originName}</b> hacia <b>${targetName}</b>: el libro llama <b>glue tension</b> a la nota del próximo acorde que pegás en el actual. Cuando llega el acorde, "explica" la tensión que escuchaste.`;
+  grid.innerHTML = bridges.map((b, bi) => `
+    <div class="bridge-card ${proxResultClicked === bi ? 'selected' : ''}" data-bridge="${bi}">
+      <div class="bridge-tag">${b.kind === 'direct' ? 'directo' : b.label}</div>
+      <div class="bridge-headline">${b.headline}</div>
+      ${b.rows.length ? `<div class="bridge-notes">${b.rows.map(r => `
+        <span class="bridge-note ${r.allowed ? '' : 'blocked'}" title="${r.note}: ${r.ext} sobre ${originName}${r.allowed ? '' : ' · choca a semitono de la 3ra'}">
+          ${r.note} = ${r.ext}${!r.allowed ? '<em>◘</em>' : ''}${r.b9 + r.tri ? `<i>${r.b9 ? r.b9 + '●' : ''}${r.tri ? r.tri + '▲' : ''}</i>` : ''}
+        </span>`).join('')}</div>`
+        : `<p class="bridge-empty">${b.kind === 'direct' ? 'El destino comparte todas sus notas: el puente es natural.' : 'La dominante del destino no aporta tensiones nuevas.'}</p>`}
+      <small class="bridge-shared">${b.shared.length} nota${b.shared.length === 1 ? '' : 's'} en común</small>
+    </div>`).join('');
+  grid.querySelectorAll('.bridge-card').forEach(card => {
+    card.onclick = () => {
+      proxResultClicked = Number(card.dataset.bridge);
+      renderProximity();
+    };
+  });
+}
+
 function proxRenderSelectedDetail() {
-  if (!proxResultClicked) return;
+  if (!proxResultClicked && proxResultClicked !== 0) return;
+  if (proxTool === 'bridge') {
+    const b = PROX_LAST_BRIDGES[proxResultClicked];
+    if (!b) { renderProxDetailPlaceholder(); return; }
+    const targetName = proxBridgeRoot + proxBridgeQuality;
+    const changedPcs = b.targetPcs.filter(pc => !b.shared.includes(pc));
+    const symbol = b.headline.split(' → ')[1] || b.headline;
+    const lines = [
+      `Hacia <b>${targetName}</b>${b.kind === 'via' ? ', vía la dominante del destino' : ''}.`,
+      changedPcs.length
+        ? `La nota nueva del puente: <b>${changedPcs.map(pc => NOTE_NAMES[pc]).join(' · ')}</b> (la glue tension que el próximo acorde explica).`
+        : 'El destino no aporta notas nuevas: comparten todo el sonido.',
+      `Símbolo híbrido: <b>${symbol}</b>.`,
+      'No es una fórmula exacta: probá cada nota y quedate con la que más te guste (tritono-sub, 2-5 y VII° del destino también sirven).',
+    ];
+    renderProxDetail(targetName, b.targetPcs.map(pc => NOTE_NAMES[pc]), changedPcs, lines);
+    return;
+  }
   if (proxTool === 'neighbors') {
     const res = PROX_LAST_RESULTS.find(r => r.name === proxResultClicked);
     if (!res) { renderProxDetailPlaceholder(); return; }
@@ -292,21 +402,30 @@ function renderProximity() {
   const summary = document.getElementById('prox-summary');
   if (!grid || !summary) return;
   if (proxTool === 'neighbors') renderNeighbors(grid, summary);
-  else renderCommon(grid, summary);
+  else if (proxTool === 'common') renderCommon(grid, summary);
+  else renderBridge(grid, summary);
   proxRenderSelectedDetail();
-  if (!proxResultClicked) renderProxDetailPlaceholder();
+  if (proxResultClicked === null) renderProxDetailPlaceholder();
 }
 
 function setProxTool(tool) {
   proxTool = tool;
   document.getElementById('prox-mode-neighbors').classList.toggle('active', tool === 'neighbors');
   document.getElementById('prox-mode-common').classList.toggle('active', tool === 'common');
-  ['prox-root', 'prox-quality', 'prox-moves', 'prox-key'].forEach(id => {
+  document.getElementById('prox-mode-bridge').classList.toggle('active', tool === 'bridge');
+  ['prox-root', 'prox-quality'].forEach(id => {
+    document.getElementById(id).style.display = (tool === 'neighbors' || tool === 'bridge') ? '' : 'none';
+  });
+  ['prox-moves', 'prox-key'].forEach(id => {
     document.getElementById(id).style.display = tool === 'neighbors' ? '' : 'none';
   });
   ['prox-notes-picker', 'prox-match'].forEach(id => {
     document.getElementById(id).style.display = tool === 'common' ? '' : 'none';
   });
+  ['prox-bridge-root', 'prox-bridge-quality'].forEach(id => {
+    document.getElementById(id).style.display = tool === 'bridge' ? '' : 'none';
+  });
+  document.getElementById('prox-bridge-label').style.display = tool === 'bridge' ? '' : 'none';
   proxResultClicked = null;
   renderProximity();
 }
@@ -337,10 +456,19 @@ function initializeProximity() {
 
   document.getElementById('prox-mode-neighbors').onclick = () => setProxTool('neighbors');
   document.getElementById('prox-mode-common').onclick = () => setProxTool('common');
+  document.getElementById('prox-mode-bridge').onclick = () => setProxTool('bridge');
   rootSelect.onchange = () => { proxRoot = rootSelect.value; renderProximity(); };
   qualitySelect.onchange = () => { proxQuality = qualitySelect.value; renderProximity(); };
   movesSelect.onchange = () => { proxMoves = Number(movesSelect.value); renderProximity(); };
   keySelect.onchange = () => { proxKey = keySelect.value; renderProximity(); };
+  const bridgeRoot = document.getElementById('prox-bridge-root');
+  bridgeRoot.innerHTML = NOTE_NAMES.map(n => `<option value="${n}">${n}</option>`).join('');
+  bridgeRoot.value = proxBridgeRoot;
+  bridgeRoot.onchange = () => { proxBridgeRoot = bridgeRoot.value; renderProximity(); };
+  const bridgeQuality = document.getElementById('prox-bridge-quality');
+  bridgeQuality.innerHTML = PROX_QUALITIES.map(q => `<option value="${q}">${PROX_QUALITY_LABELS[q]}</option>`).join('');
+  bridgeQuality.value = proxBridgeQuality;
+  bridgeQuality.onchange = () => { proxBridgeQuality = bridgeQuality.value; renderProximity(); };
   document.getElementById('prox-match').onchange = (event) => { proxMatch = event.target.value; renderProximity(); };
   picker.addEventListener('click', event => {
     const chip = event.target.closest('.prox-chip');

@@ -55,6 +55,7 @@ function polyFindName(rootPc, unionPcs) {
 }
 
 function polyCountDissonance(pcs) {
+  if (typeof countDissonancePairs === 'function') return countDissonancePairs(pcs);
   let b9 = 0, tri = 0;
   for (let i = 0; i < pcs.length; i++)
     for (let j = i + 1; j < pcs.length; j++) {
