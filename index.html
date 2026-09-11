@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Guitar TOOLS</title>
+<title>Guitar ENGINE</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -12,7 +12,8 @@
   <header class="topbar">
     <div class="brand">
       <span class="brand-mark">♬</span>
-      <div><p class="eyebrow">GUITAR TOOLS</p></div>
+      <div><p class="eyebrow">GUITAR ENGINE</p></div>
+    </div>
     </div>
     <div class="audio-controls">
       <span id="status" class="status"><span class="status-dot"></span> Detenido</span>
@@ -55,7 +56,13 @@
 <!-- ===== Vista: Acordes ===== -->
   <section id="chords-view" class="view active">
     <div class="view-heading"><div><p class="eyebrow">CAPTURA INTELIGENTE</p><h2>¿Qué acorde estás tocando?</h2></div><span class="signal-badge">Captura · pausa 3 s</span></div>
-    <div class="chord-stage"><p class="label">ACORDE DETECTADO</p><div id="chord">--</div><p id="confidence" class="confidence">Activa el micrófono para comenzar</p></div>
+    <div class="chord-stage">
+      <div class="stage-rail"><span>FIG. 01</span><span>ENTRADA / OÍDO / FORMA</span></div>
+      <div class="chord-stage-layout">
+        <div class="chord-reading"><p class="label">ACORDE DETECTADO</p><div id="chord">--</div><p id="confidence" class="confidence">Activa el micrófono para comenzar</p></div>
+        <div class="constellation-wrap"><div id="constellation" class="constellation" aria-label="Constelación de notas del acorde"></div><p id="constellation-caption" class="constellation-caption">Esperando una señal para trazar las notas.</p></div>
+      </div>
+    </div>
     <div class="workspace-grid">
       <div class="panel history-panel"><div class="panel-title"><span>Últimos acordes</span><button id="clearHistory" class="icon-btn" title="Limpiar historial" aria-label="Limpiar historial">×</button></div><div id="history" class="history-list"><span class="muted">Todavía no hay acordes</span></div></div>
       <div id="info-panel" class="panel chord-panel"><div class="panel-title">Posición sugerida</div><p id="notes-list" class="notes-list">Las notas aparecerán aquí</p><div id="diagram" aria-label="Diagrama del acorde"></div><p id="barre-label" class="barre-label"></p></div>

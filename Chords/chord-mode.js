@@ -92,6 +92,33 @@ function getChordInfo(chordName) {
   return { notes: getNotes(parsed.root, parsed.quality), fingering: getFingering(parsed.root, parsed.quality) };
 }
 
+function renderConstellation(chordName) {
+  const constellation = document.getElementById('constellation');
+  const caption = document.getElementById('constellation-caption');
+  if (!constellation || !caption) return;
+
+  const parsed = parseChordName(chordName);
+  if (!parsed) {
+    constellation.innerHTML = '';
+    caption.textContent = 'Esperando una señal para trazar las notas.';
+    return;
+  }
+
+  const chordNotes = getNotes(parsed.root, parsed.quality);
+  const quality = parsed.quality === 'm' || parsed.quality === 'm7' ? 'minor'
+    : parsed.quality === 'dim' ? 'diminished'
+      : parsed.quality === '7' ? 'dominant' : 'major';
+  constellation.dataset.quality = quality;
+  constellation.innerHTML = NOTE_NAMES.map((note, index) => {
+    const isRoot = note === parsed.root;
+    const isChordTone = chordNotes.includes(note);
+    const angle = `${index * 30 - 90}deg`;
+    const state = isRoot ? `root quality-${quality}` : isChordTone ? 'tone' : 'quiet';
+    return `<span class="constellation-note ${state}" style="--note-angle:${angle}">${note}</span>`;
+  }).join('');
+  caption.textContent = `${chordName} · ${chordNotes.join(' · ')}`;
+}
+
 function detectChord(chroma) {
   const totalEnergy = chroma.reduce((sum, value) => sum + value, 0);
   if (totalEnergy < 1.25) return null;
@@ -115,6 +142,12 @@ function detectChord(chroma) {
 function renderChordInfo(chordName) {
   const info = getChordInfo(chordName);
   if (!info) return;
+  const parsed = parseChordName(chordName);
+  const quality = parsed?.quality === 'm' || parsed?.quality === 'm7' ? 'minor'
+    : parsed?.quality === 'dim' ? 'diminished'
+      : parsed?.quality === '7' ? 'dominant' : 'major';
+  document.getElementById('info-panel')?.setAttribute('data-quality', quality);
+  renderConstellation(chordName);
   document.getElementById('notes-list').textContent = `Notas: ${info.notes.join(' · ')}`;
   const diagram = document.getElementById('diagram');
   diagram.innerHTML = '';
@@ -135,7 +168,13 @@ function renderChordInfo(chordName) {
 function renderHistory() {
   const element = document.getElementById('history');
   element.innerHTML = history.length
-    ? history.map((chord, index) => `<span class="history-chip ${index === history.length - 1 ? 'current' : ''}">${chord}</span>`).join('')
+    ? history.map((chord, index) => {
+      const parsed = parseChordName(chord);
+      const quality = parsed?.quality === 'm' || parsed?.quality === 'm7' ? 'minor'
+        : parsed?.quality === 'dim' ? 'diminished'
+          : parsed?.quality === '7' ? 'dominant' : 'major';
+      return `<span class="history-chip quality-${quality} ${index === history.length - 1 ? 'current' : ''}">${chord}</span>`;
+    }).join('')
     : '<span class="muted">Todavía no hay acordes</span>';
 }
 

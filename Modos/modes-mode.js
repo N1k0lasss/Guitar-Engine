@@ -42,7 +42,8 @@ function renderModes() {
   MODE_DATA.forEach((item, index) => {
     const button = document.createElement('button');
     const angle = (index * (360 / MODE_DATA.length)) - 90;
-    button.className = `mode-orbit mode-${index} ${index === selectedMode ? 'selected' : ''}`;
+    const qualityClass = item.triadQuality === 'm' ? 'quality-minor' : item.triadQuality === 'dim' ? 'quality-diminished' : 'quality-major';
+    button.className = `mode-orbit mode-${index} ${qualityClass} ${index === selectedMode ? 'selected' : ''}`;
     button.style.setProperty('--mode-angle', `${angle}deg`);
     button.style.setProperty('--mode-color', item.color);
     button.innerHTML = `<span>${item.degree}</span><strong>${item.name}</strong><small>${modeNote(item.offset)}</small>`;

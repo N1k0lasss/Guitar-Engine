@@ -1,6 +1,31 @@
 let audioCtx, analyser, freqData, timeData, source, stream, running = false;
 let currentMode = 'chords';
 
+const modeReadouts = {
+  chords: 'CAPTURA CROMÁTICA',
+  tuner: 'AFINACIÓN / DESVÍO',
+  harmony: 'REDES FUNCIONALES',
+  modes: 'ROTACIÓN MODAL',
+  cartography: 'CARTOGRAFÍA TONAL',
+  sabores: 'COLOR / CARÁCTER',
+  ejes: 'EJES DE TENSIÓN',
+  tensions: 'EXTENSIONES / FRICCIÓN',
+  prl: 'TRANSFORMACIONES P / R / L',
+  tritone: 'EQUIVALENCIA DEL TRITONO',
+  proximity: 'VECINDAD ARMÓNICA',
+  circle: 'CÍRCULO DE QUINTAS',
+  scales: 'MAPA DE ESCALA',
+  polychords: 'SUPERPOSICIÓN DE VOCES',
+};
+
+function updateAtlasReadout(mode) {
+  document.body.dataset.mode = mode;
+  const readout = document.getElementById('mode-readout');
+  if (readout) readout.textContent = modeReadouts[mode] || 'ESTUDIO ARMÓNICO';
+}
+
+updateAtlasReadout(currentMode);
+
 // --- dashboard: cambiar de vista sin tocar el audio ---
 function closeModeGroups() {
   document.querySelectorAll('.mode-group.open').forEach(group => {
@@ -12,6 +37,7 @@ function closeModeGroups() {
 document.querySelectorAll('.nav-btn').forEach(btn => {
   btn.onclick = () => {
     currentMode = btn.dataset.mode;
+    updateAtlasReadout(currentMode);
 
     document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');

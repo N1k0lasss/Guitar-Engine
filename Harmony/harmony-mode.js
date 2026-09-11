@@ -210,6 +210,7 @@ function renderHarmony() {
     const classes = [
       'harmony-node',
       `node-${def.degree.replace('°', 'dim').replace('b', 'flat')}`,
+      def.quality === 'm' ? 'quality-minor' : def.quality === 'dim' ? 'quality-diminished' : 'quality-major',
       def.origin === 'borrowed' ? 'borrowed' : '',
       isProx ? `prox-${harmonSharedWithTonic(mod, harmonyKey.root, def)}` : '',
       def.degree === harmonySelected ? 'selected' : '',
