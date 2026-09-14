@@ -11,8 +11,11 @@
 <main class="app-shell">
   <header class="topbar">
     <div class="brand">
-      <span class="brand-mark">♬</span>
-      <div><p class="eyebrow">GUITAR ENGINE</p></div>
+      <span class="brand-mark" aria-hidden="true">♬</span>
+      <div>
+        <h1 class="eyebrow" style="margin:0">GUITAR ENGINE</h1>
+        <span class="brand-subtitle">Teoría musical ilustrada</span>
+      </div>
     </div>
     </div>
     <div class="audio-controls">
@@ -48,6 +51,7 @@
         <button class="nav-btn" data-mode="proximity">Proximidad</button>
         <button class="nav-btn" data-mode="circle">Círculo</button>
         <button class="nav-btn" data-mode="scales">Escalas</button>
+        <button class="nav-btn" data-mode="voicings">Voicings</button>
         <button class="nav-btn" data-mode="polychords">Poliacordes</button>
       </div>
     </div>
@@ -124,6 +128,7 @@
         <p class="eyebrow">CONEXIÓN SELECCIONADA</p>
         <h3 id="harmony-selected">I · C</h3>
         <p id="harmony-description" class="harmony-description">El centro de la tonalidad. Desde acá podés abrir varios recorridos.</p>
+        <div class="harmony-cross-nav" id="harmony-cross-nav"></div>
         <p id="harmony-metric" class="harmony-metric"></p>
         <p class="label">RECORRIDO</p>
         <div id="harmony-path" class="harmony-path"><span>I · C</span></div>
@@ -305,13 +310,17 @@
     <div class="view-heading"><div><p class="eyebrow">ARMONÍA</p><h2>Encuentra la tonalidad vecina</h2></div><span class="signal-badge">Mayor · relativa menor</span></div>
     <div class="study-grid">
       <div class="panel circle-panel"><div id="circle-of-fifths" class="circle-of-fifths" aria-label="Círculo de quintas"></div><p class="study-hint">Selecciona una tonalidad para ver sus acordes diatónicos.</p></div>
-      <div class="panel detail-panel"><p class="eyebrow">TONALIDAD SELECCIONADA</p><h3 id="circle-key">C</h3><p id="circle-relative" class="notes-list">Relativa menor: Am</p><div id="key-chords" class="key-chords"></div></div>
+      <div class="panel detail-panel"><p class="eyebrow">TONALIDAD SELECCIONADA</p><h3 id="circle-key">C</h3><p id="circle-relative" class="notes-list">Relativa menor: Am</p><div id="key-chords" class="key-chords"></div><div class="circle-actions"><button type="button" id="circle-to-harmony" class="ghost-btn">Abrir en Armonía →</button></div></div>
     </div>
   </section>
 
   <section id="scales-view" class="view">
     <div class="view-heading"><div><p class="eyebrow">MAPA DEL MÁSTIL</p><h2>Escalas para improvisar</h2></div></div>
-    <div class="panel scale-controls"><label for="scale-root">Tónica</label><select id="scale-root"></select><label for="scale-type">Escala</label><select id="scale-type"></select></div>
+    <div class="panel scale-controls">
+      <label for="scale-root">Tónica</label><select id="scale-root"></select>
+      <label for="scale-type">Escala</label><select id="scale-type"></select>
+      <label for="scale-position">Posición</label><select id="scale-position"></select>
+    </div>
     <div class="panel scale-result"><div><p class="eyebrow">NOTAS DE LA ESCALA</p><h3 id="scale-title">C mayor</h3><p id="scale-notes" class="scale-notes"></p></div><div id="fretboard" class="fretboard" aria-label="Mástil de guitarra"></div></div>
   </section>
 
@@ -343,6 +352,39 @@
       </div>
     </div>
   </section>
+
+<!-- ===== Vista: Voicings / Inversiones & Drops ===== -->
+  <section id="voicings-view" class="view">
+    <div class="view-heading"><div><p class="eyebrow">ARMONÍA ILUSTRADA 2 · PP. 26-60</p><h2>Inversiones y Drops</h2></div><span class="signal-badge">Close · Drop 2 · Drop 3 · Drop 4 · Drop 2+4</span></div>
+    <div class="voi-toolbar panel">
+      <label for="voi-root">Raíz</label>
+      <select id="voi-root"></select>
+      <label for="voi-quality">Familia</label>
+      <select id="voi-quality"></select>
+      <div class="seg" id="voi-drop-seg" role="group" aria-label="Tipo de voicing">
+        <button type="button" class="seg-btn voi-drop-btn" data-drop="close">Cerrada</button>
+        <button type="button" class="seg-btn voi-drop-btn active" data-drop="drop2">Drop 2</button>
+        <button type="button" class="seg-btn voi-drop-btn" data-drop="drop3">Drop 3</button>
+        <button type="button" class="seg-btn voi-drop-btn" data-drop="drop4">Drop 4</button>
+        <button type="button" class="seg-btn voi-drop-btn" data-drop="drop24">Drop 2+4</button>
+      </div>
+    </div>
+    <div class="voi-info panel">
+      <div>
+        <h3 id="voi-chord-title" class="voi-chord-title">Cmaj7</h3>
+        <p id="voi-base-notes" class="voi-base-notes"></p>
+      </div>
+      <p id="voi-drop-desc" class="voi-drop-desc"></p>
+      <p id="voi-sym-note" class="voi-sym-note hidden"></p>
+    </div>
+    <div class="voi-inversions-grid">
+      <div class="voi-inv-card panel" id="voi-inv-0"></div>
+      <div class="voi-inv-card panel" id="voi-inv-1"></div>
+      <div class="voi-inv-card panel" id="voi-inv-2"></div>
+      <div class="voi-inv-card panel" id="voi-inv-3"></div>
+    </div>
+  </section>
+
   <section id="cartography-view" class="view">
     <div class="view-heading"><div><p class="eyebrow">CARTOGRAFÍA MODAL</p><h2>El mapa de los 13 modos</h2></div><span class="signal-badge">Arista = 1 nota · Anillo = distancia</span></div>
     <div class="carto-toolbar panel">
@@ -429,6 +471,7 @@
 <script src="Tritone/tritone-mode.js"></script>
 <script src="Circle 5th/circle-mode.js"></script>
 <script src="Scales/scales-mode.js"></script>
+<script src="Voicings/voicings-mode.js"></script>
 <script src="Polychords/polychord-mode.js"></script>
 <script src="Modos/cartography-mode.js"></script>
 <script src="Modos/sabores-mode.js"></script>

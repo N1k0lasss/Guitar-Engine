@@ -98,6 +98,12 @@ const HARMONY_VARIANTS = {
   },
 };
 
+function openStudyMode(mode) {
+  const navBtn = document.querySelector(`.nav-btn[data-mode="${mode}"]`);
+  if (navBtn) { navBtn.click(); return true; }
+  return false;
+}
+
 let harmonyKey = { root: 'C', mod: 'maj', variant: 'major' };
 let harmonyMode = 'funciones';
 let harmonyHarmonic = false;
@@ -799,6 +805,31 @@ function initializeHarmony() {
   if (btn251maj) btn251maj.addEventListener('click', () => harmonSet251('maj'));
   const btn251min = document.getElementById('harmony-251-minor');
   if (btn251min) btn251min.addEventListener('click', () => harmonSet251('min'));
+
+  const crossNav = document.getElementById('harmony-cross-nav');
+  if (crossNav) {
+    const toTensionsBtn = document.createElement('button');
+    toTensionsBtn.type = 'button';
+    toTensionsBtn.className = 'ghost-btn';
+    toTensionsBtn.textContent = 'Ver en Tensiones →';
+    toTensionsBtn.addEventListener('click', () => {
+      const rootSelect = document.getElementById('tension-root');
+      const qualitySelect = document.getElementById('tension-quality');
+      if (rootSelect && rootSelect.value !== harmonyKey.root) {
+        rootSelect.value = harmonyKey.root;
+        rootSelect.dispatchEvent(new Event('change'));
+      }
+      if (qualitySelect) {
+        const q = harmonyKey.mod === 'min' ? 'm7' : 'maj7';
+        if (qualitySelect.value !== q) {
+          qualitySelect.value = q;
+          qualitySelect.dispatchEvent(new Event('change'));
+        }
+      }
+      openStudyMode('tensions');
+    });
+    crossNav.appendChild(toTensionsBtn);
+  }
 
   renderHarmony();
 }

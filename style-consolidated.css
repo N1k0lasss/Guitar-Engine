@@ -1,7 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap');
-
-
-
 :root {
   --ink: #e9e8e2;
   --muted: #858783;
@@ -558,26 +554,11 @@ h2 { margin-bottom: 0; font-size: clamp(25px, 4vw, 40px); font-weight: 600; lett
 .ejes-scale span { color: var(--ink); font-size: 12px; }
 .hidden { display: none !important; }
 
-@media (max-width: 1024px) {
-  .app-shell { width: min(1180px, calc(100% - 48px)); padding-top: 26px; }
-  .workspace-grid { grid-template-columns: 1fr; }
-  .study-grid, .harmony-layout, .tensions-layout, .modes-layout, .proximity-layout, .prl-layout, .tt-layout, .poly-layout, .carto-layout, .sabor-layout { grid-template-columns: 1fr; }
-  .prl-cards { grid-template-columns: repeat(2, 1fr); }
-  .sabor-grid { grid-template-columns: repeat(4, 1fr); }
-  .harmony-map { min-height: 520px; }
-  .tension-map { min-height: 480px; }
-  .modes-wheel { min-height: 470px; }
-  .circle-panel { min-height: 460px; }
-  .view-heading h2 { font-size: clamp(30px, 5.5vw, 46px); }
-}
-
 @media (max-width: 700px) {
   .mode-switcher { overflow: visible; }
   .mode-group { flex: 1 1 0; }
   .nav-group-btn { width: 100%; }
 }
-
-
 
 /* --- Paleta de cualidades armonicas --- */
 :root { --major: #ff526d; --minor: #55baff; --dominant: #c794ff; --diminished: #f2c86b; }
@@ -633,8 +614,6 @@ h2 { margin-bottom: 0; font-size: clamp(25px, 4vw, 40px); font-weight: 600; lett
 .info-panel[data-quality="dominant"] .dot { background: var(--dominant); }
 .info-panel[data-quality="diminished"] .dot { background: var(--diminished); }
 
-
-
 /* --- Composicion viva del atlas --- */
 .brand { align-items: center; }
 .brand-subtitle { display: block; margin-top: 4px; color: var(--muted); font: 9px 'DM Mono', monospace; letter-spacing: .8px; }
@@ -655,15 +634,11 @@ h2 { margin-bottom: 0; font-size: clamp(25px, 4vw, 40px); font-weight: 600; lett
 .constellation-note.root { color: #050606; background: var(--accent); border-color: var(--accent); box-shadow: 0 0 0 5px rgba(255,85,124,.13); }
 .constellation-caption { max-width: 270px; margin: 17px 0 0; color: var(--muted); font: 10px/1.6 'DM Mono', monospace; text-align: center; }
 
-
-
 body[data-mode="tuner"] { --accent: #86d58b; --accent-dark: #5aa765; }
 body[data-mode="harmony"], body[data-mode="cartography"], body[data-mode="circle"] { --accent: #5bb8ff; --accent-dark: #3388c9; }
 body[data-mode="modes"], body[data-mode="scales"] { --accent: #f2c86b; --accent-dark: #c49c3f; }
 body[data-mode="tensions"], body[data-mode="tritone"], body[data-mode="prl"] { --accent: #c794ff; --accent-dark: #9568cd; }
 body[data-mode="proximity"], body[data-mode="ejes"], body[data-mode="sabores"] { --accent: #ff9b6e; --accent-dark: #d36d45; }
-
-
 
 @media (max-width: 700px) {
   .atlas-readout { display: none; }
@@ -676,72 +651,6 @@ body[data-mode="proximity"], body[data-mode="ejes"], body[data-mode="sabores"] {
   .constellation { width: min(68vw, 245px); }
   .constellation-note { transform: rotate(var(--note-angle)) translateY(-106px) rotate(calc(var(--note-angle) * -1)); }
 }
-
-
-
-.brand { gap: 11px; }
-
-.topbar .primary-btn:hover { color: #050606; background: var(--accent); }
-
-.circle-note { color: var(--ink); background: #121414; border: 1px solid #555954; border-radius: 50%; }
-
-.app-shell { position: relative; width: min(1500px, calc(100% - 56px)); padding-top: 30px; }
-
-.app-shell::before { content: 'ESTUDIO / 01'; position: fixed; right: 18px; bottom: 24px; z-index: 0; color: rgba(23,23,23,.45); font: 10px 'DM Mono', monospace; letter-spacing: 2px; transform: rotate(-90deg); transform-origin: bottom right; }
-
-.topbar { position: relative; z-index: 2; min-height: 76px; padding: 15px 18px; color: #f4eddf; background: var(--ink); border: 3px solid var(--ink); box-shadow: 8px 8px 0 var(--accent); }
-
-.brand { gap: 14px; }
-
-.topbar .ghost-btn { color: #f4eddf; background: transparent; border-color: #6d6a62; border-radius: 0; }
-
-.topbar .ghost-btn:hover { color: var(--yellow); border-color: var(--yellow); background: transparent; }
-
-.mode-switcher { position: relative; z-index: 1; gap: 28px; margin-top: 38px; padding: 0 8px 0 0; }
-
-.mode-group { padding-left: 0; }
-
-.nav-group-btn { padding: 12px 8px; color: var(--ink); border-left: 0; border-top: 3px solid transparent; border-bottom: 3px solid transparent; font-weight: 700; }
-
-.view { position: relative; z-index: 1; }
-
-.signal-badge { color: var(--ink); background: var(--yellow); border: 2px solid var(--ink); border-radius: 0; box-shadow: 4px 4px 0 var(--ink); font-weight: 700; }
-
-.chord-stage { position: relative; overflow: hidden; min-height: 390px; background: var(--warm); border: 3px solid var(--ink); border-top: 18px solid var(--ink); border-radius: 0; box-shadow: var(--paper-shadow); }
-
-.tuner-stage { position: relative; overflow: hidden; min-height: 390px; background: var(--warm); border: 3px solid var(--ink); border-top: 18px solid var(--ink); border-radius: 0; box-shadow: var(--paper-shadow); }
-
-.chord-stage::before { content: 'LISTEN / REPEAT / NOTICE'; position: absolute; top: 18px; left: 22px; color: var(--yellow); font: 10px 'DM Mono', monospace; letter-spacing: 2px; }
-
-.tuner-stage::before { content: 'LISTEN / REPEAT / NOTICE'; position: absolute; top: 18px; left: 22px; color: var(--yellow); font: 10px 'DM Mono', monospace; letter-spacing: 2px; }
-
-.chord-stage::after { content: ''; position: absolute; right: -70px; bottom: -110px; width: 250px; height: 250px; background: var(--accent); border: 3px solid var(--ink); transform: rotate(20deg); }
-
-.tuner-stage::after { content: ''; position: absolute; right: -70px; bottom: -110px; width: 250px; height: 250px; background: var(--accent); border: 3px solid var(--ink); transform: rotate(20deg); }
-
-.chord-stage .label { color: var(--yellow); position: relative; z-index: 1; }
-
-.tuner-stage .label { color: var(--yellow); position: relative; z-index: 1; }
-
-#chord { position: relative; z-index: 1; color: #f4eddf; font-family: 'Playfair Display', serif; font-size: clamp(120px, 19vw, 240px); letter-spacing: -15px; text-shadow: 8px 8px 0 var(--ink); }
-
-.confidence { position: relative; z-index: 1; color: #f4eddf; }
-
-#tuner-note { position: relative; z-index: 1; color: #f4eddf; font-family: 'Playfair Display', serif; text-shadow: 8px 8px 0 var(--ink); }
-
-#tuner-freq { position: relative; z-index: 1; color: #f4eddf; }
-
-#tuner-hint { position: relative; z-index: 1; color: #f4eddf; }
-
-#meter { position: relative; z-index: 1; border-color: var(--ink); background: repeating-linear-gradient(90deg, transparent 0 calc(10% - 1px), rgba(23,23,23,.5) 10%); }
-
-.dot { background: var(--accent); border-radius: 0; }
-
-.seg-btn { color: var(--ink); background: var(--panel-raised); border-radius: 0; }
-
-.circle-note { color: var(--ink); background: var(--panel); border: 2px solid var(--ink); border-radius: 0; }
-
-
 
 @media (max-width: 700px) {
   .app-shell { display: block; width: min(100% - 28px, 560px); min-height: 0; padding-top: 22px; }
@@ -790,8 +699,6 @@ body[data-mode="proximity"], body[data-mode="ejes"], body[data-mode="sabores"] {
   .modes-wheel-core { width: 108px; height: 108px; }
   #chord { letter-spacing: -6px; }
 }
-
-
 
 body { color: var(--ink); background-color: var(--bg); background-image: radial-gradient(circle at 50% -10%, rgba(255,255,255,.035), transparent 34%), linear-gradient(rgba(255,255,255,.014) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.014) 1px, transparent 1px); background-size: auto, 32px 32px, 32px 32px; }
 .app-shell { width: min(1280px, calc(100% - 72px)); padding-top: 34px; }
@@ -871,8 +778,6 @@ select, .harmony-toolbar select, .tensions-toolbar select, .modes-toolbar select
 .tension-chord span, .harmony-prog-detail h4 { color: var(--ink); font-family: 'Manrope', sans-serif; }
 .scale-result h3, .detail-panel h3, .mode-detail h3, .tension-detail h3, .prox-detail h3, .prl-source h3, .tt-chord h3 { color: var(--accent); font-family: 'Manrope', sans-serif; }
 
-
-
 @media (max-width: 700px) {
   .app-shell { width: min(100% - 28px, 560px); padding-top: 20px; }
   .topbar { align-items: center; }
@@ -886,7 +791,3 @@ select, .harmony-toolbar select, .tensions-toolbar select, .modes-toolbar select
   .chord-stage, .tuner-stage { min-height: 300px; }
   #chord { font-size: clamp(85px, 26vw, 140px); }
 }
-
-/* cartografía: lenguaje de grafo — hover resalta la arista, click fija la vecindad */
-.carto-edge.active { stroke: var(--accent); stroke-width: 0.55; }
-.carto-edge.dimmed { opacity: .08; }

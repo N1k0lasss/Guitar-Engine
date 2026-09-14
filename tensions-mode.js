@@ -143,6 +143,30 @@ function initializeTensions() {
     selectedTension = '9';
     renderTensions();
   });
+  const detail = document.querySelector('.tension-detail');
+  if (detail) {
+    const toHarmonyBtn = document.createElement('button');
+    toHarmonyBtn.type = 'button';
+    toHarmonyBtn.className = 'ghost-btn';
+    toHarmonyBtn.textContent = 'Abrir en Armonía →';
+    toHarmonyBtn.addEventListener('click', () => {
+      const keySelect = document.getElementById('harmony-key');
+      const variantSelect = document.getElementById('harmony-variant');
+      if (variantSelect) {
+        const v = tensionQuality === 'm7' ? 'natural' : 'major';
+        if (variantSelect.value !== v) {
+          variantSelect.value = v;
+          variantSelect.dispatchEvent(new Event('change'));
+        }
+      }
+      if (keySelect && keySelect.value !== tensionRoot) {
+        keySelect.value = tensionRoot;
+        keySelect.dispatchEvent(new Event('change'));
+      }
+      openStudyMode('harmony');
+    });
+    detail.appendChild(toHarmonyBtn);
+  }
   renderTensions();
 }
 

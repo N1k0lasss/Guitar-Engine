@@ -558,18 +558,7 @@ h2 { margin-bottom: 0; font-size: clamp(25px, 4vw, 40px); font-weight: 600; lett
 .ejes-scale span { color: var(--ink); font-size: 12px; }
 .hidden { display: none !important; }
 
-@media (max-width: 1024px) {
-  .app-shell { width: min(1180px, calc(100% - 48px)); padding-top: 26px; }
-  .workspace-grid { grid-template-columns: 1fr; }
-  .study-grid, .harmony-layout, .tensions-layout, .modes-layout, .proximity-layout, .prl-layout, .tt-layout, .poly-layout, .carto-layout, .sabor-layout { grid-template-columns: 1fr; }
-  .prl-cards { grid-template-columns: repeat(2, 1fr); }
-  .sabor-grid { grid-template-columns: repeat(4, 1fr); }
-  .harmony-map { min-height: 520px; }
-  .tension-map { min-height: 480px; }
-  .modes-wheel { min-height: 470px; }
-  .circle-panel { min-height: 460px; }
-  .view-heading h2 { font-size: clamp(30px, 5.5vw, 46px); }
-}
+
 
 @media (max-width: 700px) {
   .mode-switcher { overflow: visible; }
@@ -886,7 +875,3 @@ select, .harmony-toolbar select, .tensions-toolbar select, .modes-toolbar select
   .chord-stage, .tuner-stage { min-height: 300px; }
   #chord { font-size: clamp(85px, 26vw, 140px); }
 }
-
-/* cartografía: lenguaje de grafo — hover resalta la arista, click fija la vecindad */
-.carto-edge.active { stroke: var(--accent); stroke-width: 0.55; }
-.carto-edge.dimmed { opacity: .08; }

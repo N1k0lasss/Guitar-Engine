@@ -27,6 +27,7 @@ let cartoTonic = 0;
 let cartoRootMode = 0;
 let cartoTetrad = false;
 let cartoSelected = 0;
+let cartoPin = null;
 
 function cartoEdges() {
   const edges = [];
@@ -123,6 +124,15 @@ function cartoDists() {
 
 let cartoGraph, cartoCard;
 
+function cartoEdgeFocus(focus) {
+  if (!cartoGraph) return;
+  cartoGraph.querySelectorAll('.carto-edge').forEach(edge => {
+    const related = focus !== null && (Number(edge.dataset.from) === focus || Number(edge.dataset.to) === focus);
+    edge.classList.toggle('active', related);
+    edge.classList.toggle('dimmed', focus !== null && !related);
+  });
+}
+
 function cartoRender() {
   if (!cartoGraph) return;
   const { dist, furthest } = cartoDists();
@@ -132,9 +142,7 @@ function cartoRender() {
   let html = '<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" class="carto-svg">';
   cartoEdgesCache.forEach(([i, j], ei) => {
     const a = cartoPos[i], b = cartoPos[j];
-    const touchesSel = (i === cartoSelected || j === cartoSelected);
-    const hopCls = touchesSel ? 'hop-cand' : 'hop-idle';
-    html += `<line x1="${a.x.toFixed(2)}" y1="${a.y.toFixed(2)}" x2="${b.x.toFixed(2)}" y2="${b.y.toFixed(2)}" data-ei="${ei}" class="carto-edge ${hopCls}"/>`;
+    html += `<line x1="${a.x.toFixed(2)}" y1="${a.y.toFixed(2)}" x2="${b.x.toFixed(2)}" y2="${b.y.toFixed(2)}" data-ei="${ei}" data-from="${i}" data-to="${j}" class="carto-edge"/>`;
   });
   CARTO_MODES.forEach((m, i) => {
     const p = cartoPos[i];
@@ -147,8 +155,12 @@ function cartoRender() {
   html += '</svg>';
   cartoGraph.innerHTML = html;
   cartoGraph.querySelectorAll('.carto-node').forEach(n => {
-    n.addEventListener('click', () => { cartoSelected = +n.getAttribute('data-ni'); cartoRender(); });
+    const idx = +n.getAttribute('data-ni');
+    n.addEventListener('click', () => { cartoPin = cartoPin === idx ? null : idx; cartoSelected = idx; cartoRender(); });
+    n.addEventListener('mouseenter', () => cartoEdgeFocus(idx));
+    n.addEventListener('mouseleave', () => cartoEdgeFocus(cartoPin));
   });
+  cartoEdgeFocus(cartoPin);
   cartoRenderCard();
 }
 
@@ -197,7 +209,7 @@ function cartoInit() {
   modeSel.innerHTML = CARTO_MODES.map((m, i) => `<option value="${i}">${m.name}</option>`).join('');
 
   rootSel.addEventListener('change', () => { cartoTonic = +rootSel.value; cartoRender(); });
-  modeSel.addEventListener('change', () => { cartoRootMode = +modeSel.value; cartoSelected = cartoRootMode; cartoRender(); });
+  modeSel.addEventListener('change', () => { cartoRootMode = +modeSel.value; cartoSelected = cartoRootMode; cartoPin = null; cartoRender(); });
   if (tetradBtn) tetradBtn.addEventListener('click', () => { cartoTetrad = true; updateVoicingBtns(); cartoRender(); });
   if (triadBtn) triadBtn.addEventListener('click', () => { cartoTetrad = false; updateVoicingBtns(); cartoRender(); });
 
