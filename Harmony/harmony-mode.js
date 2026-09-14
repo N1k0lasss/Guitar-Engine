@@ -38,9 +38,10 @@ const HARMONY_EDGES = {
     ['IV', 'iv', 'plagal menor'], ['iv', 'I', 'resuelve'],
   ],
   min: [
-    ['i', 'VI', 'continúa'], ['i', 'III', 'relativa'], ['i', 'v', 'tensiona'],
+    ['i', 'VII', 'baja por grado'], ['i', 'VI', 'continúa'], ['i', 'III', 'relativa'], ['i', 'v', 'tensiona'],
     ['iv', 'i', 'plagal'], ['v', 'i', 'resuelve'], ['iv', 'v', 'prepara'],
-    ['VI', 'iv', 'conecta'], ['III', 'VI', 'conecta'], ['VII', 'iv', 'prepara'],
+    ['VI', 'iv', 'conecta'], ['VI', 'III', 'baja por grado'], ['III', 'VII', 'baja por grado'],
+    ['VII', 'VI', 'baja por grado'], ['VII', 'iv', 'prepara'],
     ['ii°', 'i', 'resuelve'],
   ],
 };
@@ -50,7 +51,54 @@ const HARMONY_POSITIONS = {
   min: { i: [50, 50], 'ii°': [27, 76], III: [73, 76], iv: [50, 17], v: [82, 28], VI: [18, 28], VII: [50, 91] },
 };
 
-let harmonyKey = { root: 'C', mod: 'maj' };
+const HARMONY_VARIANTS = {
+  major: {
+    label: 'Mayor', mod: 'maj', intervals: HARMONY_SCALE_INTERVALS.maj,
+    degrees: HARMONY_DEGREES.maj, edges: HARMONY_EDGES.maj, positions: HARMONY_POSITIONS.maj,
+  },
+  natural: {
+    label: 'Menor natural', mod: 'min', intervals: HARMONY_SCALE_INTERVALS.min,
+    degrees: HARMONY_DEGREES.min, edges: HARMONY_EDGES.min, positions: HARMONY_POSITIONS.min,
+  },
+  harmonic: {
+    label: 'Menor armónica', mod: 'min', intervals: [0, 2, 3, 5, 7, 8, 11],
+    degrees: [
+      { degree: 'i', quality: 'm', interval: 0, origin: 'diatonic', role: 'Centro', description: 'El centro menor con sensible elevada: la dominante puede resolver con fuerza.' },
+      { degree: 'ii°', quality: 'dim', interval: 2, origin: 'diatonic', role: 'Preparación', description: 'Acorde disminuido que prepara la dominante.' },
+      { degree: 'III+', quality: 'aug', interval: 3, origin: 'diatonic', role: 'Relativa mayor', description: 'Acorde aumentado producido por la sensible elevada.' },
+      { degree: 'iv', quality: 'm', interval: 5, origin: 'diatonic', role: 'Subdominante', description: 'Subdominante menor de la escala armónica.' },
+      { degree: 'V', quality: '', interval: 7, origin: 'diatonic', role: 'Dominante', description: 'Dominante mayor: contiene la sensible y resuelve al centro.' },
+      { degree: 'VI', quality: '', interval: 8, origin: 'diatonic', role: 'Sobretónica', description: 'Sexto grado mayor de la escala armónica.' },
+      { degree: 'vii°', quality: 'dim', interval: 11, origin: 'diatonic', role: 'Sensible', description: 'La sensible forma un acorde disminuido que resuelve al centro.' },
+    ],
+    edges: [
+      ['i', 'VI', 'continúa'], ['i', 'III+', 'relativa'], ['i', 'iv', 'abre'],
+      ['ii°', 'V', 'prepara'], ['iv', 'V', 'prepara'], ['V', 'i', 'resuelve'],
+      ['VI', 'iv', 'conecta'], ['vii°', 'i', 'resuelve'],
+    ],
+    positions: { i: [50, 50], 'ii°': [27, 76], 'III+': [73, 76], iv: [50, 17], V: [82, 28], VI: [18, 28], 'vii°': [50, 91] },
+  },
+  melodic: {
+    label: 'Menor melódica', mod: 'min', intervals: [0, 2, 3, 5, 7, 9, 11],
+    degrees: [
+      { degree: 'i', quality: 'm', interval: 0, origin: 'diatonic', role: 'Centro', description: 'Centro menor; la sexta y séptima elevadas favorecen el movimiento ascendente.' },
+      { degree: 'ii', quality: 'm', interval: 2, origin: 'diatonic', role: 'Preparación', description: 'Preparación menor de la dominante.' },
+      { degree: 'III+', quality: 'aug', interval: 3, origin: 'diatonic', role: 'Relativa mayor', description: 'Color aumentado de la escala menor melódica.' },
+      { degree: 'IV', quality: '', interval: 5, origin: 'diatonic', role: 'Subdominante', description: 'Subdominante mayor con sexta elevada.' },
+      { degree: 'V', quality: '', interval: 7, origin: 'diatonic', role: 'Dominante', description: 'Dominante mayor con sensible.' },
+      { degree: 'vi°', quality: 'dim', interval: 9, origin: 'diatonic', role: 'Paso', description: 'Sexto grado disminuido de la escala melódica ascendente.' },
+      { degree: 'vii°', quality: 'dim', interval: 11, origin: 'diatonic', role: 'Sensible', description: 'Acorde de sensible que resuelve al centro.' },
+    ],
+    edges: [
+      ['i', 'IV', 'asciende'], ['i', 'V', 'tensiona'], ['i', 'III+', 'color'],
+      ['ii', 'V', 'prepara'], ['IV', 'V', 'prepara'], ['V', 'i', 'resuelve'],
+      ['vi°', 'vii°', 'asciende'], ['vii°', 'i', 'resuelve'],
+    ],
+    positions: { i: [50, 50], ii: [27, 76], 'III+': [73, 76], IV: [50, 17], V: [82, 28], 'vi°': [18, 28], 'vii°': [50, 91] },
+  },
+};
+
+let harmonyKey = { root: 'C', mod: 'maj', variant: 'major' };
 let harmonyMode = 'funciones';
 let harmonyHarmonic = false;
 let harmonySelected = 'I';
@@ -77,7 +125,7 @@ function harmonSharedWithTonic(mod, root, def) {
 
 function harmonTonicEdges(mod) {
   const tonic = HARMONY_TONIC[mod];
-  return HARMONY_EDGES[mod].filter(([from, to]) => to === tonic);
+  return harmonyEdges(mod).filter(([from, to]) => to === tonic);
 }
 
 function harmonDominantName() {
@@ -118,8 +166,11 @@ function harmonTwoFiveOne() {
 
 function harmonSet251(which) {
   harmonyKey.mod = which === 'min' ? 'min' : 'maj';
+  harmonyKey.variant = which === 'min' ? 'natural' : 'major';
   const keySelect = document.getElementById('harmony-key');
-  if (keySelect) keySelect.value = harmonyKey.mod + ':' + harmonyKey.root;
+  const variantSelect = document.getElementById('harmony-variant');
+  if (keySelect) keySelect.value = harmonyKey.root;
+  if (variantSelect) variantSelect.value = harmonyKey.variant;
   const path = which === 'min' ? ['ii°', 'v', 'i'] : ['ii', 'V', 'I'];
   harmonySelected = path[path.length - 1];
   harmonyPath = path.slice();
@@ -130,16 +181,33 @@ function harmonyChord(def) {
   return harmonChordName(harmonyKey.mod, harmonyKey.root, def);
 }
 
-function harmonyDegrees(mod) {
-  return HARMONY_DEGREES[mod === 'min' ? 'min' : 'maj'];
+function harmonyVariant(variant = harmonyKey.variant) {
+  return HARMONY_VARIANTS[variant] || HARMONY_VARIANTS[variant === 'min' ? 'natural' : 'major'];
 }
 
-function harmonyEdges(mod) {
-  return HARMONY_EDGES[mod === 'min' ? 'min' : 'maj'];
+function harmonyDegrees(mod, variant = harmonyKey.variant) {
+  const scale = harmonyVariant(variant);
+  return scale.mod === mod ? scale.degrees : HARMONY_DEGREES[mod === 'min' ? 'min' : 'maj'];
 }
 
-function harmonyPositions(mod) {
-  return HARMONY_POSITIONS[mod === 'min' ? 'min' : 'maj'];
+function harmonyEdges(mod, variant = harmonyKey.variant) {
+  const scale = harmonyVariant(variant);
+  return scale.mod === mod ? scale.edges : HARMONY_EDGES[mod === 'min' ? 'min' : 'maj'];
+}
+
+function harmonyPositions(mod, variant = harmonyKey.variant) {
+  const scale = harmonyVariant(variant);
+  return scale.mod === mod ? scale.positions : HARMONY_POSITIONS[mod === 'min' ? 'min' : 'maj'];
+}
+
+function harmonyLinePoints(from, to) {
+  const [x1, y1] = from;
+  const [x2, y2] = to;
+  const distance = Math.hypot(x2 - x1, y2 - y1) || 1;
+  const inset = Math.min(11, distance / 3);
+  const dx = (x2 - x1) / distance * inset;
+  const dy = (y2 - y1) / distance * inset;
+  return { x1: x1 + dx, y1: y1 + dy, x2: x2 - dx, y2: y2 - dy };
 }
 
 function harmonyModeMeta() {
@@ -153,11 +221,11 @@ function harmonyModeMeta() {
       hint: 'El libro de Callipari: a más notas en común, más cerca (2 = casi mismo acorde).',
     },
     cadencias: {
-      legend: harmonyKey.mod === 'min' && harmonyHarmonic
-        ? '<i class="on"></i> hacia la tónica = cierre · en menor la dominante suena como V7 (armónica)'
-        : '<i class="on"></i> hacia la tónica = cierre de frase',
+      legend: '<i class="on"></i> hacia la tónica = cierre de frase',
       hint: harmonyKey.mod === 'min'
-        ? 'Perfecta (v→i · con sensible V7→i), plagal (iv→i): los finales que cierran en menor.'
+        ? harmonyKey.variant === 'natural'
+          ? 'Perfecta (v→i), plagal (iv→i) y la bajada i→VII→VI: recorridos propios de la menor natural.'
+          : 'Perfecta (V→i con sensible), plagal y resoluciones disminuidas: recorridos de la escala menor activa.'
         : 'Perfecta (V→I), plagal (IV→I), amarga (4→4m→1) y sensible (vii°→I): los finales que cierran.',
     },
     dominantes: {
@@ -178,12 +246,15 @@ function renderHarmony() {
   if (!map || !keySelect) return;
 
   const mod = harmonyKey.mod;
+  const variant = harmonyVariant();
   const degrees = harmonyDegrees(mod);
   const positions = harmonyPositions(mod);
   const tonicName = harmonChordName(mod, harmonyKey.root, degrees[0]);
   const tonic = HARMONY_TONIC[mod];
+  const variantBadge = document.getElementById('harmony-variant-badge');
+  if (variantBadge) variantBadge.textContent = `Mapa · ${variant.label}`;
 
-  map.innerHTML = '<svg class="harmony-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg>';
+  map.innerHTML = '<svg class="harmony-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><defs><marker id="harmony-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse"><path fill="context-stroke" d="M 0 0 L 10 5 L 0 10 z"></path></marker></defs></svg>';
   const svg = map.querySelector('svg');
 
   const isCad = harmonyMode === 'cadencias';
@@ -192,13 +263,13 @@ function renderHarmony() {
   const isProg = harmonyMode === 'prog';
 
   harmonyEdges(mod).forEach(([from, to]) => {
-    const [x1, y1] = positions[from];
-    const [x2, y2] = positions[to];
+    const points = harmonyLinePoints(positions[from], positions[to]);
     const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    line.setAttribute('x1', x1);
-    line.setAttribute('y1', y1);
-    line.setAttribute('x2', x2);
-    line.setAttribute('y2', y2);
+    line.setAttribute('x1', points.x1);
+    line.setAttribute('y1', points.y1);
+    line.setAttribute('x2', points.x2);
+    line.setAttribute('y2', points.y2);
+    line.setAttribute('marker-end', 'url(#harmony-arrow)');
     line.dataset.from = from;
     line.dataset.to = to;
     svg.appendChild(line);
@@ -236,11 +307,13 @@ function renderHarmony() {
       const fromPos = positions[a.degree];
       const toPos = positions[b.degree];
       if (!fromPos || !toPos) continue;
+      const points = harmonyLinePoints(fromPos, toPos);
       const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-      line.setAttribute('x1', fromPos[0]);
-      line.setAttribute('y1', fromPos[1]);
-      line.setAttribute('x2', toPos[0]);
-      line.setAttribute('y2', toPos[1]);
+      line.setAttribute('x1', points.x1);
+      line.setAttribute('y1', points.y1);
+      line.setAttribute('x2', points.x2);
+      line.setAttribute('y2', points.y2);
+      line.setAttribute('marker-end', 'url(#harmony-arrow)');
       line.setAttribute('class', 'prog-line');
       svg.appendChild(line);
     }
@@ -411,9 +484,10 @@ let harmonyProgGenerated = false;
 function harmonProgQual(mod, degree, palette) {
   const cfg = HARMONY_PROG_PALETTES[palette];
   const up = cfg && cfg.seventh
-    ? (mod === 'min' ? { v: '7', 'ii°': 'dim', i: 'm7', IV: 'maj7' } : { ii: 'm7', V: '7', I: 'maj7' })
+    ? (mod === 'min' ? { v: '7', V: '7', 'ii°': 'dim', i: 'm7', IV: 'maj7' } : { ii: 'm7', V: '7', I: 'maj7' })
     : {};
-  return up[degree] || HARMONY_DEGREES[mod].find(d => d.degree === degree).quality;
+  const def = harmonyDegrees(mod).find(d => d.degree === degree);
+  return up[degree] || (def ? def.quality : '');
 }
 
 function harmonProgStep(name, mod, rootIdx, def, quality) {
@@ -434,7 +508,7 @@ function harmonProgGlue(prevNotes, nextNotes) {
 
 function harmonProgCandidates(mod, rootIdx, palette, fromIdx, fromDef, fromNotes) {
   const cfg = HARMONY_PROG_PALETTES[palette];
-  const degrees = HARMONY_DEGREES[mod];
+  const degrees = harmonyDegrees(mod);
   const tonicIdx = 0;
   const fromPc = (rootIdx + fromDef.interval) % 12;
   const candidates = [];
@@ -445,7 +519,7 @@ function harmonProgCandidates(mod, rootIdx, palette, fromIdx, fromDef, fromNotes
     const tritone = diff === 6;
     const axis = diff === 3 || diff === 9;
     const fourthUp = diff === 5;
-    const hasEdge = HARMONY_EDGES[mod].some(([a, b]) => a === fromDef.degree && b === to.degree);
+    const hasEdge = harmonyEdges(mod).some(([a, b]) => a === fromDef.degree && b === to.degree);
     const glue = harmonProgGlue(fromNotes, step.notes);
     let w = cfg.step + (hasEdge ? 1.2 : 0);
     if (toIdx === tonicIdx) w += 3.2;
@@ -490,7 +564,7 @@ function harmonProgDomStep(domRoot, domName) {
 
 function harmonProgGenerate(len, mod, root, palette, tonicCheck) {
   const rootIdx = HARMONY_NOTES.indexOf(root);
-  const degrees = HARMONY_DEGREES[mod];
+  const degrees = harmonyDegrees(mod);
   const tonicIdx = 0;
   const steps = [];
   const startIdx = tonicCheck ? 0 : Math.floor(Math.random() * degrees.length);
@@ -534,6 +608,9 @@ function harmonProgLabel(mod, rootIdx, prev, cur) {
   const isTritone = diff === 6;
   const isAxisMate = diff === 3 || diff === 9;
   const isFourth = diff === 5;
+  const isMinorStepDown = mod === 'min' && diff === 10
+    && ['i', 'III', 'VI', 'VII'].includes(prev.degree)
+    && ['III', 'VI', 'VII'].includes(cur.degree);
   const prefix = cur.origin === 'borrowed' ? 'préstamo · ' : '';
   const curIsDom7 = !/m|dim/.test(cur.quality) && cur.quality.indexOf('7') >= 0
     && cur.quality.indexOf('maj') < 0 && cur.quality.indexOf('m7') < 0;
@@ -547,6 +624,7 @@ function harmonProgLabel(mod, rootIdx, prev, cur) {
   }
   if (isParallel) return { t: 'paralela (P)', kind: 'prl' };
   if (isRelative) return { t: 'relativa (R)', kind: 'prl' };
+  if (isMinorStepDown) return { t: 'bajada diatónica', kind: 'step' };
   if (prevIsDom7 && curIsDom7 && isFourth) return { t: 'cadena por cuartas', kind: 'chain' };
   if (prevIsDom7 && isDomOfCur) return { t: `${prev.name} → ${cur.name} (V de ${cur.degree})`, kind: 'secdom' };
   if (isTritone) return { t: 'tritono · eje de Bartók', kind: 'axis' };
@@ -663,7 +741,7 @@ function renderHarmonyNexts() {
   const rootIdx = harmonyRootIdx();
   const selected = degrees.find(d => d.degree === harmonySelected);
   if (!selected) { el.innerHTML = ''; return; }
-  const edges = HARMONY_EDGES[mod].filter(([a]) => a === selected.degree);
+  const edges = harmonyEdges(mod).filter(([a]) => a === selected.degree);
   const secDom = harmonSecondaryDominant(selected);
   el.innerHTML = edges.map(([, to, label]) => {
     const def = degrees.find(d => d.degree === to);
@@ -693,22 +771,29 @@ function initializeHarmonyStaging() {
 function initializeHarmony() {
   const keySelect = document.getElementById('harmony-key');
   if (!keySelect) return;
-  const majors = HARMONY_NOTES.map(n => `<option value="maj:${n}">${n} mayor</option>`);
-  const minors = HARMONY_NOTES.map(n => `<option value="min:${n}">${n} menor</option>`);
-  keySelect.innerHTML = majors.join('') + minors.join('');
-  keySelect.value = 'maj:C';
+  keySelect.innerHTML = HARMONY_NOTES.map(note => `<option value="${note}">${note}</option>`).join('');
+  keySelect.value = harmonyKey.root;
+
+  const variantSelect = document.getElementById('harmony-variant');
+  if (variantSelect) {
+    variantSelect.value = harmonyKey.variant;
+    variantSelect.addEventListener('change', () => {
+      harmonyKey.variant = variantSelect.value;
+      harmonyKey.mod = harmonyVariant().mod;
+      resetHarmony();
+    });
+  }
 
   keySelect.addEventListener('change', () => {
-    const [mod, root] = keySelect.value.split(':');
-    harmonyKey = { root, mod };
+    harmonyKey.root = keySelect.value;
     resetHarmony();
   });
 
   document.querySelectorAll('#harmony-mode-seg .seg-btn').forEach(btn => {
     btn.addEventListener('click', () => setHarmonyMode(btn.dataset.hmode));
   });
-  document.getElementById('harmony-clear').addEventListener('click', resetHarmony);
-  document.getElementById('harmony-harmonic').addEventListener('change', toggleHarmonyHarmonic);
+  const clearButton = document.getElementById('harmony-clear');
+  if (clearButton) clearButton.addEventListener('click', resetHarmony);
   initializeHarmonyStaging();
   const btn251maj = document.getElementById('harmony-251-major');
   if (btn251maj) btn251maj.addEventListener('click', () => harmonSet251('maj'));

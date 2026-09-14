@@ -70,11 +70,18 @@
   </section>
 
   <section id="harmony-view" class="view">
-    <div class="view-heading"><div><p class="eyebrow">ARMONÍA ILUSTRADA</p><h2>Seguí las conexiones entre acordes</h2></div><span class="signal-badge">Mapa · tonalidad mayor</span></div>
+    <div class="view-heading"><div><p class="eyebrow">ARMONÍA ILUSTRADA</p><h2>Seguí las conexiones entre acordes</h2></div><span class="signal-badge" id="harmony-variant-badge">Mapa · Mayor</span></div>
     <div class="harmony-toolbar panel">
       <label for="harmony-key">Tonalidad</label>
       <select id="harmony-key"></select>
-      <label>Modo</label>
+      <label for="harmony-variant">Escala</label>
+      <select id="harmony-variant">
+        <option value="major">Mayor</option>
+        <option value="natural">Menor natural</option>
+        <option value="harmonic">Menor armónica</option>
+        <option value="melodic">Menor melódica</option>
+      </select>
+      <label>Vista</label>
       <div class="seg" id="harmony-mode-seg">
         <button type="button" class="seg-btn active" data-hmode="funciones">Funciones</button>
         <button type="button" class="seg-btn" data-hmode="prox">Proximidad</button>
@@ -82,9 +89,6 @@
         <button type="button" class="seg-btn" data-hmode="dominantes">Dominantes</button>
         <button type="button" class="seg-btn" data-hmode="prog">Progresiones</button>
       </div>
-      <label class="harmony-harmonic hidden" id="harmony-harmonic-wrap" title="En menor natural la dominante es Gm; con la sensible (menor armónica) cierra como G7.">
-        <input type="checkbox" id="harmony-harmonic"> Cierre armónico <b>V7→i</b>
-      </label>
       <button id="harmony-clear" class="ghost-btn">Limpiar recorrido</button>
     </div>
     <div class="harmony-gen hidden" id="harmony-gen">

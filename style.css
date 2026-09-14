@@ -114,7 +114,7 @@ h2 { margin-bottom: 0; font-size: clamp(25px, 4vw, 40px); font-weight: 600; lett
 .tuning-strip { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-top: 18px; color: var(--muted); text-align: center; font: 12px 'DM Mono', monospace; }
 
 .study-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 22px; }
-.harmony-toolbar { display: flex; align-items: center; gap: 13px; margin-bottom: 22px; }
+.harmony-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 13px; margin-bottom: 22px; }
 .tensions-toolbar, .modes-toolbar { display: flex; align-items: center; gap: 13px; margin-bottom: 22px; }
 .harmony-toolbar label, .tensions-toolbar label, .modes-toolbar label { color: var(--muted); font: 11px 'DM Mono', monospace; text-transform: uppercase; }
 .harmony-toolbar select, .tensions-toolbar select, .modes-toolbar select, .scale-controls select { padding: 10px; color: var(--ink); background: #242624; border: 1px solid #464946; border-radius: 2px; }
@@ -127,6 +127,7 @@ h2 { margin-bottom: 0; font-size: clamp(25px, 4vw, 40px); font-weight: 600; lett
 .harmony-map::before { content: ''; position: absolute; inset: 0; opacity: .2; background: repeating-linear-gradient(0deg, transparent 0 23px, rgba(255, 246, 224, .08) 24px), repeating-linear-gradient(90deg, transparent 0 23px, rgba(255, 246, 224, .05) 24px); }
 .harmony-lines { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
 .harmony-lines line { stroke: rgba(244, 234, 214, .43); stroke-width: .35; stroke-dasharray: 1.2 1.5; opacity: 1; transition: stroke .2s, stroke-width .2s, opacity .2s; }
+.harmony-lines marker path { fill: context-stroke; }
 .harmony-lines line.active { stroke: #9b6cff; stroke-width: .75; stroke-dasharray: none; }
 .harmony-node { position: absolute; z-index: 1; display: grid; width: 112px; min-height: 82px; padding: 9px 7px; color: #d9dbd4; background: #252826; border: 1px solid #626760; border-radius: 2px; cursor: pointer; text-align: center; transform: translate(-50%, -50%); transition: transform .2s, background .2s, border-color .2s; }
 .harmony-node:hover, .harmony-node.selected { color: #171815; background: var(--accent); border-color: #c8b0ff; transform: translate(-50%, -50%) scale(1.04); }
