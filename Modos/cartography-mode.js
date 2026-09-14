@@ -132,7 +132,9 @@ function cartoRender() {
   let html = '<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" class="carto-svg">';
   cartoEdgesCache.forEach(([i, j], ei) => {
     const a = cartoPos[i], b = cartoPos[j];
-    html += `<line x1="${a.x.toFixed(2)}" y1="${a.y.toFixed(2)}" x2="${b.x.toFixed(2)}" y2="${b.y.toFixed(2)}" data-ei="${ei}" class="carto-edge"/>`;
+    const touchesSel = (i === cartoSelected || j === cartoSelected);
+    const hopCls = touchesSel ? 'hop-cand' : 'hop-idle';
+    html += `<line x1="${a.x.toFixed(2)}" y1="${a.y.toFixed(2)}" x2="${b.x.toFixed(2)}" y2="${b.y.toFixed(2)}" data-ei="${ei}" class="carto-edge ${hopCls}"/>`;
   });
   CARTO_MODES.forEach((m, i) => {
     const p = cartoPos[i];
