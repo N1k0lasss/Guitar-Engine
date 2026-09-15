@@ -360,6 +360,23 @@ function updateHarmonyLines(focusDegree) {
   });
 }
 
+function renderChordDiagram(containerId, chordName) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  const info = getChordInfo ? getChordInfo(chordName) : null;
+  const frets = info && info.fingering ? info.fingering.frets : null;
+  const barre = info && info.fingering ? info.fingering.label : '';
+  if (!frets) {
+    container.innerHTML = `<p class="study-hint">Sin digitación para ${chordName}</p>`;
+    return;
+  }
+  const cells = ['E', 'A', 'D', 'G', 'B', 'e'].map((sn, i) => {
+    const f = frets[i];
+    return `<div class="diagram-cell"><span class="string-label">${sn}</span><b class="${f === null ? 'mute' : f === 0 ? 'open' : 'dot'}">${f === null ? '×' : f === 0 ? '○' : f}</b></div>`;
+  }).join('');
+  container.innerHTML = `<div class="harmony-prog-diagram">${cells}</div><p class="barre-label">${barre}</p>`;
+}
+
 function updateHarmonyDetails() {
   const degrees = harmonyDegrees(harmonyKey.mod);
   const selected = degrees.find(node => node.degree === harmonySelected);
@@ -376,6 +393,7 @@ function updateHarmonyDetails() {
 
   selectedEl.textContent = `${selected.degree} · ${harmonyChord(selected)}`;
   descriptionEl.textContent = selected.description;
+  renderChordDiagram('harmony-selected-diagram', harmonyChord(selected));
 
   const tonic = HARMONY_TONIC[harmonyKey.mod];
   let metric = '';

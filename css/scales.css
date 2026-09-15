@@ -1,0 +1,19 @@
+/* ============================================================
+   Guitar Theory · Escalas
+   11 / 22 — controles, resultados y diapasón
+============================================================ */
+
+.scale-controls { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
+.scale-controls label { color: var(--muted); font: 11px 'DM Mono', monospace; text-transform: uppercase; }
+.scale-controls select { min-width: 140px; padding: 10px; color: var(--ink); background: #242624; border: 1px solid #464946; border-radius: 2px; }
+.scale-result { overflow-x: auto; }
+.scale-result h3 { margin: 6px 0 9px; color: var(--accent); font-family: 'Source Sans 3', sans-serif; font-weight: 600; font-size: 30px; line-height: 1; }
+.scale-notes { margin: 0; color: var(--muted); font: 13px 'DM Mono', monospace; }
+
+.fretboard { min-width: 700px; margin-top: 30px; }
+.fret-numbers, .fret-grid { display: grid; grid-template-columns: repeat(16, minmax(38px, 1fr)); }
+.fret-numbers { margin-left: 34px; color: var(--muted); font: 10px 'DM Mono', monospace; text-align: center; }
+.fret-grid { position: relative; gap: 3px; padding: 7px 0 0 34px; background: repeating-linear-gradient(to bottom, transparent 0 25px, rgba(255,255,255,.22) 26px 27px); }
+.fret-cell { height: 29px; display: grid; place-items: center; color: transparent; border-right: 1px solid var(--line); border-left: 1px solid rgba(255,255,255,.04); font: 10px 'DM Mono', monospace; }
+.fret-cell.in-scale { color: #171815; background: rgba(155,108,255,.55); border-radius: 50%; }
+.fret-cell.root-note { color: #171815; background: var(--accent); font-weight: 700; }

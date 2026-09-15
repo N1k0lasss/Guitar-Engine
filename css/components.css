@@ -1,0 +1,38 @@
+/* ============================================================
+   Guitar Theory · Componentes compartidos
+   04 / 22 — paneles, chips, diagramas, toolbars, utilidades
+============================================================ */
+
+.panel { padding: 22px; background: var(--panel); border: 1px solid #303a33; border-radius: 5px; box-shadow: 0 12px 34px rgba(0,0,0,.12); }
+.panel-title { justify-content: space-between; margin-bottom: 20px; color: var(--ink); font-size: 13px; font-weight: 800; }
+.icon-btn { width: 27px; height: 27px; padding: 0; color: var(--muted); background: transparent; border: 1px solid var(--line); border-radius: 50%; cursor: pointer; font-size: 19px; line-height: 1; }
+.icon-btn:hover { color: var(--accent); border-color: var(--accent); }
+.history-list { display: flex; flex-wrap: wrap; align-content: flex-start; gap: 8px; min-height: 116px; }
+.history-chip { padding: 8px 10px; color: #b8bab3; background: #252725; border: 1px solid #3b3e3b; border-radius: 2px; font: 13px 'DM Mono', monospace; }
+.history-chip.current { color: #171815; background: var(--accent); border-color: var(--accent); }
+
+.muted { color: var(--muted); font-size: 13px; }
+.notes-list { margin: -6px 0 23px; color: var(--muted); font: 13px 'DM Mono', monospace; }
+#diagram, #prox-diagram { display: grid; grid-template-columns: repeat(6, minmax(36px, 1fr)); gap: 9px; max-width: 390px; }
+.diagram-cell { min-height: 84px; display: grid; place-items: center; align-content: space-between; padding: 8px 3px; border-bottom: 1px solid rgba(255,255,255,.28); background: repeating-linear-gradient(to bottom, transparent 0 20px, rgba(255,255,255,.1) 21px 22px); border-radius: 3px; }
+.string-label { color: var(--muted); font: 11px 'DM Mono', monospace; }
+.dot { display: grid; place-items: center; width: 28px; height: 28px; color: #f5edda; background: var(--warm); border-radius: 50%; font: 12px 'DM Mono', monospace; }
+.open, .mute { color: var(--muted); font: 19px 'DM Mono', monospace; }
+.barre-label { margin: 16px 0 0; color: var(--muted); font-size: 12px; }
+
+.study-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 22px; }
+.harmony-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 13px; margin-bottom: 22px; }
+.tensions-toolbar, .modes-toolbar { display: flex; align-items: center; gap: 13px; margin-bottom: 22px; }
+.harmony-toolbar label, .tensions-toolbar label, .modes-toolbar label { color: var(--muted); font: 11px 'DM Mono', monospace; text-transform: uppercase; }
+.harmony-toolbar select, .tensions-toolbar select, .modes-toolbar select, .scale-controls select { padding: 10px; color: var(--ink); background: #242624; border: 1px solid #464946; border-radius: 2px; }
+.harmony-toolbar select, .modes-toolbar select { min-width: 100px; }
+.tensions-toolbar select { min-width: 105px; }
+
+.study-hint { margin: 24px 0 0; color: var(--muted); font-size: 12px; text-align: center; }
+
+.seg { display: flex; border: 1px solid #464946; border-radius: 2px; overflow: hidden; }
+.seg-btn { padding: 10px 14px; color: var(--muted); background: #242624; border: 0; cursor: pointer; font-size: 12px; }
+.seg-btn:hover { color: var(--ink); }
+.seg-btn.active { color: #171815; background: var(--accent); }
+
+.hidden { display: none !important; }

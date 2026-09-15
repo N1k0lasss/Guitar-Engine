@@ -1,0 +1,98 @@
+/* ============================================================
+   Guitar Theory · Armonía
+   07 / 22 — mapa armónico, generador, progresiones
+============================================================ */
+
+.harmony-toolbar .ghost-btn { margin-left: auto; }
+.harmony-layout { display: grid; grid-template-columns: 1.35fr .65fr; gap: 22px; }
+.harmony-map-panel { padding: 16px; }
+.harmony-map { position: relative; min-height: 570px; overflow: hidden; background: #111312; border: 1px solid #343735; }
+.harmony-map::before { content: ''; position: absolute; inset: 0; opacity: .2; background: repeating-linear-gradient(0deg, transparent 0 23px, rgba(255, 246, 224, .08) 24px), repeating-linear-gradient(90deg, transparent 0 23px, rgba(255, 246, 224, .05) 24px); }
+.harmony-lines { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.harmony-lines line { stroke: rgba(244, 234, 214, .43); stroke-width: .35; stroke-dasharray: 1.2 1.5; opacity: 1; transition: stroke .2s, stroke-width .2s, opacity .2s; }
+.harmony-lines marker path { fill: context-stroke; }
+.harmony-lines line.active { stroke: #9b6cff; stroke-width: .75; stroke-dasharray: none; }
+.harmony-node { position: absolute; z-index: 1; display: grid; width: 112px; min-height: 82px; padding: 9px 7px; color: #d9dbd4; background: #252826; border: 1px solid #626760; border-radius: 2px; cursor: pointer; text-align: center; transform: translate(-50%, -50%); transition: transform .2s, background .2s, border-color .2s; }
+.harmony-node:hover, .harmony-node.selected { color: #171815; background: var(--accent); border-color: #c8b0ff; transform: translate(-50%, -50%) scale(1.04); }
+.harmony-node strong { font: 700 22px 'Libre Baskerville', serif; }
+.harmony-node small { color: #cdbda2; font-size: 11px; }
+.harmony-node:hover small, .harmony-node.selected small { color: #66523a; }
+.harmony-degree { color: var(--accent); font: 11px 'DM Mono', monospace; }
+.harmony-node.selected .harmony-degree { color: #171815; }
+.harmony-detail { align-self: center; }
+.harmony-detail h3 { margin: 12px 0 16px; color: var(--accent); font-family: 'Source Sans 3', sans-serif; font-weight: 600; font-size: clamp(35px, 5vw, 56px); line-height: 1.05; }
+.harmony-description { min-height: 84px; color: var(--muted); font-size: 16px; line-height: 1.45; }
+.harmony-path { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; color: var(--ink); font: 12px 'DM Mono', monospace; }
+.harmony-path span { padding: 7px 8px; background: rgba(155,108,255,.08); border: 1px solid rgba(155,108,255,.22); }
+.harmony-path b { color: var(--accent); }
+.harmony-legend { display: flex; flex-wrap: wrap; gap: 14px; margin: 14px 2px 0; color: var(--muted); font: 10px 'DM Mono', monospace; }
+.harmony-legend i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; margin-right: 5px; background: rgba(244, 234, 214, .43); vertical-align: middle; }
+.harmony-legend i.on { background: var(--accent); }
+.harmony-legend i.far { background: #8a5447; }
+.harmony-metric { min-height: 20px; margin: -8px 0 18px; color: var(--accent); font: 12px 'DM Mono', monospace; }
+.harmony-metric b { color: var(--ink); }
+.harmony-lines line.muted { opacity: .18; }
+.harmony-node.borrowed { border-style: dashed; opacity: .85; }
+.harmony-node.cadence-tonic { box-shadow: 0 0 0 3px rgba(155, 108, 255, .45); }
+.harmony-node.prox-2 { border-color: var(--accent); }
+.harmony-node.prox-2 .harmony-degree { color: var(--accent); }
+.harmony-node.prox-1 { border-color: #4a4e48; }
+.harmony-node.prox-0 { background: #241c1a; border-color: #6b4a41; }
+.harmony-node.prox-0 .harmony-degree { color: #8a5447; }
+.prox-badge { position: absolute; top: 5px; right: 6px; color: var(--accent); font-style: normal; font: 10px 'DM Mono', monospace; }
+.harmony-node.prox-0 .prox-badge { color: #a56a58; }
+.harmony-node .harmonic-dominant { position: absolute; bottom: 5px; left: 6px; color: #ffd9a0; font-style: normal; font: 10px 'DM Mono', monospace; }
+.harmony-node .sec-dom { position: absolute; bottom: 5px; left: 6px; color: #7fd6ff; font-style: normal; font: 10px 'DM Mono', monospace; }
+.harmony-dom-panel { margin-top: 18px; padding-top: 14px; border-top: 1px solid #343735; }
+.harmony-dom-panel.hidden { display: none; }
+.harmony-dom-chain { display: flex; flex-wrap: wrap; gap: 4px 2px; align-items: baseline; margin: 8px 0 14px; font: 12px 'DM Mono', monospace; color: #7fd6ff; }
+.harmony-dom-chain span { white-space: nowrap; }
+.harmony-dom-chain b, .harmony-251 b { color: #6d7168; font-weight: 400; margin: 0 2px; }
+.harmony-251s { display: grid; gap: 8px; margin-top: 6px; }
+.harmony-251 { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.harmony-251 span { font: 12px 'DM Mono', monospace; color: var(--ink); white-space: nowrap; }
+.harmony-251 .ghost-btn { padding: 6px 8px; font-size: 11px; }
+.harmony-harmonic { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; color: var(--muted); font: 11px 'DM Mono', monospace; text-transform: uppercase; user-select: none; }
+.harmony-harmonic input { accent-color: var(--accent); cursor: pointer; }
+.harmony-harmonic.hidden { display: none; }
+.harmony-node:hover, .harmony-node.selected { color: #171815; background: var(--accent); border-color: #c8b0ff; transform: translate(-50%, -50%) scale(1.04); }
+.harmony-node:hover .harmony-degree, .harmony-node.selected .harmony-degree { color: #171815; }
+.harmony-node:hover .prox-badge, .harmony-node.selected .prox-badge { color: #171815; }
+.harmony-node:hover .harmonic-dominant, .harmony-node.selected .harmonic-dominant { color: #66523a; }
+.harmony-node:hover small, .harmony-node.selected small { color: #66523a; }
+
+.harmony-gen { display: grid; gap: 14px; padding: 16px; }
+.harmony-gen.hidden { display: none; }
+.harmony-gen-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.harmony-gen-controls label { color: var(--muted); font: 11px 'DM Mono', monospace; text-transform: uppercase; }
+.harmony-gen-controls select { padding: 7px 8px; color: var(--ink); background: #252826; border: 1px solid #626760; }
+.harmony-gen-controls .checkbox { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; }
+.harmony-gen-controls .checkbox input { accent-color: var(--accent); cursor: pointer; }
+.harmony-prog-wrap { display: grid; gap: 10px; }
+.harmony-prog-result { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.harmony-prog-chip { padding: 9px 12px; color: var(--ink); background: #252826; border: 1px solid #626760; cursor: pointer; font: 700 15px 'Libre Baskerville', serif; transition: background .15s, color .15s, border-color .15s; }
+.harmony-prog-chip:hover { border-color: var(--accent); }
+.harmony-prog-chip.selected { color: #171815; background: var(--accent); border-color: #c8b0ff; }
+.harmony-prog-sep { color: var(--accent); padding: 0 3px; }
+.harmony-prog-labels { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; color: var(--muted); font-size: 12px; }
+.harmony-prog-label { padding: 4px 8px; background: rgba(155,108,255,.08); border: 1px solid rgba(155,108,255,.22); font-size: 12px; }
+.harmony-prog-summary { display: flex; flex-wrap: wrap; gap: 6px; }
+.harmony-prog-tag { padding: 3px 9px; color: #352a1a; background: #e7c47c; border: 1px solid #f3d99b; font: 600 11px 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .5px; }
+.harmony-prog-detail { display: grid; gap: 10px; padding: 14px 16px; background: rgba(155,108,255,.08); border: 1px solid rgba(155,108,255,.22); }
+.harmony-prog-detail.hidden { display: none; }
+.harmony-prog-detail h4 { margin: 0; color: var(--accent); font: 700 30px 'Libre Baskerville', serif; }
+.harmony-prog-detail em { color: var(--muted); font-size: 12px; font-style: italic; }
+.harmony-prog-prev { margin: 0; color: var(--muted); font-size: 13px; }
+.harmony-prog-notes { margin: 0; color: var(--ink); font: 12px 'DM Mono', monospace; }
+.harmony-prog-diagram { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; max-width: 360px; }
+.harmony-prog-diagram .diagram-cell { min-height: 76px; }
+.harmony-lines line.prog-line { stroke: #e7c47c; stroke-width: .6; stroke-dasharray: none; }
+.harmony-node .harmony-prog-badge { position: absolute; top: 4px; left: 5px; z-index: 2; display: grid; place-items: center; width: 17px; height: 17px; color: #352a1a; background: #e7c47c; border-radius: 50%; font: 700 10px 'DM Mono', monospace; font-style: normal; }
+.harmony-node.selected .harmony-prog-badge, .harmony-node:hover .harmony-prog-badge { color: #352a1a; background: #e7c47c; }
+.harmony-nexts { margin-top: 18px; padding-top: 14px; border-top: 1px solid #343735; }
+.harmony-nexts.hidden { display: none; }
+.harmony-nexts .label { margin-bottom: 8px; }
+.harmony-next { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 5px; margin: 0 6px 6px 0; padding: 6px 9px; color: var(--ink); background: #252826; border: 1px solid #626760; cursor: pointer; font: 700 13px 'Libre Baskerville', serif; text-align: left; }
+.harmony-next:hover { border-color: var(--accent); }
+.harmony-next small { color: var(--muted); font: 10px 'DM Mono', monospace; font-weight: 400; }
+.harmony-next b { color: var(--accent); font-weight: 700; }

@@ -1,0 +1,35 @@
+/* ============================================================
+   Guitar Theory · Atlas (composición viva)
+   21 / 22 — lectura de acorde, constelación, responsive propio
+============================================================ */
+
+.brand { align-items: center; }
+.brand-subtitle { display: block; margin-top: 4px; color: var(--muted); font: 9px 'DM Mono', monospace; letter-spacing: .8px; }
+.atlas-readout { display: grid; gap: 5px; margin-left: auto; margin-right: 20px; color: var(--muted); font: 9px 'DM Mono', monospace; letter-spacing: 1.4px; text-align: right; }
+.atlas-readout #mode-readout { color: var(--accent); }
+.stage-rail { position: absolute; top: 18px; right: 20px; left: 20px; z-index: 2; display: flex; justify-content: space-between; color: var(--muted); font: 9px 'DM Mono', monospace; letter-spacing: 1.5px; }
+.chord-stage { display: block; padding: 65px 7% 30px; }
+.chord-stage-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(250px, .75fr); align-items: center; gap: clamp(28px, 7vw, 100px); height: 100%; }
+.chord-reading { text-align: left; }
+.chord-reading .label { margin-bottom: 12px; }
+.chord-reading .confidence { margin-top: 12px; }
+.constellation-wrap { display: grid; place-items: center; align-content: center; min-width: 0; }
+.constellation { position: relative; width: min(100%, 300px); aspect-ratio: 1; border: 1px solid rgba(233,232,226,.22); border-radius: 50%; background: radial-gradient(circle, transparent 0 31%, rgba(233,232,226,.08) 31.2% 31.6%, transparent 31.9% 58%, rgba(233,232,226,.12) 58.2% 58.6%, transparent 58.9%); }
+.constellation::before, .constellation::after { content: ''; position: absolute; inset: 18%; border: 1px solid rgba(255,85,124,.25); border-radius: 50%; }
+.constellation::after { inset: 42%; border-color: rgba(91,184,255,.35); }
+.constellation-note { position: absolute; top: 50%; left: 50%; display: grid; place-items: center; width: 32px; height: 32px; color: #525650; background: #0d0e0e; border: 1px solid #383b38; border-radius: 50%; font: 9px 'DM Mono', monospace; transform: rotate(var(--note-angle)) translateY(-132px) rotate(calc(var(--note-angle) * -1)); transition: color .25s, background .25s, border-color .25s, box-shadow .25s; }
+.constellation-note.tone { color: var(--ink); border-color: var(--warm); box-shadow: 0 0 0 4px rgba(91,184,255,.08); }
+.constellation-note.root { color: #050606; background: var(--accent); border-color: var(--accent); box-shadow: 0 0 0 5px rgba(255,85,124,.13); }
+.constellation-caption { max-width: 270px; margin: 17px 0 0; color: var(--muted); font: 10px/1.6 'DM Mono', monospace; text-align: center; }
+
+@media (max-width: 700px) {
+  .atlas-readout { display: none; }
+  .brand-subtitle { font-size: 8px; }
+  .stage-rail { font-size: 8px; }
+  .chord-stage { padding: 58px 18px 25px; }
+  .chord-stage-layout { grid-template-columns: 1fr; gap: 22px; }
+  .chord-reading { text-align: center; }
+  .chord-reading .label { margin-bottom: 4px; }
+  .constellation { width: min(68vw, 245px); }
+  .constellation-note { transform: rotate(var(--note-angle)) translateY(-106px) rotate(calc(var(--note-angle) * -1)); }
+}

@@ -1,0 +1,27 @@
+/* ============================================================
+   Guitar Theory · Modos
+   09 / 22 — rueda de modos y detalles
+============================================================ */
+
+.modes-layout { display: grid; grid-template-columns: 1.35fr .65fr; gap: 22px; }
+.modes-wheel-panel { padding: 24px; }
+.modes-wheel { position: relative; min-height: 510px; overflow: hidden; background: #111312; border: 1px solid #343735; }
+.modes-wheel::before { content: ''; position: absolute; inset: 11%; border: 1px solid rgba(244, 234, 214, .18); border-radius: 50%; box-shadow: 0 0 0 28px rgba(244, 234, 214, .025), 0 0 0 29px rgba(244, 234, 214, .12); }
+.modes-wheel-core { position: absolute; top: 50%; left: 50%; display: grid; place-items: center; width: 132px; height: 132px; color: #f4ead6; border: 1px solid #b9a98d; border-radius: 50%; transform: translate(-50%, -50%); text-align: center; font: 11px 'DM Mono', monospace; text-transform: uppercase; letter-spacing: 1px; }
+.mode-orbit { position: absolute; top: 50%; left: 50%; display: grid; width: 112px; min-height: 76px; padding: 8px; color: #d9dbd4; background: #252826; border: 1px solid #626760; border-radius: 2px; cursor: pointer; text-align: center; transform: rotate(var(--mode-angle)) translateY(-185px) rotate(calc(var(--mode-angle) * -1)) translate(-50%, -50%); transition: background .2s, color .2s, transform .2s; }
+.mode-orbit:hover, .mode-orbit.selected { color: #171815; background: var(--accent); transform: rotate(var(--mode-angle)) translateY(-185px) rotate(calc(var(--mode-angle) * -1)) translate(-50%, -50%) scale(1.06); }
+.mode-orbit span { color: var(--mode-color); font: 11px 'DM Mono', monospace; }
+.mode-orbit strong { font: 700 17px 'Libre Baskerville', serif; }
+.mode-orbit small { color: #cdbda2; font-size: 11px; }
+.mode-orbit:hover span, .mode-orbit.selected span, .mode-orbit:hover small, .mode-orbit.selected small { color: #514332; }
+.modes-scale-strip { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 18px; }
+.modes-scale-strip span { padding: 9px 4px; color: var(--ink); background: #252826; border-bottom: 2px solid #3b3e3b; font: 12px 'DM Mono', monospace; text-align: center; }
+.modes-scale-strip span.mode-tonic { color: #171815; background: var(--accent); border-color: var(--accent); }
+.mode-detail { align-self: center; }
+.mode-detail h3 { margin: 12px 0 4px; color: var(--accent); font-family: 'Source Sans 3', sans-serif; font-weight: 600; font-size: clamp(35px, 5vw, 56px); line-height: 1.05; }
+.mode-chord { margin-bottom: 22px; color: var(--muted); font: 15px 'DM Mono', monospace; }
+.mode-description { min-height: 84px; color: var(--muted); font-size: 16px; line-height: 1.45; }
+.mode-facts { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 28px; }
+.mode-facts span { display: grid; gap: 7px; padding: 12px; background: rgba(155,108,255,.08); border: 1px solid rgba(155,108,255,.22); }
+.mode-facts b { color: var(--muted); font: 10px 'DM Mono', monospace; text-transform: uppercase; }
+.mode-facts strong { color: var(--ink); font: 16px 'Libre Baskerville', serif; }

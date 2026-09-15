@@ -1,0 +1,37 @@
+/* ============================================================
+   Guitar Theory · Sabores de nota
+   17 / 22 — cromatismo y leyenda de colores
+============================================================ */
+
+/* --- Sabores de nota --- */
+.sabor-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-bottom: 22px; }
+.sabor-toolbar label { color: var(--muted); font: 11px 'DM Mono', monospace; text-transform: uppercase; }
+.sabor-toolbar select { padding: 10px; color: var(--ink); background: #242624; border: 1px solid #464946; border-radius: 2px; }
+.sabor-layout { display: grid; grid-template-columns: 1.7fr 1fr; gap: 22px; }
+.sabor-grid-panel, .sabor-detail { padding: 16px; }
+.sabor-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+.sabor-chip { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px 6px; background: #1e211f; border: 1px solid #343735; border-radius: 2px; cursor: pointer; transition: border-color .15s, transform .15s; }
+.sabor-chip:hover { transform: translateY(-2px); }
+.sabor-chip.selected { border-color: var(--accent); }
+.sabor-chip b { font: 600 18px 'Libre Baskerville', serif; color: var(--ink); }
+.sabor-chip span { color: var(--muted); font-size: 11px; text-transform: capitalize; }
+.sabor-chip.sabor-casa b { color: #d9dbd4; }
+.sabor-chip.sabor-flamenco b { color: #ff8b7a; }
+.sabor-chip.sabor-antiguo b { color: #d3a35c; }
+.sabor-chip.sabor-magia b { color: #b48cff; }
+.sabor-chip.sabor-dulce b { color: #ffb3d4; }
+.sabor-chip.sabor-epico b { color: #ffcf5c; }
+.sabor-chip.sabor-dominante b { color: #7fd6ff; }
+.sabor-chip.sabor-neutral b { color: #6d7168; }
+.sabor-chip.sabor-neutral span { color: #43463f; }
+.sabor-legend { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 14px; color: var(--muted); font-size: 11px; }
+.sabor-legend .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; vertical-align: baseline; }
+.dot.casa { background: #d9dbd4; }
+.dot.flamenco { background: #ff8b7a; }
+.dot.antiguo { background: #d3a35c; }
+.dot.magia { background: #b48cff; }
+.dot.dulce { background: #ffb3d4; }
+.dot.epico { background: #ffcf5c; }
+.dot.dominante { background: #7fd6ff; }
+.sabor-mode { display: inline-block; color: var(--accent); font: 12px 'DM Mono', monospace; margin-bottom: 12px; }
+.sabor-desc { color: var(--muted); font-size: 13px; line-height: 1.6; }

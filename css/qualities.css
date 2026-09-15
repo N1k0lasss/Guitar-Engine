@@ -1,0 +1,50 @@
+/* ============================================================
+   Guitar Theory · Cualidades armónicas
+   20 / 22 — color musical: cualidad antes que decoración
+   (los tokens --major/--minor/... viven en tokens.css)
+============================================================ */
+
+.constellation-note.root.quality-major { background: var(--major); border-color: var(--major); box-shadow: 0 0 0 5px rgba(255,82,109,.15); }
+.constellation-note.root.quality-minor { background: var(--minor); border-color: var(--minor); box-shadow: 0 0 0 5px rgba(85,186,255,.15); }
+.constellation-note.root.quality-dominant { background: var(--dominant); border-color: var(--dominant); box-shadow: 0 0 0 5px rgba(199,148,255,.15); }
+.constellation-note.root.quality-diminished { background: var(--diminished); border-color: var(--diminished); box-shadow: 0 0 0 5px rgba(242,200,107,.15); }
+.constellation-note.tone { border-color: var(--quality-color, var(--warm)); box-shadow: 0 0 0 4px color-mix(in srgb, var(--quality-color, var(--warm)) 9%, transparent); }
+.history-chip.quality-major { color: var(--major); border-color: var(--major); }
+.history-chip.quality-minor { color: var(--minor); border-color: var(--minor); }
+.history-chip.quality-dominant { color: var(--dominant); border-color: var(--dominant); }
+.history-chip.quality-diminished { color: var(--diminished); border-color: var(--diminished); }
+.history-chip.current { color: #050606; background: var(--quality-color, var(--accent)); border-color: var(--quality-color, var(--accent)); }
+.harmony-node.quality-major, .mode-orbit.quality-major { border-color: var(--major); }
+.harmony-node.quality-minor, .mode-orbit.quality-minor { border-color: var(--minor); }
+.harmony-node.quality-diminished, .mode-orbit.quality-diminished { border-color: var(--diminished); }
+.harmony-node.quality-major .harmony-degree, .mode-orbit.quality-major span { color: var(--major); }
+.harmony-node.quality-minor .harmony-degree, .mode-orbit.quality-minor span { color: var(--minor); }
+.harmony-node.quality-diminished .harmony-degree, .mode-orbit.quality-diminished span { color: var(--diminished); }
+.info-panel[data-quality="major"] .dot { background: var(--major); }
+.info-panel[data-quality="minor"] .dot { background: var(--minor); }
+.info-panel[data-quality="dominant"] .dot { background: var(--dominant); }
+.info-panel[data-quality="diminished"] .dot { background: var(--diminished); }
+
+/* --- Color musical: cualidad antes que decoracion --- */
+.constellation-note.quality-major, .history-chip.quality-major, .harmony-node.quality-major, .mode-orbit.quality-major { --quality-color: var(--major); }
+.constellation-note.quality-minor, .history-chip.quality-minor, .harmony-node.quality-minor, .mode-orbit.quality-minor { --quality-color: var(--minor); }
+.constellation-note.quality-dominant, .history-chip.quality-dominant, .harmony-node.quality-dominant, .mode-orbit.quality-dominant { --quality-color: var(--dominant); }
+.constellation-note.quality-diminished, .history-chip.quality-diminished, .harmony-node.quality-diminished, .mode-orbit.quality-diminished { --quality-color: var(--diminished); }
+
+.constellation-note.root { background: var(--quality-color, var(--accent)); border-color: var(--quality-color, var(--accent)); box-shadow: 0 0 0 5px color-mix(in srgb, var(--quality-color, var(--accent)) 15%, transparent); }
+.constellation-note.tone { color: var(--quality-color, var(--warm)); border-color: var(--quality-color, var(--warm)); box-shadow: 0 0 0 4px color-mix(in srgb, var(--quality-color, var(--warm)) 9%, transparent); }
+.history-chip.quality-major { color: var(--major); border-color: color-mix(in srgb, var(--major) 60%, var(--line)); }
+.history-chip.quality-minor { color: var(--minor); border-color: color-mix(in srgb, var(--minor) 60%, var(--line)); }
+.history-chip.quality-dominant { color: var(--dominant); border-color: color-mix(in srgb, var(--dominant) 60%, var(--line)); }
+.history-chip.quality-diminished { color: var(--diminished); border-color: color-mix(in srgb, var(--diminished) 60%, var(--line)); }
+.history-chip.current { color: #050606; background: var(--quality-color, var(--accent)); border-color: var(--quality-color, var(--accent)); }
+.harmony-node.quality-major, .mode-orbit.quality-major { border-color: color-mix(in srgb, var(--major) 72%, #555954); }
+.harmony-node.quality-minor, .mode-orbit.quality-minor { border-color: color-mix(in srgb, var(--minor) 72%, #555954); }
+.harmony-node.quality-diminished, .mode-orbit.quality-diminished { border-color: color-mix(in srgb, var(--diminished) 72%, #555954); }
+.harmony-node.quality-major .harmony-degree, .mode-orbit.quality-major span { color: var(--major); }
+.harmony-node.quality-minor .harmony-degree, .mode-orbit.quality-minor span { color: var(--minor); }
+.harmony-node.quality-diminished .harmony-degree, .mode-orbit.quality-diminished span { color: var(--diminished); }
+.info-panel[data-quality="major"] .dot { background: var(--major); }
+.info-panel[data-quality="minor"] .dot { background: var(--minor); }
+.info-panel[data-quality="dominant"] .dot { background: var(--dominant); }
+.info-panel[data-quality="diminished"] .dot { background: var(--diminished); }

@@ -1,0 +1,25 @@
+/* ============================================================
+   Guitar Theory · Paralelismo
+   13 / 22 — barra de herramientas, historial y cartas
+============================================================ */
+
+.prl-toolbar { display: flex; align-items: center; gap: 13px; margin-bottom: 22px; flex-wrap: wrap; }
+.prl-toolbar label { color: var(--muted); font: 11px 'DM Mono', monospace; text-transform: uppercase; }
+.prl-toolbar select { padding: 10px; color: var(--ink); background: #242624; border: 1px solid #464946; border-radius: 2px; min-width: 96px; }
+.prl-history { display: flex; gap: 6px; flex-wrap: wrap; margin-left: auto; }
+.prl-chip { padding: 7px 11px; color: var(--muted); background: #242624; border: 1px solid #464946; border-radius: 2px; cursor: pointer; font: 11px 'DM Mono', monospace; }
+.prl-chip:hover { color: var(--ink); border-color: var(--accent); }
+.prl-layout { display: grid; grid-template-columns: .62fr 1.38fr; gap: 22px; }
+.prl-source { padding: 16px; }
+.prl-source h3 { margin: 12px 0 10px; color: var(--accent); font-family: 'Source Sans 3', sans-serif; font-weight: 600; font-size: clamp(38px, 5vw, 60px); line-height: 1; }
+.prl-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.prl-card { display: grid; gap: 8px; align-content: start; padding: 16px 14px; color: var(--ink); background: #252826; border: 1px solid #3b3e3b; border-radius: 2px; cursor: pointer; text-align: left; font: inherit; }
+.prl-card:hover { border-color: var(--accent); background: #2b2d2a; }
+.prl-op { color: var(--accent); font: 700 30px 'Libre Baskerville', serif; line-height: 1; }
+.prl-opname { color: var(--muted); font: 11px 'DM Mono', monospace; text-transform: uppercase; }
+.prl-name { font: 700 21px 'Libre Baskerville', serif; }
+.prl-voice { color: var(--ink); font: 11px 'DM Mono', monospace; }
+.prl-keeps { color: var(--muted); font: 11px 'DM Mono', monospace; }
+.prl-keeps b { color: var(--accent); font-weight: 500; }
+.prl-tip { margin: 22px 0 0; color: var(--muted); font: 12px 'DM Mono', monospace; line-height: 1.7; }
+.prl-tip b { color: var(--accent); font-weight: 500; }

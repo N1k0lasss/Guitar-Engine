@@ -1,0 +1,32 @@
+/* ============================================================
+   Guitar Theory · Poliacordes
+   15 / 22 — tabla, estrella de relaciones y opciones
+============================================================ */
+
+/* --- Poliacordes --- */
+.poly-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-bottom: 22px; }
+.poly-toolbar label, .poly-toolbar .poly-opt { color: var(--muted); font: 11px 'DM Mono', monospace; text-transform: uppercase; }
+.poly-toolbar select { padding: 10px; color: var(--ink); background: #242624; border: 1px solid #464946; border-radius: 2px; }
+.poly-opt { display: inline-flex; align-items: center; gap: 5px; cursor: pointer; }
+.poly-opt input { accent-color: var(--accent); cursor: pointer; }
+.poly-sort-group { display: inline-flex; gap: 6px; margin-left: auto; }
+.poly-sort-group .ghost-btn { margin: 0; }
+.poly-layout { display: grid; grid-template-columns: 1.5fr 1fr; gap: 22px; }
+.poly-table-panel, .poly-star-panel { padding: 16px; }
+.poly-table { display: grid; gap: 6px; max-height: 560px; overflow: auto; }
+.poly-row { display: grid; grid-template-columns: 110px 160px 1fr 90px; gap: 8px; align-items: center; padding: 9px 10px; background: #1e211f; border: 1px solid #343735; border-radius: 2px; }
+.poly-row:hover { border-color: #464946; }
+.poly-combo { color: #cdbda2; font-size: 12px; white-space: nowrap; }
+.poly-name { color: var(--accent); font: 600 14px 'Libre Baskerville', serif; white-space: nowrap; }
+.poly-notes { color: var(--muted); font-size: 12px; }
+.poly-dis { display: flex; gap: 6px; justify-content: flex-end; }
+.poly-tri { color: #ffb56b; font: 11px 'DM Mono', monospace; }
+.poly-b9 { color: #7fd6ff; font: 11px 'DM Mono', monospace; }
+.poly-star { position: relative; }
+.poly-star-svg { width: 100%; min-height: 320px; background: #111312; border: 1px solid #343735; border-radius: 2px; }
+.poly-star-edge { stroke: #3a3d3a; stroke-width: 0.35; transition: stroke .2s; }
+.poly-star-edge:hover { stroke: var(--accent); cursor: pointer; }
+.poly-star-node { fill: var(--accent); }
+.poly-star-label { fill: #d9dbd4; font-size: 3px; }
+.poly-star-detail { margin-top: 10px; min-height: 30px; color: var(--muted); font-size: 12px; }
+.poly-star-detail b { color: var(--accent); font-weight: 600; }
