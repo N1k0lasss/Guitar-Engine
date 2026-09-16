@@ -792,6 +792,83 @@ function initializeHarmonyStaging() {
   document.getElementById('harmony-gen-go').onclick = onHarmonyGenerate;
 }
 
+// --- audio: síntesis Web Audio para escuchar acordes y progresiones ---
+const HARMONY_STRING_FREQS = [82.4068892281795, 110, 146.8323839587038, 195.99771799087463, 246.94165062806206, 329.6275569128699];
+const HARMONY_STRUM_MS = 28;
+const HARMONY_NOTE_MS = 1250;
+const HARMONY_PROG_GAP_MS = 80;
+let playbackCtx = null;
+let playbackMaster = null;
+
+// Plan puro y testeable: qué notas/cuerdas se tocan, con qué frecuencia y timing.
+function harmonyChordPlan(chordName) {
+  const info = getChordInfo ? getChordInfo(chordName) : null;
+  const frets = info && info.fingering ? info.fingering.frets : null;
+  if (frets) {
+    const plan = [];
+    frets.forEach((fret, i) => {
+      if (fret === null) return;
+      plan.push({
+        note: ['E', 'A', 'D', 'G', 'B', 'E'][i],
+        freq: HARMONY_STRING_FREQS[i] * Math.pow(2, fret / 12),
+        t0: i * HARMONY_STRUM_MS,
+        dur: HARMONY_NOTE_MS,
+      });
+    });
+    if (plan.length) return plan;
+  }
+  const notes = info ? info.notes : null;
+  if (!notes || !notes.length) return [];
+  const sorted = notes.map(note => NOTE_NAMES.indexOf(note)).filter(i => i > -1).sort((a, b) => a - b);
+  if (!sorted.length) return [];
+  return notes.map(note => {
+    const midi = 48 + NOTE_NAMES.indexOf(note);
+    const pitch = midi < 48 ? midi + 12 : midi;
+    return { note, freq: 440 * Math.pow(2, (pitch - 69) / 12), t0: 0, dur: HARMONY_NOTE_MS };
+  });
+}
+
+// Capa de sonido: consume el plan. No hace nada headless (node/tests).
+function harmonyPlayPlan(plan, baseTime = 0) {
+  const AudioContextClass = typeof window !== 'undefined' && (window.AudioContext || window.webkitAudioContext);
+  if (!AudioContextClass) return;
+  if (!plan.length) return;
+  if (!playbackCtx) {
+    playbackCtx = new AudioContextClass();
+    playbackMaster = playbackCtx.createGain();
+    playbackMaster.gain.value = 0.25;
+    playbackMaster.connect(playbackCtx.destination);
+  }
+  if (playbackCtx.state === 'suspended') playbackCtx.resume();
+  const now = playbackCtx.currentTime + 0.03 + baseTime;
+  plan.forEach(item => {
+    const osc = playbackCtx.createOscillator();
+    const env = playbackCtx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.value = item.freq;
+    env.gain.setValueAtTime(0, now + item.t0 / 1000);
+    env.gain.linearRampToValueAtTime(0.9, now + item.t0 / 1000 + 0.006);
+    env.gain.exponentialRampToValueAtTime(0.0001, now + item.t0 / 1000 + item.dur / 1000);
+    osc.connect(env);
+    env.connect(playbackMaster);
+    osc.start(now + item.t0 / 1000);
+    osc.stop(now + item.t0 / 1000 + item.dur / 1000 + 0.12);
+  });
+}
+
+function harmonyPlayChord(chordName) {
+  harmonyPlayPlan(harmonyChordPlan(chordName));
+}
+
+function harmonyPlayProgression() {
+  const steps = harmonyProgSeq;
+  if (!steps.length) return;
+  const beat = (HARMONY_NOTE_MS + HARMONY_PROG_GAP_MS) / 1000;
+  steps.forEach((step, i) => {
+    harmonyPlayPlan(harmonyChordPlan(step.name), i * beat);
+  });
+}
+
 function initializeHarmony() {
   const keySelect = document.getElementById('harmony-key');
   if (!keySelect) return;
@@ -848,6 +925,15 @@ function initializeHarmony() {
     });
     crossNav.appendChild(toTensionsBtn);
   }
+
+  const playBtn = document.getElementById('harmony-play');
+  if (playBtn) playBtn.addEventListener('click', () => {
+    const degrees = harmonyDegrees(harmonyKey.mod);
+    const selected = degrees.find(node => node.degree === harmonySelected);
+    if (selected) harmonyPlayChord(harmonyChord(selected));
+  });
+  const progPlayBtn = document.getElementById('harmony-prog-play');
+  if (progPlayBtn) progPlayBtn.addEventListener('click', harmonyPlayProgression);
 
   renderHarmony();
 }

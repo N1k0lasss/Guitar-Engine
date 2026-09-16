@@ -110,6 +110,7 @@
         <label class="checkbox"><input type="checkbox" id="harmony-gen-tonic" checked>Terminar en la tónica</label>
         <label class="checkbox"><input type="checkbox" id="harmony-gen-map" checked>Marcar en el mapa</label>
         <button type="button" class="ghost-btn" id="harmony-gen-go">Generar</button>
+        <button type="button" class="ghost-btn harmony-play" id="harmony-prog-play" title="Tocar la progresión generada">▶ Tocar progresión</button>
       </div>
       <div class="harmony-prog-wrap">
         <div id="harmony-prog-result" class="harmony-prog-result"></div>
@@ -132,7 +133,10 @@
         <p id="harmony-metric" class="harmony-metric"></p>
         <p class="label">RECORRIDO</p>
         <div id="harmony-path" class="harmony-path"><span>I · C</span></div>
-        <div id="harmony-selected-diagram" class="harmony-selected-diagram" aria-label="Diagrama del acorde seleccionado"></div>
+        <div class="harmony-play-row">
+          <div id="harmony-selected-diagram" class="harmony-selected-diagram" aria-label="Diagrama del acorde seleccionado"></div>
+          <button type="button" class="ghost-btn harmony-play" id="harmony-play" title="Escuchar el acorde">▶ Escuchar</button>
+        </div>
         <div class="harmony-nexts hidden"><p class="label">PUEDE SEGUIR CON</p><div id="harmony-nexts"></div></div>
         <div id="harmony-dom-panel" class="harmony-dom-panel hidden">
           <p class="label">CADENA DE DOMINANTES</p>

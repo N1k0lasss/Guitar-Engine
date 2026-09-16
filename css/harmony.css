@@ -96,3 +96,6 @@
 .harmony-next:hover { border-color: var(--accent); }
 .harmony-next small { color: var(--muted); font: 10px 'DM Mono', monospace; font-weight: 400; }
 .harmony-next b { color: var(--accent); font-weight: 700; }
+.harmony-play-row { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
+.harmony-play { flex: none; }
+.harmony-play.playing { color: #e7c47c; border-color: #e7c47c; }
