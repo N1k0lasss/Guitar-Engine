@@ -410,19 +410,42 @@ function harmonyRenderVoicing(containerId, voicing) {
   const hasOpen = nonNull.some(f => f === 0);
   const base = hasOpen ? 0 : Math.min(...nonNull);
   const top = Math.min(15, Math.max(...nonNull, base + 3));
-  const cols = top - base + 1;
-  const rowTemplate = `grid-template-columns:18px 14px ${'18px '.repeat(cols)}`;
-  const headers = Array.from({ length: cols }, (_, i) => `<span class="mast-fretnum">${base + i}</span>`).join('');
-  const rows = ['E', 'A', 'D', 'G', 'B', 'e'].map((sn, i) => {
-    const fret = frets[i];
-    const nut = fret === null ? '<i class="mast-mute">×</i>' : fret === 0 ? '<i class="mast-open">○</i>' : '<i></i>';
-    const cells = Array.from({ length: cols }, (_, c) => {
-      if (fret === null || fret === 0 || fret !== base + c) return '<span class="mast-fret"></span>';
-      return `<span class="mast-fret played"><b class="mast-dot">${fret}</b><i class="mast-tone">${tones[i] || ''}</i></span>`;
+  const start = hasOpen ? 1 : base;
+  const STRINGS = ['E', 'A', 'D', 'G', 'B', 'e'];
+
+  const strHead = `<div class="mast-strhead"><span class="mast-label"></span>${STRINGS.map(n => `<i>${n}</i>`).join('')}</div>`;
+
+  let rows = '';
+  if (hasOpen) {
+    const cells = STRINGS.map((_, i) => {
+      const f = frets[i];
+      const m = f === 0 ? '<i class="mast-ok">○</i>' : f === null ? '<i class="mast-no">×</i>' : '';
+      return `<span class="mast-cell">${m}</span>`;
     }).join('');
-    return `<div class="mast-row" style="${rowTemplate}"><span class="mast-string">${sn}</span>${nut}${cells}</div>`;
-  }).join('');
-  container.innerHTML = `<div class="harmony-mast"><div class="mast-row mast-head" style="${rowTemplate}"><span></span><span></span>${headers}</div>${rows}</div>`;
+    rows += `<div class="mast-f0"><span class="mast-label"></span>${cells}</div>`;
+  }
+  for (let f = start; f <= top; f++) {
+    const first = f === start;
+    let label = '';
+    if (hasOpen) {
+      if (f === 12) label = '<i class="mast-inlay dbl"></i>';
+      else if (f === 3 || f === 5 || f === 7 || f === 9) label = '<i class="mast-inlay"></i>';
+    } else if (first) {
+      label = `<b class="mast-lab">${base}</b>`;
+    }
+    const cells = STRINGS.map((_, i) => {
+      const fr = frets[i];
+      if (fr === f) {
+        return `<span class="mast-cell on"><b class="mast-dot">${fr}</b><i class="mast-tone">${tones[i] || ''}</i></span>`;
+      }
+      return `<span class="mast-cell"></span>`;
+    }).join('');
+    const cls = `mast-frow${first ? ' first' : ''}${hasOpen && first ? ' nut' : ''}`;
+    rows += `<div class="${cls}" data-fret="${f}"><span class="mast-label">${label}</span>${cells}</div>`;
+  }
+
+  container.innerHTML = `<div class="harmony-mast${hasOpen ? ' has-nut' : ''}" aria-label="Mástil de ${voicing.label || 'la digitación'}">` +
+    `<div class="mast-body"><div class="mast-dia">${strHead}${rows}</div></div></div>`;
 }
 
 function renderChordDiagram(containerId, chordName, voicingId) {
@@ -592,9 +615,9 @@ let harmonyProgSelected = -1;
 let harmonyProgGenerated = false;
 
 function harmonProgQual(mod, degree, palette) {
-  const cfg = HARMONY_PROG_PALETTES[palette];
+  const cfg = typeof palette === 'string' ? HARMONY_PROG_PALETTES[palette] : palette;
   const up = cfg && cfg.seventh
-    ? (mod === 'min' ? { v: '7', V: '7', 'ii°': 'dim', i: 'm7', IV: 'maj7' } : { ii: 'm7', V: '7', I: 'maj7' })
+    ? (mod === 'min' ? { v: '7', V: '7', 'ii°': 'dim', i: 'm7', iv: 'm7', III: 'maj7', IV: 'maj7' } : { ii: 'm7', iii: 'm7', vi: 'm7', V: '7', I: 'maj7', IV: 'maj7' })
     : {};
   const def = harmonyDegrees(mod).find(d => d.degree === degree);
   return up[degree] || (def ? def.quality : '');
@@ -800,6 +823,7 @@ function renderHarmonyProgression() {
   labelsEl.innerHTML = harmonyProgLabels.map(t => `<span class="harmony-prog-label">${t}</span>`).join('<b class="harmony-prog-sep">·</b>');
   summaryEl.innerHTML = harmonyProgSummary.map(t => `<span class="harmony-prog-tag">${t}</span>`).join('');
   renderHarmonyProgDetail(detailEl, steps, harmonyProgSelected);
+  renderHarmonyMyProg();
 }
 
 function renderHarmonyProgDetail(el, steps, idx) {
@@ -834,6 +858,117 @@ function onHarmonyGenerate() {
   harmonyProgSelected = -1;
   harmonyProgGenerated = true;
   renderHarmony();
+}
+
+// ===== Tu progresión (manual) =====
+
+let harmonyMyProg = [];
+let harmonyMyProgSeven = false;
+let harmonyMyProgSelected = -1;
+
+function harmonyMyProgSteps() {
+  const mod = harmonyKey.mod;
+  const rootIdx = harmonyRootIdx();
+  const degrees = harmonyDegrees(mod);
+  return harmonyMyProg.map(deg => {
+    const def = degrees.find(d => d.degree === deg);
+    if (!def) return null;
+    const q = harmonProgQual(mod, deg, { seventh: harmonyMyProgSeven });
+    return harmonProgStep(def.name, mod, rootIdx, def, q);
+  }).filter(Boolean);
+}
+
+function harmonyMyProgAdd(degree) {
+  harmonyMyProg.push(degree);
+  harmonyMyProgSelected = harmonyMyProg.length - 1;
+  renderHarmonyMyProg();
+}
+
+function harmonyMyProgRemove(i) {
+  harmonyMyProg.splice(i, 1);
+  if (harmonyMyProgSelected >= harmonyMyProg.length) harmonyMyProgSelected = harmonyMyProg.length - 1;
+  renderHarmonyMyProg();
+}
+
+function renderHarmonyMyProg() {
+  const picker = document.getElementById('harmony-deg-picker');
+  const chipsEl = document.getElementById('harmony-myprog-chips');
+  if (!picker || !chipsEl) return;
+  const mod = harmonyKey.mod;
+  const degrees = harmonyDegrees(mod);
+  const keyEl = document.getElementById('harmony-deg-key');
+  if (keyEl) keyEl.innerHTML = `Base: <b>${harmonyKey.root} · ${harmonyVariant().label}</b> — grados <b>${mod === 'min' ? 'menores' : 'mayores'}</b>`;
+  picker.innerHTML = degrees.map(def => {
+    const q = harmonProgQual(mod, def.degree, { seventh: harmonyMyProgSeven });
+    const name = HARMONY_NOTES[(harmonyRootIdx() + def.interval) % 12] + q;
+    return `<button type="button" class="harmony-deg" data-deg="${def.degree}">${def.degree}<small>${name}</small></button>`;
+  }).join('');
+  picker.querySelectorAll('.harmony-deg').forEach(btn => {
+    btn.onclick = () => harmonyMyProgAdd(btn.dataset.deg);
+  });
+  const steps = harmonyMyProgSteps();
+  chipsEl.innerHTML = steps.map((s, i) =>
+    `<span class="harmony-prog-chip ${i === harmonyMyProgSelected ? 'selected' : ''}" data-idx="${i}" title="${s.name}">${s.name}<i class="harmony-chip-x" data-remove="${i}">×</i></span>` +
+    (i < steps.length - 1 ? '<b class="harmony-prog-sep">→</b>' : '')).join('');
+  chipsEl.querySelectorAll('.harmony-prog-chip').forEach(chip => {
+    chip.onclick = () => { harmonyMyProgSelected = Number(chip.dataset.idx); renderHarmonyMyProg(); };
+  });
+  chipsEl.querySelectorAll('.harmony-chip-x').forEach(x => {
+    x.onclick = e => { e.stopPropagation(); harmonyMyProgRemove(Number(x.dataset.remove)); };
+  });
+  renderHarmonyMyProgDetail();
+}
+
+function renderHarmonyMyProgDetail() {
+  const el = document.getElementById('harmony-myprog-detail');
+  if (!el) return;
+  const steps = harmonyMyProgSteps();
+  const idx = harmonyMyProgSelected > -1 && steps[harmonyMyProgSelected] ? harmonyMyProgSelected : steps.length - 1;
+  const step = steps[idx];
+  if (!step) { el.classList.add('hidden'); return; }
+  el.classList.remove('hidden');
+  const diagId = 'harmony-myprog-diagram';
+  const chipsId = 'harmony-myprog-voicing-chips';
+  el.innerHTML = `<p class="eyebrow">ACORDE · ${step.degree}</p><h4>${step.name}</h4>
+    <p class="harmony-prog-notes">${step.notes.map(pc => HARMONY_NOTES[pc]).join(' · ')}</p>
+    <div id="${diagId}" class="harmony-prog-diagram"></div>
+    <div id="${chipsId}" class="harmony-voicing-chips harmony-voicing-chips-grid"></div>`;
+  const voicing = getChordVoicing ? getChordVoicing(step.name, harmonyCurrentVoicing(step.name)) : null;
+  harmonyRenderVoicing(diagId, voicing);
+  harmonyRenderVoicingChips(chipsId, step.name, voicing ? voicing.id : null, id => harmonySelectVoicing(diagId, chipsId, step.name, id));
+}
+
+// Plan audible para cualquier paso: usa la digitación si existe, si no, suena
+// directamente las notas del acorde (acordes disminuidos, suspendidos, etc.).
+function harmonyNotesPlan(pitchClasses) {
+  const set = [...new Set(pitchClasses.map(pc => ((pc % 12) + 12) % 12))];
+  const midis = set.map(pc => {
+    let m = 57 + (((pc - 9) % 12) + 12) % 12;
+    while (m < 48) m += 12;
+    while (m > 72) m -= 12;
+    return m;
+  }).sort((a, b) => a - b);
+  return midis.map((m, i) => ({
+    note: '', string: -1,
+    freq: 440 * Math.pow(2, (m - 69) / 12),
+    t0: i * HARMONY_STRUM_MS + (i % 2 ? -2 : 2),
+    dur: harmonyChordMs(),
+    gain: 0.5,
+    pan: (i - (midis.length - 1) / 2) * 0.12,
+  }));
+}
+
+function harmonyStepPlan(step) {
+  const plan = harmonyChordPlan(step.name);
+  if (plan.length) return plan;
+  return harmonyNotesPlan(step.notes);
+}
+
+function harmonyPlayMyProgression() {
+  const steps = harmonyMyProgSteps();
+  if (!steps.length) return;
+  const beat = harmonyBeat();
+  steps.forEach((step, i) => harmonyPlayPlan(harmonyStepPlan(step), i * beat - (i > 0 ? HARMONY_PROG_OVERLAP_S : 0)));
 }
 
 function renderHarmonyNexts() {
@@ -1067,7 +1202,7 @@ function harmonyPlayProgression() {
   if (!steps.length) return;
   const beat = harmonyBeat();
   steps.forEach((step, i) => {
-    harmonyPlayPlan(harmonyChordPlan(step.name), i * beat - (i > 0 ? HARMONY_PROG_OVERLAP_S : 0));
+    harmonyPlayPlan(harmonyStepPlan(step), i * beat - (i > 0 ? HARMONY_PROG_OVERLAP_S : 0));
   });
 }
 
@@ -1150,6 +1285,17 @@ function initializeHarmony() {
   });
   const progPlayBtn = document.getElementById('harmony-prog-play');
   if (progPlayBtn) progPlayBtn.addEventListener('click', harmonyPlayProgression);
+
+  const my7 = document.getElementById('harmony-myprog-7');
+  if (my7) my7.addEventListener('change', () => { harmonyMyProgSeven = my7.checked; renderHarmonyMyProg(); });
+  const myPlay = document.getElementById('harmony-myprog-play');
+  if (myPlay) myPlay.addEventListener('click', harmonyPlayMyProgression);
+  const myClear = document.getElementById('harmony-myprog-clear');
+  if (myClear) myClear.addEventListener('click', () => {
+    harmonyMyProg = [];
+    harmonyMyProgSelected = -1;
+    renderHarmonyMyProg();
+  });
 
   const soundSel = document.getElementById('harmony-sound');
   if (soundSel) {

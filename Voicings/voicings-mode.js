@@ -104,42 +104,45 @@ function renderVoicingFretboard(containerId, pitches, stringGroup, frets, highli
 
   const minFret = Math.max(1, Math.min(...frets) - 1);
   const maxFret = Math.max(minFret + 4, Math.max(...frets) + 1);
-  const fretCount = maxFret - minFret + 1;
+  const STRINGS = ['E', 'A', 'D', 'G', 'B', 'e'];
+  const hasOpen = frets.some(f => f === 0);
 
-  // Build a 6-string × fretCount grid
-  // stringGroup = [stringIndex] for active strings (high to low = string 5,4,3,2 = indices in tuning)
-  const STRING_NAMES = ['e', 'B', 'G', 'D', 'A', 'E'];
-  const ACTIVE = new Set(stringGroup);
+  const strHead = `<div class="voi-strhead"><span class="voi-label"></span>${STRINGS.map(n => `<i>${n}</i>`).join('')}</div>`;
 
-  let html = `<div class="voi-fret-container">`;
-  // Fret numbers row
-  html += `<div class="voi-fret-nums">`;
+  let rows = '';
+  if (hasOpen) {
+    const cells = STRINGS.map((_, sIdx) => {
+      const ai = stringGroup.indexOf(sIdx);
+      const fr = ai === -1 ? null : frets[ai];
+      const m = fr === 0 ? '<i class="voi-ok">○</i>' : fr === null ? '<i class="voi-no">×</i>' : '';
+      return `<span class="voi-cell">${m}</span>`;
+    }).join('');
+    rows += `<div class="voi-f0"><span class="voi-label"></span>${cells}</div>`;
+  }
   for (let f = minFret; f <= maxFret; f++) {
-    html += `<span>${f}</span>`;
-  }
-  html += `</div>`;
-
-  // Each string
-  for (let s = 5; s >= 0; s--) {
-    const strName = STRING_NAMES[5 - s];
-    const activeIdx = stringGroup.indexOf(s);
-    html += `<div class="voi-string-row ${ACTIVE.has(s) ? 'active-string' : 'muted-string'}">`;
-    html += `<span class="voi-string-name">${strName}</span>`;
-    for (let f = minFret; f <= maxFret; f++) {
-      let dotClass = 'voi-fret-cell';
-      let dotContent = '';
-      if (ACTIVE.has(s) && activeIdx !== -1 && frets[activeIdx] === f) {
-        const isRoot = highlight.includes(activeIdx);
-        dotClass += isRoot ? ' voi-dot root-dot' : ' voi-dot';
-        const noteIndex = (VOI_TUNING[s] + f) % 12;
-        dotContent = VOICING_NOTES[noteIndex];
-      }
-      html += `<span class="${dotClass}">${dotContent}</span>`;
+    const first = f === minFret;
+    let label = '';
+    if (hasOpen) {
+      if (f === 12) label = '<i class="voi-inlay dbl"></i>';
+      else if (f === 3 || f === 5 || f === 7 || f === 9) label = '<i class="voi-inlay"></i>';
+    } else if (first) {
+      label = `<b class="voi-lab">${minFret}</b>`;
     }
-    html += `</div>`;
+    const cells = STRINGS.map((_, sIdx) => {
+      const ai = stringGroup.indexOf(sIdx);
+      let dot = '';
+      if (ai !== -1 && frets[ai] === f) {
+        const isRoot = highlight.includes(ai);
+        const noteIndex = (VOI_TUNING[sIdx] + f) % 12;
+        dot = `<b class="voi-dot${isRoot ? ' root' : ''}">${VOICING_NOTES[noteIndex]}</b>`;
+      }
+      return `<span class="voi-cell${dot ? ' on' : ''}">${dot}</span>`;
+    }).join('');
+    const cls = `voi-frow${first ? ' first' : ''}`;
+    rows += `<div class="${cls}" data-fret="${f}"><span class="voi-label">${label}</span>${cells}</div>`;
   }
-  html += `</div>`;
-  el.innerHTML = html;
+
+  el.innerHTML = `<div class="voi-fretboard"><div class="voi-body"><div class="voi-dia">${strHead}${rows}</div></div></div>`;
 }
 
 function getVoicingData(root, quality, inv, dropId) {

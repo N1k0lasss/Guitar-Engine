@@ -27,18 +27,24 @@
 .voi-card-deg { color: var(--muted); }
 .voi-span-label { margin-top: 8px; color: var(--muted); font: 10px 'DM Mono', monospace; }
 .voi-mini-notes { margin-bottom: 6px; color: var(--muted); font: 10px 'DM Mono', monospace; }
-.voi-fretboard-wrap { margin-top: 8px; overflow-x: auto; }
-.voi-fret-container { font: 10px 'DM Mono', monospace; user-select: none; }
-.voi-fret-nums { display: flex; padding-left: 24px; color: #5e635a; }
-.voi-fret-nums span { flex: 1 1 0; min-width: 30px; max-width: 42px; text-align: center; }
-.voi-string-row { display: flex; align-items: center; }
-.voi-string-row.active-string .voi-string-name { color: #b9b2a4; }
-.voi-string-row.muted-string .voi-string-name { color: #5e635a; }
-.voi-string-name { flex: 0 0 24px; font-size: 9px; }
-.voi-fret-cell { flex: 1 1 0; min-width: 30px; max-width: 42px; height: 28px; position: relative; display: grid; place-items: center; border-right: 1px solid rgba(244,234,214,.1); font-size: 8px; }
-.voi-string-row.active-string .voi-fret-cell { border-bottom: 1px solid rgba(244,234,214,.12); }
-.voi-fret-dot, .voi-dot { border-radius: 50%; }
-.voi-dot { z-index: 1; display: grid; place-items: center; width: 15px; height: 15px; color: #171815; background: var(--accent); font: 700 8px 'DM Mono', monospace; }
-.voi-dot.root-dot { box-shadow: 0 0 0 2px rgba(155,108,255,.5); }
+.voi-fretboard-wrap { margin-top: 10px; }
+.voi-fretboard { user-select: none; border: 1px solid #3c403b; border-radius: 10px; background: linear-gradient(180deg, #262a27 0%, #191c1a 100%); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .03); padding: 6px 0 5px; }
+.voi-body { display: flex; align-items: stretch; max-height: 250px; overflow-y: auto; }
+.voi-dia { flex: 1; min-width: 0; }
+.voi-strhead { display: grid; grid-template-columns: 16px repeat(6, 1fr); height: 16px; align-items: end; padding-bottom: 3px; }
+.voi-strhead i { font-style: normal; color: #9ca095; font: 600 8px 'DM Mono', monospace; letter-spacing: .2px; text-align: center; }
+.voi-f0, .voi-frow { display: grid; grid-template-columns: 16px repeat(6, 1fr); }
+.voi-f0 { height: 22px; }
+.voi-frow { height: 30px; border-top: 1px solid rgba(255, 246, 224, .12); }
+.voi-cell { position: relative; display: grid; place-items: center; align-self: stretch; border-left: 1px solid rgba(210, 215, 205, .15); }
+.voi-cell.on { z-index: 1; background: rgba(155, 108, 255, .10); }
+.voi-label { grid-column: 1; display: grid; place-items: center; }
+.voi-lab { color: #6a6f67; font: 700 9px 'DM Mono', monospace; }
+.voi-ok { font: 700 12px 'DM Mono', monospace; font-style: normal; color: var(--accent); }
+.voi-no { font: 700 12px 'DM Mono', monospace; font-style: normal; color: #a56a58; }
+.voi-inlay { width: 7px; height: 7px; margin-left: 4px; border-radius: 50%; background: rgba(205, 154, 107, .38); }
+.voi-inlay.dbl { width: 16px; height: 7px; background: none; background-image: radial-gradient(circle at 25% 50%, rgba(205, 154, 107, .38) 2.5px, transparent 3px), radial-gradient(circle at 75% 50%, rgba(205, 154, 107, .38) 2.5px, transparent 3px); }
+.voi-dot { z-index: 2; display: grid; place-items: center; min-width: 20px; height: 20px; padding: 0 3px; border-radius: 50%; color: #dfe2db; background: #39404b; font: 700 8px 'DM Mono', monospace; box-shadow: 0 2px 6px rgba(0, 0, 0, .35), inset 0 -1px 2px rgba(0, 0, 0, .2); }
+.voi-dot.root { color: #171815; background: var(--accent); box-shadow: 0 0 0 2px rgba(155, 108, 255, .55), 0 2px 6px rgba(0, 0, 0, .35), inset 0 -1px 2px rgba(0, 0, 0, .25); }
 .voi-error { color: #a56a58; font: 12px 'DM Mono', monospace; }
 .voi-fret-nums span, .voi-fret-cell { white-space: nowrap; }
