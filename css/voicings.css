@@ -1,0 +1,44 @@
+/* ============================================================
+   Guitar Theory · Voicings (inversiones y drops)
+   08 / 23 — estilos para el markup sin CSS de voicings-mode.js
+   Flexbox, no grid: el count de trastes es variable por card.
+============================================================ */
+
+.voi-controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.voi-controls select { padding: 7px 8px; color: var(--ink); background: #252826; border: 1px solid #626760; font: 12px 'DM Mono', monospace; }
+.voi-chord-title { margin: 12px 0 2px; font: 700 40px 'Libre Baskerville', serif; }
+.voi-base-notes { margin: 0 0 14px; color: var(--muted); font: 12px 'DM Mono', monospace; }
+.voi-drop-desc { margin: 0 0 14px; color: var(--muted); font-size: 14px; line-height: 1.5; }
+.voi-drop-desc b { color: var(--ink); }
+.voi-sym-note { margin: 0 0 14px; padding: 10px 12px; color: var(--muted); background: rgba(155,108,255,.08); border: 1px solid rgba(155,108,255,.22); font: 12px 'DM Mono', monospace; }
+.voi-sym-note.hidden { display: none; }
+.voi-drop-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.voi-drop-btn { padding: 7px 11px; color: var(--ink); background: #252826; border: 1px solid #626760; cursor: pointer; font: 600 11px 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .4px; transition: color .15s, border-color .15s, background .15s; }
+.voi-drop-btn:hover { border-color: var(--accent); }
+.voi-drop-btn.active { color: #171815; background: var(--accent); border-color: #c8b0ff; }
+.voi-inv-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; margin-top: 16px; }
+.voi-inv-card { padding: 12px; background: #181b19; border: 1px solid #343735; }
+.voi-inv-card.selected { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(155,108,255,.25); }
+.voi-inv-card .eyebrow { margin-bottom: 4px; }
+.voi-card-name { font: 700 22px 'Libre Baskerville', serif; }
+.voi-card-inv { color: var(--muted); font: 10px 'DM Mono', monospace; }
+.voi-card-header { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.voi-card-notes { margin-top: 4px; color: var(--ink); font: 12px 'DM Mono', monospace; }
+.voi-card-deg { color: var(--muted); }
+.voi-span-label { margin-top: 8px; color: var(--muted); font: 10px 'DM Mono', monospace; }
+.voi-mini-notes { margin-bottom: 6px; color: var(--muted); font: 10px 'DM Mono', monospace; }
+.voi-fretboard-wrap { margin-top: 8px; overflow-x: auto; }
+.voi-fret-container { font: 10px 'DM Mono', monospace; user-select: none; }
+.voi-fret-nums { display: flex; padding-left: 24px; color: #5e635a; }
+.voi-fret-nums span { flex: 1 1 0; min-width: 30px; max-width: 42px; text-align: center; }
+.voi-string-row { display: flex; align-items: center; }
+.voi-string-row.active-string .voi-string-name { color: #b9b2a4; }
+.voi-string-row.muted-string .voi-string-name { color: #5e635a; }
+.voi-string-name { flex: 0 0 24px; font-size: 9px; }
+.voi-fret-cell { flex: 1 1 0; min-width: 30px; max-width: 42px; height: 28px; position: relative; display: grid; place-items: center; border-right: 1px solid rgba(244,234,214,.1); font-size: 8px; }
+.voi-string-row.active-string .voi-fret-cell { border-bottom: 1px solid rgba(244,234,214,.12); }
+.voi-fret-dot, .voi-dot { border-radius: 50%; }
+.voi-dot { z-index: 1; display: grid; place-items: center; width: 15px; height: 15px; color: #171815; background: var(--accent); font: 700 8px 'DM Mono', monospace; }
+.voi-dot.root-dot { box-shadow: 0 0 0 2px rgba(155,108,255,.5); }
+.voi-error { color: #a56a58; font: 12px 'DM Mono', monospace; }
+.voi-fret-nums span, .voi-fret-cell { white-space: nowrap; }

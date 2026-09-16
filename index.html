@@ -109,6 +109,8 @@
         </select>
         <label class="checkbox"><input type="checkbox" id="harmony-gen-tonic" checked>Terminar en la tónica</label>
         <label class="checkbox"><input type="checkbox" id="harmony-gen-map" checked>Marcar en el mapa</label>
+        <label for="harmony-prog-tempo">Tempo</label>
+        <input type="number" id="harmony-prog-tempo" min="40" max="200" step="2" value="120" title="BPM de la progresión">
         <button type="button" class="ghost-btn" id="harmony-gen-go">Generar</button>
         <button type="button" class="ghost-btn harmony-play" id="harmony-prog-play" title="Tocar la progresión generada">▶ Tocar progresión</button>
       </div>
@@ -121,7 +123,9 @@
     </div>
     <div class="harmony-layout">
       <div class="panel harmony-map-panel">
-        <div class="harmony-map" id="harmony-map" aria-label="Mapa de conexiones armónicas"></div>
+        <div class="harmony-map" id="harmony-map" aria-label="Mapa de conexiones armónicas">
+          <div id="harmony-preview" class="harmony-preview" aria-hidden="true"></div>
+        </div>
         <div id="harmony-legend" class="harmony-legend"></div>
         <p id="harmony-hint" class="study-hint">Elegí un acorde para ver hacia dónde puede llevarte.</p>
       </div>
@@ -136,6 +140,18 @@
         <div class="harmony-play-row">
           <div id="harmony-selected-diagram" class="harmony-selected-diagram" aria-label="Diagrama del acorde seleccionado"></div>
           <button type="button" class="ghost-btn harmony-play" id="harmony-play" title="Escuchar el acorde">▶ Escuchar</button>
+        </div>
+        <p id="harmony-selected-notes" class="harmony-selected-notes"></p>
+        <div id="harmony-voicing-chips" class="harmony-voicing-chips" aria-label="Digitaciones alternativas"></div>
+        <div class="harmony-timbre-controls">
+          <label for="harmony-sound">Sonido</label>
+          <select id="harmony-sound" title="Timbre del acorde"></select>
+          <label for="harmony-strum">Rasgueo</label>
+          <select id="harmony-strum" title="Estilo de ataque">
+            <option value="arpeggio">Arpegiado</option>
+            <option value="block">Bloque</option>
+          </select>
+          <label class="checkbox"><input type="checkbox" id="harmony-bass">Bajo de raíz</label>
         </div>
         <div class="harmony-nexts hidden"><p class="label">PUEDE SEGUIR CON</p><div id="harmony-nexts"></div></div>
         <div id="harmony-dom-panel" class="harmony-dom-panel hidden">
@@ -466,6 +482,7 @@
 </main>
 
 <script src="Chords/chord-mode.js"></script>
+<script src="Shared/chord-voicings-lib.js"></script>
 <script src="Shared/dissonance.js"></script>
 <script src="Tunner/tuner-mode.js"></script>
 <script src="Harmony/harmony-mode.js"></script>

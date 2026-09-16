@@ -13,6 +13,7 @@
 @import url('css/chords.css');
 @import url('css/tuner.css');
 @import url('css/harmony.css');
+@import url('css/voicings.css');
 @import url('css/tensions.css');
 @import url('css/modes.css');
 @import url('css/circle.css');
@@ -38,19 +39,20 @@
    05 chords.css · escenario de acorde + workspace
    06 tuner.css · afinador
    07 harmony.css · mapa armónico + progresiones
-   08 tensions.css · mapa de tensiones
-   09 modes.css · rueda de modos
-   10 circle.css · círculo de quintas
-   11 scales.css · escalas + diapasón
-   12 proximity.css · acordes puente
-   13 prl.css · paralelismo
-   14 tritone.css · tritono
-   15 polychords.css · poliacordes
-   16 cartography.css · cartografía modal
-   17 sabores.css · sabores de nota
-   18 ejes.css · ejes armónicos
-   19 responsive.css · media queries generales
-   20 qualities.css · cualidades armónicas
-   21 atlas.css · composición viva del atlas
-   22 polish.css · refinamiento final
+   08 voicings.css · inversiones y drops
+   09 tensions.css · mapa de tensiones
+   10 modes.css · rueda de modos
+   11 circle.css · círculo de quintas
+   12 scales.css · escalas + diapasón
+   13 proximity.css · acordes puente
+   14 prl.css · paralelismo
+   15 tritone.css · tritono
+   16 polychords.css · poliacordes
+   17 cartography.css · cartografía modal
+   18 sabores.css · sabores de nota
+   19 ejes.css · ejes armónicos
+   20 responsive.css · media queries generales
+   21 qualities.css · cualidades armónicas
+   22 atlas.css · composición viva del atlas
+   23 polish.css · refinamiento final
 ============================================================ */

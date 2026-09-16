@@ -260,7 +260,9 @@ function renderHarmony() {
   const variantBadge = document.getElementById('harmony-variant-badge');
   if (variantBadge) variantBadge.textContent = `Mapa · ${variant.label}`;
 
+  const preview = map.querySelector('#harmony-preview');
   map.innerHTML = '<svg class="harmony-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><defs><marker id="harmony-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse"><path fill="context-stroke" d="M 0 0 L 10 5 L 0 10 z"></path></marker></defs></svg>';
+  if (preview) map.appendChild(preview);
   const svg = map.querySelector('svg');
 
   const isCad = harmonyMode === 'cadencias';
@@ -268,7 +270,7 @@ function renderHarmony() {
   const isDom = harmonyMode === 'dominantes';
   const isProg = harmonyMode === 'prog';
 
-  harmonyEdges(mod).forEach(([from, to]) => {
+  harmonyEdges(mod).forEach(([from, to, label]) => {
     const points = harmonyLinePoints(positions[from], positions[to]);
     const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
     line.setAttribute('x1', points.x1);
@@ -276,6 +278,7 @@ function renderHarmony() {
     line.setAttribute('x2', points.x2);
     line.setAttribute('y2', points.y2);
     line.setAttribute('marker-end', 'url(#harmony-arrow)');
+    line.setAttribute('class', `kind-${harmonyEdgeKind(label || '')}`);
     line.dataset.from = from;
     line.dataset.to = to;
     svg.appendChild(line);
@@ -301,8 +304,14 @@ function renderHarmony() {
     button.innerHTML = `<span class="harmony-degree">${def.degree}</span><strong>${harmonyChord(def)}</strong><small>${def.role}</small>${secDom}${progIdx > -1 ? `<em class="harmony-prog-badge">${progIdx + 1}</em>` : ''}${isProx ? `<em class="prox-badge">${harmonSharedWithTonic(mod, harmonyKey.root, def)}/3</em>` : ''}${isCad && harmonyKey.mod === 'min' && harmonyHarmonic && def.degree === 'v' ? `<em class="harmonic-dominant">V7 = ${harmonDominantName()}</em>` : ''}`;
     button.title = `${def.degree} · ${harmonyChord(def)}${def.origin === 'borrowed' ? ' · préstamo' : ''}`;
     button.addEventListener('click', () => selectHarmonyNode(def.degree));
-    button.addEventListener('mouseenter', () => updateHarmonyLines(def.degree));
-    button.addEventListener('mouseleave', () => updateHarmonyLines(harmonySelected));
+    button.addEventListener('mouseenter', () => {
+      updateHarmonyLines(def.degree);
+      harmonyShowPreview(def, left, top);
+    });
+    button.addEventListener('mouseleave', () => {
+      updateHarmonyLines(harmonySelected);
+      harmonyHidePreview();
+    });
     map.appendChild(button);
   });
 
@@ -327,6 +336,30 @@ function renderHarmony() {
 
   updateHarmonyDetails();
   updateHarmonyControls();
+}
+
+function harmonyEdgeKind(label) {
+  if (/resuelve|plagal|sensible|cierre/i.test(label)) return 'cadence';
+  if (/baja por grado/i.test(label)) return 'step';
+  if (/prepara/i.test(label)) return 'prep';
+  if (/tensiona|asciende|abre|cambia el color/i.test(label)) return 'tension';
+  return 'bind';
+}
+
+function harmonyShowPreview(def, left, top) {
+  const preview = document.getElementById('harmony-preview');
+  if (!preview) return;
+  const chordName = harmonyChord(def);
+  const info = getChordInfo ? getChordInfo(chordName) : null;
+  preview.innerHTML = `<b>${def.degree} · ${chordName}</b><span>${info ? info.notes.join(' · ') : ''}</span>`;
+  preview.style.left = `${left}%`;
+  preview.style.top = `${top}%`;
+  preview.classList.add('show');
+}
+
+function harmonyHidePreview() {
+  const preview = document.getElementById('harmony-preview');
+  if (preview) preview.classList.remove('show');
 }
 
 function selectHarmonyNode(degree) {
@@ -360,21 +393,70 @@ function updateHarmonyLines(focusDegree) {
   });
 }
 
-function renderChordDiagram(containerId, chordName) {
+function harmonyRenderVoicing(containerId, voicing) {
   const container = document.getElementById(containerId);
   if (!container) return;
-  const info = getChordInfo ? getChordInfo(chordName) : null;
-  const frets = info && info.fingering ? info.fingering.frets : null;
-  const barre = info && info.fingering ? info.fingering.label : '';
-  if (!frets) {
-    container.innerHTML = `<p class="study-hint">Sin digitación para ${chordName}</p>`;
+  if (!voicing || !voicing.frets) {
+    container.innerHTML = '<p class="study-hint">Sin digitación para este acorde</p>';
     return;
   }
-  const cells = ['E', 'A', 'D', 'G', 'B', 'e'].map((sn, i) => {
-    const f = frets[i];
-    return `<div class="diagram-cell"><span class="string-label">${sn}</span><b class="${f === null ? 'mute' : f === 0 ? 'open' : 'dot'}">${f === null ? '×' : f === 0 ? '○' : f}</b></div>`;
+  const frets = voicing.frets;
+  const tones = voicing.tones || [];
+  const nonNull = frets.filter(f => f !== null);
+  if (!nonNull.length) {
+    container.innerHTML = '<p class="study-hint">Sin digitación para este acorde</p>';
+    return;
+  }
+  const hasOpen = nonNull.some(f => f === 0);
+  const base = hasOpen ? 0 : Math.min(...nonNull);
+  const top = Math.min(15, Math.max(...nonNull, base + 3));
+  const cols = top - base + 1;
+  const rowTemplate = `grid-template-columns:18px 14px ${'18px '.repeat(cols)}`;
+  const headers = Array.from({ length: cols }, (_, i) => `<span class="mast-fretnum">${base + i}</span>`).join('');
+  const rows = ['E', 'A', 'D', 'G', 'B', 'e'].map((sn, i) => {
+    const fret = frets[i];
+    const nut = fret === null ? '<i class="mast-mute">×</i>' : fret === 0 ? '<i class="mast-open">○</i>' : '<i></i>';
+    const cells = Array.from({ length: cols }, (_, c) => {
+      if (fret === null || fret === 0 || fret !== base + c) return '<span class="mast-fret"></span>';
+      return `<span class="mast-fret played"><b class="mast-dot">${fret}</b><i class="mast-tone">${tones[i] || ''}</i></span>`;
+    }).join('');
+    return `<div class="mast-row" style="${rowTemplate}"><span class="mast-string">${sn}</span>${nut}${cells}</div>`;
   }).join('');
-  container.innerHTML = `<div class="harmony-prog-diagram">${cells}</div><p class="barre-label">${barre}</p>`;
+  container.innerHTML = `<div class="harmony-mast"><div class="mast-row mast-head" style="${rowTemplate}"><span></span><span></span>${headers}</div>${rows}</div>`;
+}
+
+function renderChordDiagram(containerId, chordName, voicingId) {
+  const voicing = getChordVoicings && getChordVoicing ? getChordVoicing(chordName, voicingId) : null;
+  harmonyRenderVoicing(containerId, voicing);
+  return voicing;
+}
+
+function harmonyRenderVoicingChips(chipsId, chordName, selectedId, onPick) {
+  const chipsEl = document.getElementById(chipsId);
+  if (!chipsEl) return;
+  const list = getChordVoicings ? getChordVoicings(chordName) : [];
+  if (!list.length) { chipsEl.innerHTML = ''; return; }
+  chipsEl.innerHTML = list.map(v =>
+    `<button type="button" class="harmony-voicing-chip${v.id === selectedId ? ' active' : ''}" data-voicing="${v.id}" title="${v.label}">${v.label}</button>`).join('');
+  chipsEl.querySelectorAll('.harmony-voicing-chip').forEach(btn => {
+    btn.onclick = () => { if (onPick) onPick(btn.dataset.voicing); };
+  });
+}
+
+function harmonySelectVoicing(diagramId, chipsId, chordName, voicingId) {
+  if (!getChordVoicing) return;
+  const voicing = getChordVoicing(chordName, voicingId);
+  if (!voicing) return;
+  harmonyVoicingSel.set(chordName, voicing.id);
+  harmonyRenderVoicing(diagramId, voicing);
+  harmonyRenderVoicingChips(chipsId, chordName, voicing.id, id => harmonySelectVoicing(diagramId, chipsId, chordName, id));
+}
+
+function harmonyRenderSelectedVoicing(chordName) {
+  const voicing = getChordVoicing ? getChordVoicing(chordName, harmonyCurrentVoicing(chordName)) : null;
+  harmonyRenderVoicing('harmony-selected-diagram', voicing);
+  harmonyRenderVoicingChips('harmony-voicing-chips', chordName, voicing ? voicing.id : null, id =>
+    harmonySelectVoicing('harmony-selected-diagram', 'harmony-voicing-chips', chordName, id));
 }
 
 function updateHarmonyDetails() {
@@ -393,7 +475,11 @@ function updateHarmonyDetails() {
 
   selectedEl.textContent = `${selected.degree} · ${harmonyChord(selected)}`;
   descriptionEl.textContent = selected.description;
-  renderChordDiagram('harmony-selected-diagram', harmonyChord(selected));
+  const chordName = harmonyChord(selected);
+  const chordInfo = getChordInfo ? getChordInfo(chordName) : null;
+  const notesEl = document.getElementById('harmony-selected-notes');
+  if (notesEl) notesEl.textContent = chordInfo ? `Notas · ${chordInfo.notes.join(' · ')}` : '';
+  harmonyRenderSelectedVoicing(chordName);
 
   const tonic = HARMONY_TONIC[harmonyKey.mod];
   let metric = '';
@@ -721,23 +807,20 @@ function renderHarmonyProgDetail(el, steps, idx) {
   if (!step) { el.classList.add('hidden'); return; }
   el.classList.remove('hidden');
   const prev = idx > 0 ? steps[idx - 1] : null;
-  const info = getChordInfo ? getChordInfo(step.name) : null;
-  const frets = info && info.fingering ? info.fingering.frets : null;
-  const barre = info && info.fingering ? info.fingering.label : '';
-  let cells = '';
-  if (frets) {
-    cells = ['E', 'A', 'D', 'G', 'B', 'e'].map((sn, i) => {
-      const f = frets[i];
-      return `<div class="diagram-cell"><span class="string-label">${sn}</span><b class="${f === null ? 'mute' : f === 0 ? 'open' : 'dot'}">${f === null ? '×' : f === 0 ? '○' : f}</b></div>`;
-    }).join('');
-  }
   const prevTxt = prev ? `<p class="harmony-prog-prev">Desde <b>${prev.name}</b> (${harmonyProgLabels[idx - 1] || ''})</p>` : '';
+  const diagId = `harmony-prog-diagram-${idx}`;
+  const chipsId = `harmony-prog-chips-${idx}`;
   el.innerHTML = `<p class="eyebrow">ACORDE GENERADO · ${step.degree}</p>
     <h4>${step.name}${step.origin === 'borrowed' ? ' <em>(préstamo)</em>' : ''}</h4>
     ${prevTxt}
     <p class="harmony-prog-notes">${step.notes.map(pc => HARMONY_NOTES[pc]).join(' · ')}</p>
-    ${cells ? `<div class="harmony-prog-diagram">${cells}</div><p class="barre-label">${barre}</p>` : `<p class="study-hint">Busco digitación para ${step.name}…</p>`}
+    <div id="${diagId}" class="harmony-prog-diagram"></div>
+    <div id="${chipsId}" class="harmony-voicing-chips harmony-voicing-chips-grid"></div>
     <button type="button" class="ghost-btn" data-harmony-prog-regen>Generar de nuevo</button>`;
+  const voicing = getChordVoicing ? getChordVoicing(step.name, harmonyCurrentVoicing(step.name)) : null;
+  harmonyRenderVoicing(diagId, voicing);
+  harmonyRenderVoicingChips(chipsId, step.name, voicing ? voicing.id : null, id =>
+    harmonySelectVoicing(diagId, chipsId, step.name, id));
   const regen = el.querySelector('[data-harmony-prog-regen]');
   if (regen) regen.onclick = () => onHarmonyGenerate();
 }
@@ -792,40 +875,166 @@ function initializeHarmonyStaging() {
   document.getElementById('harmony-gen-go').onclick = onHarmonyGenerate;
 }
 
-// --- audio: síntesis Web Audio para escuchar acordes y progresiones ---
+// --- audio: síntesis clásica + preset de cuerda (Karplus-Strong) ---
 const HARMONY_STRING_FREQS = [82.4068892281795, 110, 146.8323839587038, 195.99771799087463, 246.94165062806206, 329.6275569128699];
 const HARMONY_STRUM_MS = 28;
-const HARMONY_NOTE_MS = 1250;
+const HARMONY_BLOCK_MS = 8;
 const HARMONY_PROG_GAP_MS = 80;
+const HARMONY_PROG_OVERLAP_S = 0.09;
+const harmonyVoicingSel = new Map();
+
+let harmonySound = 'synth';
+let harmonyStrumStyle = 'arpeggio';
+let harmonyStrumBass = false;
+let harmonyProgTempo = 120;
+
+const HARMONY_SOUNDS = [
+  { id: 'synth', label: 'Synth clásico', engine: 'osc', waves: [['sawtooth', 0], ['sawtooth', 6], ['square', -6]], filter: 2100, filterEnv: 1400, attack: 6, decay: 480, release: 900, sustain: 0.62, cutoff: 0.4 },
+  { id: 'organ', label: 'Órgano', engine: 'osc', waves: [['square', 0], ['square', 12], ['triangle', 0]], filter: 3800, filterEnv: 800, attack: 8, decay: 140, release: 450, sustain: 0.8, cutoff: 0.5 },
+  { id: 'bell', label: 'Brillante', engine: 'osc', waves: [['sine', 0], ['sine', 7], ['triangle', -7]], filter: 5600, filterEnv: 2600, attack: 2, decay: 320, release: 1400, sustain: 0.3, cutoff: 0.45 },
+  { id: 'soft', label: 'Suave', engine: 'osc', waves: [['triangle', 0], ['sawtooth', -9], ['sine', 9]], filter: 1200, filterEnv: 700, attack: 14, decay: 700, release: 1300, sustain: 0.5, cutoff: 0.5 },
+  { id: 'guitar', label: 'Cuerda (K-S)', engine: 'pluck' },
+];
+
+function harmonySoundProfile(id) {
+  return HARMONY_SOUNDS.find(s => s.id === id) || HARMONY_SOUNDS[0];
+}
+
+// Duración de un acorde según el tempo (nota redonda a BPM) y beat de la progresión.
+function harmonyChordMs(tempo) {
+  const bpm = tempo || harmonyProgTempo;
+  return Math.min(240000 / bpm, 2400);
+}
+
+function harmonyBeat() {
+  return (harmonyChordMs() + HARMONY_PROG_GAP_MS) / 1000;
+}
+
+function harmonyCurrentVoicing(chordName) {
+  const stored = harmonyVoicingSel.get(chordName);
+  const list = getChordVoicings ? getChordVoicings(chordName) : [];
+  return stored && list.some(v => v.id === stored) ? stored : (list[0] ? list[0].id : null);
+}
+
+// Plan puro y testeable: qué cuerdas suenan de la digitación elegida.
+function harmonyVoicingPlan(chordName, voicingId) {
+  const voicing = getChordVoicings ? getChordVoicing(chordName, voicingId) : null;
+  if (!voicing) return [];
+  const plan = [];
+  voicing.frets.forEach((fret, i) => {
+    if (fret === null) return;
+    plan.push({
+      note: voicing.tones[i] || '',
+      string: i,
+      freq: HARMONY_STRING_FREQS[i] * Math.pow(2, fret / 12),
+      t0: i * HARMONY_STRUM_MS + (i % 2 ? -2 : 2),
+      dur: harmonyChordMs(),
+      gain: 0.5 + i * 0.045,
+      pan: (i - 2.5) * 0.09,
+    });
+  });
+  return plan;
+}
+
+// Disposición pura: rasgueo arpegiado vs bloque, con bajo de raíz opcional.
+function harmonyArrange(plan, style, bass) {
+  const out = plan.map(p => Object.assign({}, p));
+  if (!out.length) return out;
+  if (style === 'block') {
+    out.forEach((p, i) => { p.t0 = i * HARMONY_BLOCK_MS + (i % 2 ? -HARMONY_BLOCK_MS : HARMONY_BLOCK_MS); });
+  }
+  if (bass) {
+    const low = out.reduce((a, b) => (b.freq < a.freq ? b : a));
+    low.t0 = 0;
+    low.gain = Math.min(1.5, low.gain + 0.35);
+    low.pan = 0;
+    low.bass = true;
+    out.forEach(p => { if (p !== low) p.t0 += style === 'block' ? HARMONY_BLOCK_MS * 3 : HARMONY_STRUM_MS * 3; });
+  }
+  return out;
+}
+
+function harmonyChordPlan(chordName) {
+  return harmonyArrange(harmonyVoicingPlan(chordName, harmonyCurrentVoicing(chordName)), harmonyStrumStyle, harmonyStrumBass);
+}
+
 let playbackCtx = null;
 let playbackMaster = null;
 
-// Plan puro y testeable: qué notas/cuerdas se tocan, con qué frecuencia y timing.
-function harmonyChordPlan(chordName) {
-  const info = getChordInfo ? getChordInfo(chordName) : null;
-  const frets = info && info.fingering ? info.fingering.frets : null;
-  if (frets) {
-    const plan = [];
-    frets.forEach((fret, i) => {
-      if (fret === null) return;
-      plan.push({
-        note: ['E', 'A', 'D', 'G', 'B', 'E'][i],
-        freq: HARMONY_STRING_FREQS[i] * Math.pow(2, fret / 12),
-        t0: i * HARMONY_STRUM_MS,
-        dur: HARMONY_NOTE_MS,
-      });
-    });
-    if (plan.length) return plan;
-  }
-  const notes = info ? info.notes : null;
-  if (!notes || !notes.length) return [];
-  const sorted = notes.map(note => NOTE_NAMES.indexOf(note)).filter(i => i > -1).sort((a, b) => a - b);
-  if (!sorted.length) return [];
-  return notes.map(note => {
-    const midi = 48 + NOTE_NAMES.indexOf(note);
-    const pitch = midi < 48 ? midi + 12 : midi;
-    return { note, freq: 440 * Math.pow(2, (pitch - 69) / 12), t0: 0, dur: HARMONY_NOTE_MS };
+function harmonyNoiseBuffer(ctx, seconds) {
+  const length = Math.max(1, Math.floor(ctx.sampleRate * seconds));
+  const buffer = ctx.createBuffer(1, length, ctx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+  return buffer;
+}
+
+function harmonyPluck(ctx, item, startTime, profile) {
+  const ringSec = Math.min(item.dur / 1000, (profile && profile.ring) || 2.4);
+  const delaySeconds = 1 / item.freq;
+  const delay = ctx.createDelay(1);
+  delay.delayTime.value = delaySeconds;
+  const lp = ctx.createBiquadFilter();
+  lp.type = 'lowpass';
+  lp.frequency.value = Math.min(item.freq * 3.4, 7800);
+  lp.Q.value = 0.7;
+  const feedback = ctx.createGain();
+  feedback.gain.value = Math.min(0.96, 0.5 + 0.4 * Math.exp(-item.freq / 460));
+  const out = ctx.createGain();
+  out.gain.setValueAtTime(0.0001, startTime);
+  out.gain.exponentialRampToValueAtTime(item.gain || 0.5, startTime + 0.004);
+  out.gain.setValueAtTime(item.gain || 0.5, startTime + 0.01);
+  out.gain.exponentialRampToValueAtTime(0.0001, startTime + ringSec);
+  const pan = ctx.createStereoPanner ? ctx.createStereoPanner() : null;
+  if (pan) pan.pan.value = item.pan || 0;
+  const noise = ctx.createBufferSource();
+  noise.buffer = harmonyNoiseBuffer(ctx, Math.min(0.04, delaySeconds * 0.5 + 0.005));
+  noise.loop = true;
+  delay.connect(lp);
+  lp.connect(feedback);
+  feedback.connect(delay);
+  delay.connect(out);
+  noise.connect(delay);
+  out.connect(pan || playbackMaster);
+  if (pan) pan.connect(playbackMaster);
+  noise.start(startTime);
+  noise.stop(startTime + Math.min(ringSec, 1.6));
+}
+
+// Voz de síntesis clásica: stack de osciladores detuneados → filtro con
+// envolvente de corte → ADSR → paneo.
+function harmonySynthVoice(ctx, item, startTime, profile) {
+  const gain = item.gain || 0.5;
+  const dur = item.dur / 1000;
+  const releaseSec = profile.release / 1000;
+  const out = ctx.createGain();
+  out.gain.setValueAtTime(0.0001, startTime);
+  out.gain.exponentialRampToValueAtTime(Math.max(0.001, gain), startTime + profile.attack / 1000);
+  out.gain.setValueAtTime(gain * profile.sustain, startTime + profile.decay / 1000);
+  out.gain.exponentialRampToValueAtTime(0.0001, startTime + dur + releaseSec);
+  const pan = ctx.createStereoPanner ? ctx.createStereoPanner() : null;
+  if (pan) pan.pan.value = item.pan || 0;
+  const lp = ctx.createBiquadFilter();
+  lp.type = 'lowpass';
+  lp.Q.value = 0.6;
+  const cutoff = Math.min(14000, Math.max(120, profile.filter * (0.6 + item.freq / 880)));
+  lp.frequency.setValueAtTime(cutoff * (1 + (profile.cutoff || 0.4)), startTime);
+  lp.frequency.exponentialRampToValueAtTime(Math.max(60, cutoff), startTime + profile.decay / 1000);
+  const voiceGain = 1 / Math.max(1, profile.waves.length);
+  profile.waves.forEach(([type, cents]) => {
+    const osc = ctx.createOscillator();
+    osc.type = type;
+    osc.frequency.value = item.freq * Math.pow(2, cents / 1200);
+    const slot = ctx.createGain();
+    slot.gain.value = voiceGain;
+    osc.connect(slot);
+    slot.connect(lp);
+    osc.start(startTime);
+    osc.stop(startTime + dur + releaseSec + 0.15);
   });
+  lp.connect(out);
+  out.connect(pan || playbackMaster);
+  if (pan) pan.connect(playbackMaster);
 }
 
 // Capa de sonido: consume el plan. No hace nada headless (node/tests).
@@ -836,36 +1045,29 @@ function harmonyPlayPlan(plan, baseTime = 0) {
   if (!playbackCtx) {
     playbackCtx = new AudioContextClass();
     playbackMaster = playbackCtx.createGain();
-    playbackMaster.gain.value = 0.25;
+    playbackMaster.gain.value = 0.32;
     playbackMaster.connect(playbackCtx.destination);
   }
   if (playbackCtx.state === 'suspended') playbackCtx.resume();
   const now = playbackCtx.currentTime + 0.03 + baseTime;
+  const profile = harmonySoundProfile(harmonySound);
   plan.forEach(item => {
-    const osc = playbackCtx.createOscillator();
-    const env = playbackCtx.createGain();
-    osc.type = 'triangle';
-    osc.frequency.value = item.freq;
-    env.gain.setValueAtTime(0, now + item.t0 / 1000);
-    env.gain.linearRampToValueAtTime(0.9, now + item.t0 / 1000 + 0.006);
-    env.gain.exponentialRampToValueAtTime(0.0001, now + item.t0 / 1000 + item.dur / 1000);
-    osc.connect(env);
-    env.connect(playbackMaster);
-    osc.start(now + item.t0 / 1000);
-    osc.stop(now + item.t0 / 1000 + item.dur / 1000 + 0.12);
+    const start = now + item.t0 / 1000;
+    if (profile.engine === 'pluck') harmonyPluck(playbackCtx, item, start, profile);
+    else harmonySynthVoice(playbackCtx, item, start, profile);
   });
 }
 
 function harmonyPlayChord(chordName) {
-  harmonyPlayPlan(harmonyChordPlan(chordName));
+  harmonyPlayPlan(harmonyChordPlan(chordName).map(item => Object.assign({}, item, { dur: Math.min(item.dur, 1600) })));
 }
 
 function harmonyPlayProgression() {
   const steps = harmonyProgSeq;
   if (!steps.length) return;
-  const beat = (HARMONY_NOTE_MS + HARMONY_PROG_GAP_MS) / 1000;
+  const beat = harmonyBeat();
   steps.forEach((step, i) => {
-    harmonyPlayPlan(harmonyChordPlan(step.name), i * beat);
+    harmonyPlayPlan(harmonyChordPlan(step.name), i * beat - (i > 0 ? HARMONY_PROG_OVERLAP_S : 0));
   });
 }
 
@@ -924,6 +1126,20 @@ function initializeHarmony() {
       openStudyMode('tensions');
     });
     crossNav.appendChild(toTensionsBtn);
+    const toVoicingsBtn = document.createElement('button');
+    toVoicingsBtn.type = 'button';
+    toVoicingsBtn.className = 'ghost-btn';
+    toVoicingsBtn.textContent = 'Ver voicings →';
+    toVoicingsBtn.addEventListener('click', () => {
+      const degrees = harmonyDegrees(harmonyKey.mod);
+      const selected = degrees.find(node => node.degree === harmonySelected);
+      const parsed = selected && parseChordName ? parseChordName(harmonyChord(selected)) : null;
+      if (!parsed) return;
+      const quality = ['7', 'maj7', 'm7'].includes(parsed.quality) ? parsed.quality : 'maj7';
+      if (typeof window.openVoicings === 'function') window.openVoicings(parsed.root, quality);
+      openStudyMode('voicings');
+    });
+    crossNav.appendChild(toVoicingsBtn);
   }
 
   const playBtn = document.getElementById('harmony-play');
@@ -934,6 +1150,32 @@ function initializeHarmony() {
   });
   const progPlayBtn = document.getElementById('harmony-prog-play');
   if (progPlayBtn) progPlayBtn.addEventListener('click', harmonyPlayProgression);
+
+  const soundSel = document.getElementById('harmony-sound');
+  if (soundSel) {
+    soundSel.innerHTML = HARMONY_SOUNDS.map(s => `<option value="${s.id}">${s.label}</option>`).join('');
+    soundSel.value = harmonySound;
+    soundSel.addEventListener('change', () => { harmonySound = soundSel.value; });
+  }
+  const strumSel = document.getElementById('harmony-strum');
+  if (strumSel) {
+    strumSel.value = harmonyStrumStyle;
+    strumSel.addEventListener('change', () => { harmonyStrumStyle = strumSel.value; });
+  }
+  const bassCb = document.getElementById('harmony-bass');
+  if (bassCb) {
+    bassCb.checked = harmonyStrumBass;
+    bassCb.addEventListener('change', () => { harmonyStrumBass = bassCb.checked; });
+  }
+  const tempoInput = document.getElementById('harmony-prog-tempo');
+  if (tempoInput) {
+    tempoInput.value = harmonyProgTempo;
+    tempoInput.addEventListener('change', () => {
+      const v = Number(tempoInput.value);
+      if (v >= 40 && v <= 200) harmonyProgTempo = v;
+      else tempoInput.value = harmonyProgTempo;
+    });
+  }
 
   renderHarmony();
 }

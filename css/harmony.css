@@ -99,3 +99,47 @@
 .harmony-play-row { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
 .harmony-play { flex: none; }
 .harmony-play.playing { color: #e7c47c; border-color: #e7c47c; }
+
+/* --- mástil ilustrado + notación alternativa --- */
+.harmony-selected-notes { min-height: 18px; margin: 10px 0 0; color: var(--muted); font: 11px 'DM Mono', monospace; }
+.harmony-mast { font: 10px 'DM Mono', monospace; user-select: none; }
+.mast-row { display: grid; align-items: center; gap: 2px; }
+.mast-row .mast-string { width: 18px; color: #7a7f74; font-size: 9px; }
+.mast-head { color: #5e635a; font-size: 9px; }
+.mast-row:not(.mast-head) .mast-string { height: 30px; }
+.mast-mute { width: 12px; color: #6b4a41; font-style: normal; text-align: center; }
+.mast-open { width: 12px; color: var(--accent); font-style: normal; text-align: center; }
+.mast-fret { position: relative; display: grid; place-items: center; height: 30px; border-right: 1px solid rgba(244, 234, 214, .16); }
+.mast-row:not(.mast-head) .mast-fret::after { content: ''; position: absolute; left: 0; right: 0; top: 15px; height: 1px; background: rgba(244, 234, 214, .14); }
+.mast-fret.played { border-right: none; }
+.mast-row:not(.mast-head) .mast-fret.played::after { background: none; }
+.mast-dot { z-index: 1; display: grid; place-items: center; width: 16px; height: 16px; color: #171815; background: var(--accent); border-radius: 50%; font: 700 9px 'DM Mono', monospace; }
+.mast-row:not(.mast-head) .mast-fret.played::before { content: ''; position: absolute; left: 0; right: 0; top: 7px; height: 16px; background: rgba(244, 234, 214, .12); border-radius: 9px; }
+.mast-tone { position: absolute; top: 1px; left: 0; right: 0; color: #b9b2a4; font-size: 8px; text-align: center; }
+.mast-fretnum { color: #5e635a; font-size: 9px; text-align: center; }
+.harmony-prog-diagram { display: block; max-width: 420px; }
+.harmony-voicing-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.harmony-voicing-chip { padding: 5px 9px; color: var(--ink); background: #252826; border: 1px solid #626760; cursor: pointer; font: 10px 'DM Mono', monospace; transition: color .15s, border-color .15s, background .15s; }
+.harmony-voicing-chip:hover { border-color: var(--accent); }
+.harmony-voicing-chip.active { color: #171815; background: var(--accent); border-color: #c8b0ff; }
+.harmony-voicing-chips-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); max-width: 420px; }
+.harmony-timbre-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; margin-top: 14px; }
+.harmony-timbre-controls label { color: var(--muted); font: 11px 'DM Mono', monospace; text-transform: uppercase; }
+.harmony-timbre-controls select { padding: 5px 8px; color: var(--ink); background: #252826; border: 1px solid #626760; font: 12px 'DM Mono', monospace; }
+.harmony-timbre-controls input[type=number] { width: 64px; padding: 5px 8px; color: var(--ink); background: #252826; border: 1px solid #626760; font: 12px 'DM Mono', monospace; }
+.harmony-timbre-controls .checkbox { display: inline-flex; align-items: center; gap: 5px; cursor: pointer; user-select: none; text-transform: none; }
+.harmony-timbre-controls .checkbox input { accent-color: var(--accent); cursor: pointer; }
+
+/* --- preview del nodo en el mapa --- */
+.harmony-preview { position: absolute; z-index: 3; display: none; min-width: 120px; max-width: 200px; padding: 8px 10px; color: var(--ink); background: rgba(21, 24, 22, .96); border: 1px solid #626760; transform: translate(-50%, -160%); pointer-events: none; font: 12px 'Libre Baskerville', serif; }
+.harmony-preview.show { display: block; }
+.harmony-preview b { color: var(--accent); font-family: 'Libre Baskerville', serif; font-size: 14px; }
+.harmony-preview span { display: block; margin-top: 3px; color: var(--muted); font: 9px 'DM Mono', monospace; }
+
+/* --- aristas del mapa según función --- */
+.harmony-lines line.kind-cadence { stroke: #ffd9a0; stroke-width: .6; }
+.harmony-lines line.kind-step { stroke: #8fb9ff; }
+.harmony-lines line.kind-prep { stroke: #9b6cff; }
+.harmony-lines line.kind-tension { stroke: #ff8f7d; }
+.harmony-lines line.kind-bind { opacity: .55; }
+.harmony-lines line.active { stroke: #9b6cff; stroke-width: .75; stroke-dasharray: none; }

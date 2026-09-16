@@ -5,6 +5,7 @@ components.css
 chords.css
 tuner.css
 harmony.css
+voicings.css
 tensions.css
 modes.css
 circle.css
