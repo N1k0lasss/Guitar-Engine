@@ -88,15 +88,15 @@
 </section>
 
 <style>
-  .modes-toolbar { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 20px; margin-bottom: 22px; }
-  .modes-toolbar label, .modes-toolbar .field { display: flex; flex-direction: column; gap: 6px; }
-  .modes-toolbar label > span, .modes-toolbar .field > span { color: var(--muted); font: 10px var(--font-mono); text-transform: uppercase; letter-spacing: 1.4px; }
+  .modes-toolbar { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 14px; margin-bottom: 12px; }
+  .modes-toolbar label, .modes-toolbar .field { display: flex; flex-direction: column; gap: 4px; }
+  .modes-toolbar label > span, .modes-toolbar .field > span { color: var(--muted); font: 9px var(--font-mono); text-transform: uppercase; letter-spacing: 1.2px; }
 
-  .modes-layout { display: grid; grid-template-columns: 1.35fr .65fr; gap: 22px; align-items: start; }
+  .modes-layout { display: grid; grid-template-columns: 1.35fr .65fr; gap: 14px; align-items: stretch; }
   @media (max-width: 1024px) { .modes-layout { grid-template-columns: 1fr; } }
 
-  .modes-wheel-panel { padding: 24px; }
-  .modes-wheel { position: relative; height: 470px; background: #111312; border: 1px solid var(--line); border-radius: 2px; }
+  .modes-wheel-panel { padding: 12px; }
+  .modes-wheel { position: relative; --orbit-r: clamp(116px, 17vh, 152px); height: min(56vh, 450px); min-height: 340px; background: #111312; border: 1px solid var(--line); border-radius: 2px; overflow: hidden; }
   .modes-wheel::before {
     content: ''; position: absolute; inset: 16%;
     border: 1px solid rgba(244, 234, 214, .16); border-radius: 50%;
@@ -104,38 +104,38 @@
   }
   .modes-wheel-core {
     position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    display: grid; place-items: center; width: 120px; height: 120px;
+    display: grid; place-items: center; width: 96px; height: 96px;
     color: var(--muted); border: 1px solid var(--line); border-radius: 50%;
-    text-align: center; font: 10px var(--font-mono); text-transform: uppercase; letter-spacing: 1px;
-    line-height: 1.5;
+    text-align: center; font: 9px var(--font-mono); text-transform: uppercase; letter-spacing: 1px;
+    line-height: 1.45;
   }
   .mode-orbit {
     position: absolute; top: 50%; left: 50%;
-    display: grid; gap: 1px; width: 106px; min-height: 72px; padding: 8px;
+    display: grid; gap: 1px; width: 94px; min-height: 62px; padding: 6px;
     color: var(--color-ink); background: #252826; border: 1px solid #626760; border-radius: 2px;
     cursor: pointer; text-align: center;
-    transform: rotate(var(--mode-angle)) translateY(-150px) rotate(calc(var(--mode-angle) * -1)) translate(-50%, -50%);
+    transform: rotate(var(--mode-angle)) translateY(calc(var(--orbit-r) * -1)) rotate(calc(var(--mode-angle) * -1)) translate(-50%, -50%);
     transition: background .2s, color .2s, border-color .2s;
   }
   .mode-orbit:hover, .mode-orbit.selected { background: #181b1a; border-color: var(--mode-color); }
-  .mode-orbit span { color: var(--mode-color); font: 10px var(--font-mono); }
-  .mode-orbit strong { font: 700 15px var(--font-display); color: var(--color-ink); }
-  .mode-orbit small { color: var(--muted); font-size: 10px; font-family: var(--font-mono); }
+  .mode-orbit span { color: var(--mode-color); font: 9px var(--font-mono); }
+  .mode-orbit strong { font: 700 13px var(--font-display); color: var(--color-ink); }
+  .mode-orbit small { color: var(--muted); font-size: 9px; font-family: var(--font-mono); }
   .mode-orbit.selected small, .mode-orbit.selected span { color: var(--mode-color); }
   .mode-orbit.quality-minor { border-style: solid; }
   .mode-orbit.quality-dim { border-style: dashed; }
 
-  .modes-scale-strip { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 18px; }
-  .modes-scale-strip span { padding: 9px 4px; color: var(--color-ink); background: #252826; border-bottom: 2px solid #3b3e3b; font: 12px var(--font-mono); text-align: center; }
+  .modes-scale-strip { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 12px; }
+  .modes-scale-strip span { padding: 7px 4px; color: var(--color-ink); background: #252826; border-bottom: 2px solid #3b3e3b; font: 11px var(--font-mono); text-align: center; }
   .modes-scale-strip span.mode-tonic { color: #050606; background: var(--accent); border-color: var(--accent); }
 
-  .mode-detail { align-self: start; }
-  .mode-name { margin: 12px 0 4px; font-family: var(--font-display); font-weight: 600; font-size: clamp(35px, 5vw, 56px); line-height: 1.05; letter-spacing: -1px; }
-  .mode-chord { margin: 0 0 22px; color: var(--muted); font: 15px var(--font-mono); }
-  .mode-description { min-height: 84px; color: var(--muted); font-size: 14px; line-height: 1.5; margin: 0; }
-  .mode-facts { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 28px; }
-  .mode-facts span { display: grid; gap: 7px; padding: 12px; background: color-mix(in srgb, var(--c, var(--accent)) 10%, #080909); border: 1px solid color-mix(in srgb, var(--c, var(--accent)) 30%, var(--line)); border-radius: 2px; }
-  .mode-facts b { color: var(--muted); font: 10px var(--font-mono); text-transform: uppercase; }
-  .mode-facts strong { color: var(--color-ink); font: 600 15px var(--font-display); }
+  .mode-detail { align-self: stretch; max-height: min(56vh, 450px); overflow-y: auto; }
+  .mode-name { margin: 6px 0 2px; font-family: var(--font-display); font-weight: 600; font-size: clamp(24px, 3vw, 36px); line-height: 1.05; letter-spacing: -.8px; }
+  .mode-chord { margin: 0 0 12px; color: var(--muted); font: 13px var(--font-mono); }
+  .mode-description { min-height: 56px; color: var(--muted); font-size: 13px; line-height: 1.5; margin: 0; }
+  .mode-facts { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 16px; }
+  .mode-facts span { display: grid; gap: 5px; padding: 9px; background: color-mix(in srgb, var(--c, var(--accent)) 10%, #080909); border: 1px solid color-mix(in srgb, var(--c, var(--accent)) 30%, var(--line)); border-radius: 2px; }
+  .mode-facts b { color: var(--muted); font: 9px var(--font-mono); text-transform: uppercase; }
+  .mode-facts strong { color: var(--color-ink); font: 600 14px var(--font-display); }
   .mono { font-family: var(--font-mono); }
 </style>

@@ -80,13 +80,14 @@
 
   .sabor-layout { display: grid; grid-template-columns: 1.7fr 1fr; gap: 22px; align-items: start; }
   @media (max-width: 1024px) { .sabor-layout { grid-template-columns: 1fr; } }
-  .sabor-grid-panel, .sabor-detail { padding: 16px; }
+  .sabor-grid-panel, .sabor-detail { padding: 14px; }
+  .sabor-detail { max-height: min(56vh, 500px); overflow-y: auto; }
 
-  .sabor-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+  .sabor-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
   @media (max-width: 1024px) { .sabor-grid { grid-template-columns: repeat(4, 1fr); } }
   @media (max-width: 700px) { .sabor-grid { grid-template-columns: repeat(3, 1fr); } }
   .sabor-chip {
-    display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px 6px;
+    display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 9px 6px;
     background: #121414; border: 1px solid #555954; border-radius: 2px; cursor: pointer;
     transition: border-color .15s, background .15s;
   }

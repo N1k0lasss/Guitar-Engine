@@ -82,27 +82,27 @@
 </section>
 
 <style>
-  .scale-controls { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px; margin-bottom: 22px; }
-  .scale-controls label { display: flex; flex-direction: column; gap: 6px; }
-  .scale-controls label span { color: var(--muted); font: 10px var(--font-mono); text-transform: uppercase; letter-spacing: 1.4px; }
+  .scale-controls { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; margin-bottom: 12px; }
+  .scale-controls label { display: flex; flex-direction: column; gap: 4px; }
+  .scale-controls label span { color: var(--muted); font: 9px var(--font-mono); text-transform: uppercase; letter-spacing: 1.2px; }
 
   .scale-result { overflow-x: auto; }
-  .result-head h3 { margin: 6px 0 9px; color: var(--accent); font-family: var(--font-display); font-weight: 600; font-size: clamp(24px, 3vw, 32px); line-height: 1; letter-spacing: -1px; }
-  .scale-notes { margin: 0; color: var(--muted); font: 13px var(--font-mono); }
+  .result-head h3 { margin: 2px 0 6px; color: var(--accent); font-family: var(--font-display); font-weight: 600; font-size: clamp(18px, 2vw, 24px); line-height: 1; letter-spacing: -.7px; }
+  .scale-notes { margin: 0; color: var(--muted); font: 12px var(--font-mono); }
 
-  .fretboard-wrap { min-width: 700px; margin-top: 30px; }
+  .fretboard-wrap { min-width: 520px; margin-top: 14px; }
   .fretboard { --fc: 16; }
   .fret-numbers {
-    display: grid; grid-template-columns: repeat(var(--fc), minmax(38px, 1fr));
+    display: grid; grid-template-columns: repeat(var(--fc), minmax(30px, 1fr));
     margin-left: 0; color: var(--muted); font: 10px var(--font-mono); text-align: center; margin-bottom: 4px;
   }
   .fret-grid {
-    display: grid; grid-template-columns: repeat(var(--fc), minmax(38px, 1fr));
-    gap: 3px; padding-top: 7px;
-    background: repeating-linear-gradient(to bottom, transparent 0 27px, rgba(255, 255, 255, .18) 28px 29px);
+    display: grid; grid-template-columns: repeat(var(--fc), minmax(30px, 1fr));
+    gap: 2px; padding-top: 5px;
+    background: repeating-linear-gradient(to bottom, transparent 0 21px, rgba(255, 255, 255, .18) 22px 23px);
   }
   .fret-cell {
-    height: 29px; display: grid; place-items: center; color: transparent;
+    height: 23px; display: grid; place-items: center; color: transparent;
     border-right: 1px solid var(--line); border-left: 1px solid rgba(255, 255, 255, .04);
     font: 10px var(--font-mono);
   }

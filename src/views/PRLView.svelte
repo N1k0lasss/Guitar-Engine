@@ -53,21 +53,21 @@
 </section>
 
 <style>
-  .sub { color: var(--muted); max-width: 62ch; line-height: 1.55; font-size: 12px; }
-  .controls-panel { display: flex; flex-wrap: wrap; align-items: center; gap: 13px; margin-bottom: 22px; }
-  .rootrow { display: flex; flex-wrap: wrap; gap: 6px; }
-  .rootchip { padding: 7px 11px; color: var(--muted); background: var(--panel-raised); border: 1px solid var(--line); border-radius: 2px; cursor: pointer; font-family: var(--font-mono); font-size: 11px; }
+  .sub { color: var(--muted); max-width: 62ch; line-height: 1.5; font-size: 12px; }
+  .controls-panel { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .rootrow { display: flex; flex-wrap: wrap; gap: 5px; }
+  .rootchip { padding: 5px 8px; color: var(--muted); background: var(--panel-raised); border: 1px solid var(--line); border-radius: 2px; cursor: pointer; font-family: var(--font-mono); font-size: 11px; }
   .rootchip:hover { color: var(--ink); border-color: var(--accent); }
   .rootchip.on { color: #050606; background: var(--accent); border-color: var(--accent); }
-  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-  .tcard { display: grid; gap: 8px; align-content: start; padding: 16px 14px; color: var(--ink); background: #121414; border: 1px solid #555954; border-radius: 2px; text-align: left; }
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-height: min(56vh, 520px); overflow-y: auto; }
+  .tcard { display: grid; gap: 6px; align-content: start; padding: 10px 12px; color: var(--ink); background: #121414; border: 1px solid #555954; border-radius: 2px; text-align: left; }
   .tcard:hover { background: #181b1a; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255, 85, 124, 0.12); }
-  .tcard-head { display: flex; align-items: baseline; gap: 10px; }
-  .op { color: var(--accent); font-family: var(--font-display); font-weight: 700; font-size: 30px; letter-spacing: -1px; line-height: 1; }
-  .opname { color: var(--muted); font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; }
+  .tcard-head { display: flex; align-items: baseline; gap: 8px; }
+  .op { color: var(--accent); font-family: var(--font-display); font-weight: 700; font-size: 22px; letter-spacing: -1px; line-height: 1; }
+  .opname { color: var(--muted); font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; }
   .muted { font-size: 12px; line-height: 1.45; }
   .desc { margin: 2px 0; }
-  .result-name { font-family: var(--font-display); font-weight: 700; font-size: 21px; color: var(--ink); margin: 4px 0 2px; }
+  .result-name { font-family: var(--font-display); font-weight: 700; font-size: 17px; color: var(--ink); margin: 4px 0 2px; }
   .notes-row { display: flex; flex-wrap: wrap; gap: 6px; }
   .note { font-family: var(--font-mono); font-size: 11px; padding: 4px 8px; border: 1px solid var(--line); border-radius: 2px; color: var(--muted); }
   .note.common { color: var(--ink); border-color: var(--accent); }

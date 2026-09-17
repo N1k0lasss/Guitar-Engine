@@ -128,12 +128,12 @@
 </section>
 
 <style>
-  .study-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 22px; align-items: stretch; }
+  .study-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 14px; align-items: stretch; }
   @media (max-width: 1024px) { .study-grid { grid-template-columns: 1fr; } }
 
-  .circle-panel { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; min-height: 500px; padding: 20px; }
+  .circle-panel { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; min-height: min(56vh, 500px); padding: 12px; }
   .circle-of-fifths {
-    position: relative; width: min(100%, 450px); aspect-ratio: 1;
+    position: relative; width: min(100%, min(46vh, 440px)); aspect-ratio: 1;
     border: 1px solid var(--line); border-radius: 50%;
     background:
       radial-gradient(circle, transparent 0 29%, color-mix(in srgb, var(--accent) 12%, transparent) 30% 31%, transparent 32% 58%, color-mix(in srgb, var(--accent) 14%, transparent) 59% 60%, transparent 61%);
@@ -146,7 +146,7 @@
     position: absolute; inset: 37%; display: grid; place-items: center;
     pointer-events: none;
   }
-  .circle-center strong { font: 600 26px var(--font-display); color: var(--accent); letter-spacing: -.5px; }
+  .circle-center strong { font: 600 20px var(--font-display); color: var(--accent); letter-spacing: -.5px; }
 
   .graph { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
   .edge { fill: none; stroke: rgba(255, 255, 255, .3); stroke-width: 1; transition: opacity .18s, stroke .18s; }
@@ -169,17 +169,17 @@
   .ci-arrow { color: var(--muted); font-size: 9px; }
   .study-hint { color: var(--muted); font-size: 12px; line-height: 1.5; margin: 0; text-align: center; }
 
-  .detail-panel { align-self: stretch; display: flex; flex-direction: column; }
-  .key { font-family: var(--font-display); font-weight: 600; font-size: clamp(56px, 8vw, 88px); line-height: 1; letter-spacing: -2px; margin: 6px 0 12px; color: var(--accent); }
+  .detail-panel { align-self: stretch; display: flex; flex-direction: column; max-height: min(56vh, 500px); overflow-y: auto; }
+  .key { font-family: var(--font-display); font-weight: 600; font-size: clamp(30px, 3.4vw, 48px); line-height: 1; letter-spacing: -1px; margin: 4px 0 8px; color: var(--accent); }
   .notes-list { color: var(--muted); font-size: 12px; margin: 0; }
-  .key-chords { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 30px; }
+  .key-chords { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 16px; }
   .key-chord {
-    display: grid; gap: 4px; padding: 11px 7px; text-align: center; cursor: pointer;
+    display: grid; gap: 3px; padding: 8px 6px; text-align: center; cursor: pointer;
     color: var(--color-ink); background: #121414; border: 1px solid #555954; border-radius: 2px;
   }
   .key-chord:hover { background: #181b1a; border-color: var(--accent); }
-  .key-chord b { font: 600 13px var(--font-mono); }
-  .key-chord small { color: var(--muted); font: 10px var(--font-mono); }
-  .circle-actions { margin-top: auto; padding-top: 26px; }
+  .key-chord b { font: 600 12px var(--font-mono); }
+  .key-chord small { color: var(--muted); font: 9px var(--font-mono); }
+  .circle-actions { margin-top: auto; padding-top: 14px; }
   .mono { font-family: var(--font-mono); }
 </style>

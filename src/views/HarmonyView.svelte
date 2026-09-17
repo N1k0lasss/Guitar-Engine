@@ -525,7 +525,7 @@
   </section>
 
 {#if $harmonyMode === 'prog' && $harmonyProgSeq.length}
-  <section class="panel">
+  <section class="panel prog-gen">
     <p class="eyebrow">PROGRESIÓN GENERADA</p>
     <div class="prog-chain">
       {#each $harmonyProgSeq as step, i (i + step.name)}
@@ -553,30 +553,31 @@
 {/if}
 
 <style>
-  .toolbar { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end; margin-bottom: 22px; }
-  .toolbar .field { min-width: 130px; }
+  .toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; margin-bottom: 12px; }
+  .toolbar .field { min-width: 120px; }
   .view-seg { flex: 1 1 100%; }
   .clear { margin-left: auto; }
-  .btn-sm { padding: 7px 11px; font-size: 11px; }
+  .btn-sm { padding: 6px 10px; font-size: 11px; }
   .btn-xs { padding: 3px 7px; font-size: 10px; }
-  .mt { margin-top: 16px; }
+  .mt { margin-top: 10px; }
   .mono { font-family: var(--font-mono); }
 
-  .prog-controls { margin-bottom: 22px; }
-  .prog-row { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end; }
-  .myprog { margin-bottom: 22px; }
-  .row-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+  .prog-controls { margin-bottom: 12px; }
+  .prog-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
+  .myprog { margin-bottom: 12px; }
+  .prog-gen { max-height: 20vh; overflow-y: auto; }
+  .row-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
   .row-head .eyebrow { margin: 0; }
   .row-actions { display: flex; align-items: center; gap: 10px; }
-  .chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
 
-  .layout { display: grid; grid-template-columns: 1.35fr .65fr; gap: 22px; align-items: start; margin-bottom: 22px; }
+  .layout { display: grid; grid-template-columns: 1.35fr .65fr; gap: 14px; align-items: stretch; margin-bottom: 12px; }
   @media (max-width: 1024px) { .layout { grid-template-columns: 1fr; } }
 
-  .map-panel { padding: 16px; }
+  .map-panel { padding: 12px; display: flex; flex-direction: column; }
   .map-wrap { position: relative; }
   .map {
-    display: block; width: 100%; min-height: 430px;
+    display: block; width: 100%; height: min(46vh, 450px); min-height: 280px;
     background-color: #080909;
     background-image:
       repeating-linear-gradient(0deg, transparent 0 23px, rgba(255,255,255,.016) 24px),
@@ -620,14 +621,15 @@
   .legend .dot.far { background: var(--line); }
   .hint { margin-top: 10px; color: var(--muted); font-size: 12px; line-height: 1.5; }
 
-  .detail-panel .eyebrow { margin-bottom: 6px; }
+  .detail-panel { max-height: min(46vh, 450px); overflow-y: auto; }
+  .detail-panel .eyebrow { margin-bottom: 4px; }
   .big {
     font-family: var(--font-display);
-    font-size: clamp(28px, 3.4vw, 40px);
-    font-weight: 600; letter-spacing: -1.2px; line-height: 1.05;
-    margin: 4px 0 10px;
+    font-size: clamp(22px, 2.2vw, 30px);
+    font-weight: 600; letter-spacing: -1px; line-height: 1.05;
+    margin: 2px 0 8px;
   }
-  .desc { color: var(--muted); font-size: 13px; line-height: 1.55; margin: 0; }
+  .desc { color: var(--muted); font-size: 12px; line-height: 1.5; margin: 0; }
   .cross-nav { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
   .metric { font-size: 12px; line-height: 1.55; margin: 12px 0 0; }
   .path { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 8px; }

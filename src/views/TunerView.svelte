@@ -45,13 +45,13 @@
 </div>
 
 <style>
-  .view-head { align-items: flex-start; margin: 38px 0 25px; }
+  .view-head { align-items: flex-start; margin: 12px 0 14px; }
 
   .tuner-stage {
     position: relative;
     overflow: hidden;
-    min-height: 355px;
-    padding: 40px 6%;
+    min-height: min(46vh, 360px);
+    padding: 26px 6% 20px;
     text-align: center;
     background: #080909;
     border: 1px solid var(--line);
@@ -62,13 +62,13 @@
     position: absolute;
     right: 13%;
     bottom: 13%;
-    width: 86px;
-    height: 86px;
+    width: 64px;
+    height: 64px;
     border: 1px solid var(--accent);
     border-radius: 50%;
-    box-shadow: 0 0 0 22px rgba(255, 85, 124, .05), 0 0 0 44px rgba(255, 85, 124, .035);
+    box-shadow: 0 0 0 18px rgba(255, 85, 124, .05), 0 0 0 34px rgba(255, 85, 124, .035);
   }
-  .tuner-stage .label { position: absolute; top: 18px; left: 20px; margin: 0; color: var(--muted); font-size: 9px; letter-spacing: 1.5px; }
+  .tuner-stage .label { position: absolute; top: 10px; left: 16px; margin: 0; color: var(--muted); font-size: 9px; letter-spacing: 1.5px; }
 
   .tuner-note {
     position: relative;
@@ -76,23 +76,23 @@
     color: var(--ink);
     font-family: var(--font-display);
     font-weight: 800;
-    font-size: clamp(80px, 15vw, 150px);
-    letter-spacing: -8px;
+    font-size: clamp(52px, 9vw, 104px);
+    letter-spacing: -4px;
     line-height: 1;
   }
   .tuner-freq {
     position: relative;
     z-index: 1;
-    min-height: 19px;
-    margin: 14px 0 42px;
+    min-height: 17px;
+    margin: 8px 0 22px;
     color: var(--muted);
-    font: 13px var(--font-mono);
+    font: 12px var(--font-mono);
   }
 
   .meter {
     position: relative;
     z-index: 1;
-    height: 90px;
+    height: 64px;
     max-width: 700px;
     margin: auto;
     overflow: hidden;
@@ -103,7 +103,7 @@
     position: absolute;
     bottom: 0;
     width: 3px;
-    height: 70px;
+    height: 50px;
     box-shadow: 0 0 14px currentColor;
     transform: translateX(-50%);
     transition: left .15s ease, background .15s;
@@ -113,22 +113,22 @@
     bottom: 0;
     left: 50%;
     width: 1px;
-    height: 90px;
+    height: 64px;
     background: var(--accent);
     opacity: .6;
   }
-  .meter-mark { position: absolute; bottom: 8px; color: var(--muted); font: 12px var(--font-mono); }
+  .meter-mark { position: absolute; bottom: 5px; color: var(--muted); font: 11px var(--font-mono); }
   .mark-left { left: 4px; }
   .mark-center { left: 50%; transform: translateX(-50%); }
   .mark-right { right: 4px; }
 
-  .tuner-hint { position: relative; z-index: 1; margin: 25px 0 0; color: var(--muted); font-size: 14px; }
+  .tuner-hint { position: relative; z-index: 1; margin: 14px 0 0; color: var(--muted); font-size: 13px; }
 
   .tuning-strip {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
     gap: 8px;
-    margin-top: 18px;
+    margin-top: 12px;
     color: var(--muted);
     text-align: center;
     font: 12px var(--font-mono);

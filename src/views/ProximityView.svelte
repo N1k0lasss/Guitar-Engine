@@ -136,10 +136,10 @@
 </section>
 
 <style>
-  .view-head { margin-bottom: 2rem; }
-  .sub { color: var(--muted); max-width: 62ch; line-height: 1.55; font-size: 0.86rem; }
-  .panel { padding: 20px; background: var(--panel); border: 1px solid var(--line); border-radius: 2px; }
-  .controls-panel { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1rem; }
+  .view-head { margin-bottom: 12px; }
+  .sub { color: var(--muted); max-width: 62ch; line-height: 1.5; font-size: 12px; }
+  .panel { padding: 14px; background: var(--panel); border: 1px solid var(--line); border-radius: 2px; }
+  .controls-panel { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 12px; }
   .rootrow { display: flex; flex-wrap: wrap; gap: 0.3rem; }
   .rootchip { font-family: var(--font-mono); font-size: 0.72rem; padding: 0.34rem 0.6rem; border: 1px solid var(--line); border-radius: 2px; background: transparent; color: var(--muted); cursor: pointer; }
   .rootchip.on { color: var(--accent); border-color: var(--accent); }
@@ -150,8 +150,9 @@
   .seg button { border: 1px solid var(--line); background: var(--panel-raised); color: var(--muted); font-size: 0.75rem; padding: 0.4rem 0.7rem; border-radius: 2px; cursor: pointer; }
   .seg button.on { background: var(--accent); color: var(--ink); }
   .mt { margin-top: 0.75rem; }
-  .layout { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); margin-bottom: 1rem; }
-  .neighbor-list { display: flex; flex-direction: column; gap: 0.45rem; margin-top: 0.5rem; max-height: 420px; overflow-y: auto; }
+  .layout { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); margin-bottom: 12px; }
+  .layout > .panel { max-height: min(48vh, 440px); overflow-y: auto; }
+  .neighbor-list { display: flex; flex-direction: column; gap: 0.45rem; margin-top: 0.5rem; max-height: min(38vh, 340px); overflow-y: auto; }
   .neighbor { padding: 0.55rem 0.7rem; color: var(--ink); background: #121414; border: 1px solid #555954; border-radius: 2px; }
   .nhead { display: flex; justify-content: space-between; align-items: baseline; }
   .nhead b { font-size: 0.9rem; color: var(--ink); }
@@ -161,12 +162,12 @@
   .note-picker { display: flex; flex-wrap: wrap; gap: 0.28rem; margin-top: 0.4rem; }
   .picknote { font-family: var(--font-mono); font-size: 0.72rem; padding: 0.32rem 0.55rem; border: 1px solid var(--line); border-radius: 2px; background: transparent; color: var(--muted); cursor: pointer; }
   .picknote.on { background: var(--accent); color: #050606; }
-  .common-list { display: flex; flex-direction: column; gap: 0.4rem; margin-top: 0.75rem; max-height: 320px; overflow-y: auto; }
+  .common-list { display: flex; flex-direction: column; gap: 0.4rem; margin-top: 0.6rem; max-height: min(30vh, 280px); overflow-y: auto; }
   .common { display: flex; justify-content: space-between; align-items: baseline; padding: 0.4rem 0.6rem; color: var(--ink); background: #121414; border: 1px solid #555954; border-radius: 2px; }
   .common b { color: var(--ink); font-size: 0.85rem; }
   .common small { font-size: 0.62rem; color: var(--muted); }
-  .frequency-panel { margin-bottom: 1rem; }
-  .freqs { display: flex; gap: 0.5rem; align-items: flex-end; height: 120px; margin-top: 0.75rem; }
+  .frequency-panel { margin-bottom: 12px; }
+  .freqs { display: flex; gap: 0.5rem; align-items: flex-end; height: 90px; margin-top: 0.6rem; }
   .freq { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; gap: 4px; }
   .freq-bar { width: 100%; max-width: 26px; border-radius: 2px 2px 0 0; background: var(--accent); }
   .freq-label { font-size: 0.62rem; color: var(--ink); }

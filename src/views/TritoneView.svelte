@@ -82,29 +82,29 @@
 </section>
 
 <style>
-  .sub { color: var(--muted); max-width: 62ch; line-height: 1.55; font-size: 12px; }
-  .seed-panel { display: flex; flex-wrap: wrap; align-items: center; gap: 13px; margin-bottom: 22px; }
-  .seed-row { display: flex; align-items: center; gap: 18px; }
-  .seed-note { font-family: var(--font-display); font-size: 2.2rem; font-weight: 700; letter-spacing: -1px; line-height: 1; color: var(--ink); }
+  .sub { color: var(--muted); max-width: 62ch; line-height: 1.5; font-size: 12px; }
+  .seed-panel { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .seed-row { display: flex; align-items: center; gap: 12px; }
+  .seed-note { font-family: var(--font-display); font-size: 1.6rem; font-weight: 700; letter-spacing: -1px; line-height: 1; color: var(--ink); }
   .seed-note.on { color: var(--accent); }
   .seed-gap { color: var(--muted); font-size: 1.1rem; }
   .seed-options { display: flex; flex-wrap: wrap; gap: 6px; }
-  .seed-chip { padding: 7px 11px; color: var(--muted); background: var(--panel-raised); border: 1px solid var(--line); border-radius: 2px; cursor: pointer; font-family: var(--font-mono); font-size: 11px; }
+  .seed-chip { padding: 5px 8px; color: var(--muted); background: var(--panel-raised); border: 1px solid var(--line); border-radius: 2px; cursor: pointer; font-family: var(--font-mono); font-size: 11px; }
   .seed-chip:hover { color: var(--ink); border-color: var(--accent); }
   .seed-chip.on { color: #050606; background: var(--accent); border-color: var(--accent); }
-  .layout { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin: 0 0 22px; }
-  .big { font-family: var(--font-display); font-size: 2.2rem; font-weight: 700; letter-spacing: -1px; line-height: 1; color: var(--accent); margin: 6px 0; }
-  .muted { font-size: 12px; line-height: 1.6; }
+  .layout { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 0 0 12px; }
+  .big { font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; letter-spacing: -1px; line-height: 1; color: var(--accent); margin: 4px 0; }
+  .muted { font-size: 12px; line-height: 1.5; }
   .notes { display: flex; flex-wrap: wrap; gap: 6px; }
-  .nnote { font-family: var(--font-mono); font-size: 11px; padding: 5px 9px; border: 1px solid var(--line); border-radius: 2px; color: var(--muted); }
+  .nnote { font-family: var(--font-mono); font-size: 11px; padding: 4px 8px; border: 1px solid var(--line); border-radius: 2px; color: var(--muted); }
   .nnote.tritone { color: var(--accent); border-color: var(--accent); }
-  .options-panel { margin-top: 22px; }
-  .options { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
-  .opt { display: grid; gap: 3px; padding: 12px 11px; color: var(--ink); background: #121414; border: 1px solid #555954; border-radius: 2px; text-align: left; }
+  .options-panel { margin-top: 12px; }
+  .options { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; max-height: min(38vh, 340px); overflow-y: auto; }
+  .opt { display: grid; gap: 2px; padding: 9px; color: var(--ink); background: #121414; border: 1px solid #555954; border-radius: 2px; text-align: left; }
   .opt:hover { background: #181b1a; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255, 85, 124, 0.12); }
-  .opt-arrow { color: var(--accent); font-family: var(--font-display); font-weight: 700; font-size: 20px; line-height: 1; }
-  .opt-name { font-family: var(--font-display); font-weight: 700; font-size: 18px; color: var(--ink); margin: 2px 0; }
-  .opt-note { color: var(--muted); font-family: var(--font-mono); font-size: 11px; line-height: 1.5; }
+  .opt-arrow { color: var(--accent); font-family: var(--font-display); font-weight: 700; font-size: 16px; line-height: 1; }
+  .opt-name { font-family: var(--font-display); font-weight: 700; font-size: 15px; color: var(--ink); margin: 2px 0; }
+  .opt-note { color: var(--muted); font-family: var(--font-mono); font-size: 11px; line-height: 1.45; }
   @media (max-width: 1024px) { .layout { grid-template-columns: 1fr; } }
   @media (max-width: 700px) { .layout { grid-template-columns: 1fr; } .seed-panel { align-items: stretch; flex-direction: column; } }
 </style>

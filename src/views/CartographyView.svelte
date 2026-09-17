@@ -145,15 +145,16 @@
 </section>
 
 <style>
-  .carto-toolbar { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px; margin-bottom: 22px; }
-  .carto-toolbar label, .carto-toolbar .field { display: flex; flex-direction: column; gap: 6px; }
-  .carto-toolbar label > span, .carto-toolbar .field > span { color: var(--muted); font: 10px var(--font-mono); text-transform: uppercase; letter-spacing: 1.4px; }
+  .carto-toolbar { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; margin-bottom: 12px; }
+  .carto-toolbar label, .carto-toolbar .field { display: flex; flex-direction: column; gap: 4px; }
+  .carto-toolbar label > span, .carto-toolbar .field > span { color: var(--muted); font: 9px var(--font-mono); text-transform: uppercase; letter-spacing: 1.2px; }
 
-  .carto-layout { display: grid; grid-template-columns: 1.7fr 1fr; gap: 22px; align-items: start; }
+  .carto-layout { display: grid; grid-template-columns: 1.7fr 1fr; gap: 14px; align-items: stretch; }
   @media (max-width: 1024px) { .carto-layout { grid-template-columns: 1fr; } }
-  .carto-graph-panel, .carto-card-panel { padding: 16px; }
+  .carto-graph-panel, .carto-card-panel { padding: 12px; }
+  .carto-card-panel { max-height: min(58vh, 560px); overflow-y: auto; }
   .carto-svg {
-    width: 100%; min-height: 400px; display: block; background-color: #111312;
+    width: 100%; height: min(58vh, 560px); min-height: 280px; display: block; background-color: #111312;
     border: 1px solid var(--line); border-radius: 2px;
     background-image: repeating-linear-gradient(0deg, transparent 0 23px, rgba(255,255,255,.016) 24px), repeating-linear-gradient(90deg, transparent 0 23px, rgba(255,255,255,.01) 24px);
   }
@@ -165,17 +166,17 @@
   .carto-label { fill: var(--color-ink); font-size: 3px; font-family: var(--font-mono); pointer-events: none; }
   .carto-sub { fill: var(--muted); font-size: 2.6px; font-family: var(--font-mono); pointer-events: none; }
 
-  .carto-card h3 { font-family: var(--font-display); font-weight: 600; font-size: 24px; color: var(--color-ink); margin: 0 0 10px; letter-spacing: -.5px; }
-  .carto-chord { color: var(--accent); font-size: 16px; font-weight: 500; }
-  .carto-notes { color: var(--muted); font-size: 12px; margin: 0 0 14px; }
-  .carto-facts { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-bottom: 14px; }
-  .carto-facts > div { background: #121414; border: 1px solid #555954; border-radius: 2px; padding: 9px; }
-  .carto-facts small { display: block; color: var(--muted); font: 10px var(--font-mono); text-transform: uppercase; margin-bottom: 5px; }
-  .carto-facts b { color: var(--color-ink); font-weight: 500; font-size: 13px; }
-  .facts-neighbors { display: flex; flex-direction: column; gap: 3px; }
-  .nb { color: var(--color-ink); font-size: 12px; }
-  .nb i { color: var(--accent); font-style: normal; font-size: 11px; }
-  .carto-hint { color: var(--muted); font-size: 12px; line-height: 1.55; margin: 0; }
+  .carto-card h3 { font-family: var(--font-display); font-weight: 600; font-size: 19px; color: var(--color-ink); margin: 0 0 8px; letter-spacing: -.5px; }
+  .carto-chord { color: var(--accent); font-size: 14px; font-weight: 500; }
+  .carto-notes { color: var(--muted); font-size: 12px; margin: 0 0 10px; }
+  .carto-facts { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin-bottom: 10px; }
+  .carto-facts > div { background: #121414; border: 1px solid #555954; border-radius: 2px; padding: 8px; }
+  .carto-facts small { display: block; color: var(--muted); font: 9px var(--font-mono); text-transform: uppercase; margin-bottom: 4px; }
+  .carto-facts b { color: var(--color-ink); font-weight: 500; font-size: 12px; }
+  .facts-neighbors { display: flex; flex-direction: column; gap: 2px; }
+  .nb { color: var(--color-ink); font-size: 11px; }
+  .nb i { color: var(--accent); font-style: normal; font-size: 10px; }
+  .carto-hint { color: var(--muted); font-size: 11px; line-height: 1.5; margin: 0; }
   .carto-hint b { color: var(--color-ink); font-weight: 500; }
   .mono { font-family: var(--font-mono); }
 </style>
