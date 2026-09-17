@@ -2,6 +2,23 @@
 // Reutiliza CHORD_TYPES de Chords/chord-mode.js para nombres y notas compartidas.
 
 const HARMONY_NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+const HARMONY_FLAT_NAMES = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
+const HARMONY_CANONICAL = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
+const HARMONY_FLAT_MAJOR_KEYS = [5, 10, 3, 8, 1];
+
+function harmonSignatureFor(rootPc, mod) {
+  const rel = (((rootPc + (mod === 'min' ? 3 : 0)) % 12) + 12) % 12;
+  return HARMONY_FLAT_MAJOR_KEYS.includes(rel) ? 'flat' : 'sharp';
+}
+
+function harmonSpellPc(pc, signature) {
+  const idx = (((pc % 12) + 12) % 12);
+  return signature === 'flat' ? HARMONY_FLAT_NAMES[idx] : HARMONY_NOTES[idx];
+}
+
+function harmonSpellName(pc) {
+  return HARMONY_CANONICAL[(((pc % 12) + 12) % 12)];
+}
 
 const HARMONY_TONIC = { maj: 'I', min: 'i' };
 const HARMONY_SCALE_INTERVALS = { maj: [0, 2, 4, 5, 7, 9, 11], min: [0, 2, 3, 5, 7, 8, 10] };
@@ -40,9 +57,9 @@ const HARMONY_EDGES = {
   min: [
     ['i', 'VII', 'baja por grado'], ['i', 'VI', 'continúa'], ['i', 'III', 'relativa'], ['i', 'v', 'tensiona'],
     ['iv', 'i', 'plagal'], ['v', 'i', 'resuelve'], ['iv', 'v', 'prepara'],
-    ['VI', 'iv', 'conecta'], ['VI', 'III', 'baja por grado'], ['III', 'VII', 'baja por grado'],
-    ['VII', 'VI', 'baja por grado'], ['VII', 'iv', 'prepara'],
-    ['ii°', 'i', 'resuelve'],
+    ['VI', 'iv', 'conecta'], ['VI', 'v', 'baja por grado'], ['v', 'iv', 'baja por grado'],
+    ['VII', 'VI', 'baja por grado'], ['VII', 'iv', 'prepara'], ['III', 'i', 'relativa'],
+    ['ii°', 'i', 'resuelve'], ['ii°', 'v', 'prepara'],
   ],
 };
 
@@ -115,12 +132,25 @@ function harmonyRootIdx() {
 }
 
 function harmonChordName(mod, root, def) {
-  return HARMONY_NOTES[(HARMONY_NOTES.indexOf(root) + def.interval) % 12] + def.quality;
+  const rootPc = HARMONY_NOTES.indexOf(root);
+  const pc = (((rootPc + def.interval) % 12) + 12) % 12;
+  return harmonSpellPc(pc, harmonSignatureFor(rootPc, mod)) + def.quality;
 }
 
 function harmonChordSet(mod, root, def) {
   const base = HARMONY_NOTES.indexOf(root) + def.interval;
   return CHORD_TYPES[def.quality].intervals.map(iv => (base + iv) % 12);
+}
+
+// Notas en común entre dos acordes del mapa: el "pegamento" de Callipari.
+function harmonEdgeGlue(mod, root, from, to) {
+  const defs = harmonyDegrees(mod);
+  const a = defs.find(d => d.degree === from);
+  const b = defs.find(d => d.degree === to);
+  if (!a || !b) return 0;
+  const setA = harmonChordSet(mod, root, a);
+  const setB = harmonChordSet(mod, root, b);
+  return setB.filter(pc => setA.includes(pc)).length;
 }
 
 function harmonSharedWithTonic(mod, root, def) {
@@ -135,23 +165,26 @@ function harmonTonicEdges(mod) {
 }
 
 function harmonDominantName() {
-  return HARMONY_NOTES[(harmonyRootIdx() + HARMONY_SCALE_INTERVALS.maj[4]) % 12] + '7';
+  const sig = harmonSignatureFor(harmonyRootIdx(), harmonyKey.mod);
+  return harmonSpellPc((harmonyRootIdx() + HARMONY_SCALE_INTERVALS.maj[4]) % 12, sig) + '7';
 }
 
 function harmonSecondaryDominant(def) {
-  const idx = (harmonyRootIdx() + def.interval + 7) % 12;
-  return { name: HARMONY_NOTES[idx] + '7', root: HARMONY_NOTES[idx] };
+  const pc = (harmonyRootIdx() + def.interval + 7) % 12;
+  const sig = harmonSignatureFor(harmonyRootIdx(), harmonyKey.mod);
+  return { name: harmonSpellPc(pc, sig) + '7', root: harmonSpellPc(pc, sig) };
 }
 
 function harmonDomChain() {
+  const sig = harmonSignatureFor(harmonyRootIdx(), harmonyKey.mod);
   const start = (harmonyRootIdx() + HARMONY_SCALE_INTERVALS.maj[4]) % 12;
   const chain = [];
   let pc = start;
   do {
-    chain.push(HARMONY_NOTES[pc] + '7');
+    chain.push(harmonSpellPc(pc, sig) + '7');
     pc = (pc + 5) % 12;
   } while (pc !== start);
-  chain.push(HARMONY_NOTES[start] + '7');
+  chain.push(harmonSpellPc(start, sig) + '7');
   return chain;
 }
 
@@ -175,12 +208,98 @@ function harmonSet251(which) {
   harmonyKey.variant = which === 'min' ? 'natural' : 'major';
   const keySelect = document.getElementById('harmony-key');
   const variantSelect = document.getElementById('harmony-variant');
-  if (keySelect) keySelect.value = harmonyKey.root;
+  if (keySelect) keySelect.value = harmonSpellName(harmonyRootIdx());
   if (variantSelect) variantSelect.value = harmonyKey.variant;
   const path = which === 'min' ? ['ii°', 'v', 'i'] : ['ii', 'V', 'I'];
   harmonySelected = path[path.length - 1];
   harmonyPath = path.slice();
   renderHarmony();
+}
+
+// ===== Puentes: cada tríada vive en pocas tonalidades (vol. 1, "Bridges") =====
+const HARMONY_ROLE_INDEX = { i: 0, I: 0, 'ii°': 1, II: 1, iii: 2, III: 2, iv: 3, IV: 3, v: 4, V: 4, vi: 5, VI: 5, 'vii°': 6, VII: 6 };
+
+function harmonKeyChords(rootPc, modKey) {
+  const mode = modKey === 'min' ? 'min' : 'maj';
+  const sig = harmonSignatureFor(rootPc, mode);
+  const base = ((rootPc % 12) + 12) % 12;
+  const qs = mode === 'min'
+    ? ['m', 'dim', '', 'm', 'm', '', '']
+    : ['', 'm', 'm', '', '', 'm', 'dim'];
+  return HARMONY_SCALE_INTERVALS[mode].map((iv, i) => harmonSpellPc((base + iv) % 12, sig) + qs[i]);
+}
+
+function harmonPivotKeys(selectedDef) {
+  const rootIdx = (harmonyRootIdx() + selectedDef.interval) % 12;
+  const map = (keys) => keys.map(({ role, rootPc, modKey }) => ({
+    role,
+    rootPc,
+    modKey,
+    rootName: harmonSpellName(rootPc),
+    chords: harmonKeyChords(rootPc, modKey),
+  }));
+  if (selectedDef.quality === 'm') {
+    return map([
+      { role: 'ii', rootPc: (rootIdx - 2 + 12) % 12, modKey: 'maj' },
+      { role: 'iii', rootPc: (rootIdx - 4 + 12) % 12, modKey: 'maj' },
+      { role: 'vi', rootPc: (rootIdx - 9 + 12) % 12, modKey: 'maj' },
+      { role: 'i', rootPc: rootIdx, modKey: 'min' },
+      { role: 'iv', rootPc: (rootIdx - 5 + 12) % 12, modKey: 'min' },
+      { role: 'v', rootPc: (rootIdx - 7 + 12) % 12, modKey: 'min' },
+    ]);
+  }
+  return map([
+    { role: 'I', rootPc: rootIdx, modKey: 'maj' },
+    { role: 'IV', rootPc: (rootIdx - 5 + 12) % 12, modKey: 'maj' },
+    { role: 'V', rootPc: (rootIdx - 7 + 12) % 12, modKey: 'maj' },
+  ]);
+}
+
+function harmonGoToKey(rootPc, modKey) {
+  harmonyKey.root = HARMONY_NOTES[((rootPc % 12) + 12) % 12];
+  harmonyKey.mod = modKey;
+  harmonyKey.variant = modKey === 'min' ? 'natural' : 'major';
+  const keySelect = document.getElementById('harmony-key');
+  const variantSelect = document.getElementById('harmony-variant');
+  if (keySelect) keySelect.value = harmonSpellName(rootPc);
+  if (variantSelect) variantSelect.value = harmonyKey.variant;
+  resetHarmony();
+}
+
+// ===== El dominante: sustituto tritonal, vii° y aumentado (vol. 1) =====
+function harmonDominantOptions(selectedDef) {
+  const rootIdx = harmonyRootIdx();
+  const sig = harmonSignatureFor(rootIdx, harmonyKey.mod);
+  const selPc = (rootIdx + selectedDef.interval) % 12;
+  const domPc = (selPc + 7) % 12;
+  const subPc = (domPc - 6 + 12) % 12;
+  const twinPc = (selPc + 11) % 12;
+  const s = (pc) => harmonSpellPc(pc, sig);
+  const domName = s(domPc) + '7';
+  const target = harmonyChord(selectedDef);
+  return [
+    { motion: [domName, target], label: `${domName} → ${target}`, note: 'la resolución clásica (V de ' + selectedDef.degree + ')' },
+    { motion: [s(subPc) + '7', target], label: `${s(subPc)}7 → ${target}`, note: 'sustituto tritonal: mismo "tritono maldito" que ' + domName },
+    { motion: [domName, s(twinPc) + 'dim', target], label: `${s(twinPc)}° ≈ ${domName}`, note: 'vii° = V7 sin la fundamental, con la 7ª disminuida como puente' },
+    { motion: [domName, s(domPc) + 'aug', target], label: `${domName} → ${s(domPc)}+ → ${target}`, note: 'pasando por el aumentado (baja la quinta al + y resuelve al centro)' },
+  ];
+}
+
+// Suena acordes con o sin digitación cargada (dim, aug, etc. usan notas puras).
+function harmonyPlanForName(chordName, durCap) {
+  const plan = harmonyChordPlan(chordName);
+  if (plan.length) return plan.map(p => Object.assign({}, p, { dur: durCap ? Math.min(p.dur, durCap) : p.dur }));
+  const parsed = parseChordName ? parseChordName(chordName) : null;
+  if (!parsed) return [];
+  const pcs = CHORD_TYPES[parsed.quality || ''].intervals.map(iv => (noteIndex(parsed.root) + iv) % 12);
+  return harmonyNotesPlan(pcs).map(p => Object.assign({}, p, { dur: durCap ? Math.min(p.dur, durCap) : p.dur }));
+}
+
+function harmonyPlayMotion(motion, beatMs) {
+  const ms = beatMs || 430;
+  motion.forEach((name, i) => {
+    harmonyPlayPlan(harmonyPlanForName(name, ms * 0.95), i * (ms / 1000) - (i > 0 ? HARMONY_PROG_OVERLAP_S : 0));
+  });
 }
 
 function harmonyChord(def) {
@@ -238,6 +357,10 @@ function harmonyModeMeta() {
       legend: '<i class="on"></i> cada acorde tiene su dominante: la dominante que no es del centro es secundaria',
       hint: 'Toda dominante que no sea la del I es una dominante secundaria. Cualquier acorde puede ser alcanzado por "su" V7.',
     },
+    puentes: {
+      legend: '<i class="on"></i> el acorde seleccionado como pivote: las tonalidades donde vive',
+      hint: 'Cada tríada existe en pocas tonalidades: usala como puente para cruzar a otra clave sin forzar (vol. 1, "Bridges").',
+    },
     prog: {
       legend: '<i class="on"></i> la línea dorada marca el orden de la progresión generada',
       hint: 'Generá una progresión por estilo: cada paso se etiqueta con el tipo de enlace que usa.',
@@ -278,9 +401,13 @@ function renderHarmony() {
     line.setAttribute('x2', points.x2);
     line.setAttribute('y2', points.y2);
     line.setAttribute('marker-end', 'url(#harmony-arrow)');
-    line.setAttribute('class', `kind-${harmonyEdgeKind(label || '')}`);
+    const glue = harmonEdgeGlue(mod, harmonyKey.root, from, to);
+    line.setAttribute('class', `kind-${harmonyEdgeKind(label || '')}${glue === 2 ? ' glue-2' : ''}`);
     line.dataset.from = from;
     line.dataset.to = to;
+    const tip = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+    tip.textContent = `${from} → ${to} · ${label || 'movimiento'} · pegamento ${glue}/3`;
+    line.appendChild(tip);
     svg.appendChild(line);
   });
 
@@ -501,7 +628,7 @@ function updateHarmonyDetails() {
   const chordName = harmonyChord(selected);
   const chordInfo = getChordInfo ? getChordInfo(chordName) : null;
   const notesEl = document.getElementById('harmony-selected-notes');
-  if (notesEl) notesEl.textContent = chordInfo ? `Notas · ${chordInfo.notes.join(' · ')}` : '';
+  if (notesEl) notesEl.textContent = chordInfo ? `Notas · ${chordInfo.notes.map(n => harmonSpellPc(HARMONY_NOTES.indexOf(n), harmonSignatureFor(harmonyRootIdx(), harmonyKey.mod))).join(' · ')}` : '';
   harmonyRenderSelectedVoicing(chordName);
 
   const tonic = HARMONY_TONIC[harmonyKey.mod];
@@ -527,6 +654,10 @@ function updateHarmonyDetails() {
     } else {
       metric = `La dominante que tira hacia <b>${harmonyChord(selected)}</b> es <b>${dom.name}</b> (V de ${harmonyChord(selected)}).`;
     }
+  } else if (selected.degree === 'vii°') {
+    metric = 'vii° = <b>V7 sin la fundamental</b> (en C: B°≈G7). Como 7ª disminuida el mismo acorde reaparece cada 3 semitonos: un puente oculto entre tonalidades.';
+  } else if (selected.quality === 'aug') {
+    metric = 'Aumentado: mover una de sus notas 1 semitono arriba/abajo produce menores y mayores. El libro favorece <b>V7 → V+ → I</b> (G7 → G+ → C).';
   } else if (selected.origin === 'borrowed') {
     metric = 'Préstamo: viene de la tonalidad paralela (menor).';
   } else if (selected.origin === 'diatonic' && selected.degree !== undefined) {
@@ -540,9 +671,42 @@ function updateHarmonyDetails() {
   }).join('<b>→</b>');
 
   renderHarmonyDominantes();
+  renderHarmonyBridges();
   renderHarmonyProgression();
   renderHarmonyNexts();
   updateHarmonyLines(harmonySelected);
+}
+
+function renderHarmonyBridges() {
+  const panel = document.getElementById('harmony-bridges');
+  if (!panel) return;
+  const visible = harmonyMode === 'puentes';
+  panel.classList.toggle('hidden', !visible);
+  if (!visible) return;
+  const degrees = harmonyDegrees(harmonyKey.mod);
+  const selected = degrees.find(d => d.degree === harmonySelected);
+  if (!selected) return;
+  const chordName = harmonyChord(selected);
+  const keys = harmonPivotKeys(selected);
+  const singular = selected.quality === 'm' ? 'seis' : 'tres';
+  const sig = harmonSignatureFor(harmonyRootIdx(), harmonyKey.mod);
+  const fourth = harmonSpellPc((harmonyRootIdx() + selected.interval + 5) % 12, sig);
+  panel.innerHTML = `<p class="label">PUENTES · ${chordName} vive en ${singular} tonalidades</p>
+    <div class="harmony-bridges-list">` + keys.map(k => {
+    const idx = HARMONY_ROLE_INDEX[k.role] ?? -1;
+    return `<div class="harmony-bridges-card">
+      <div class="harmony-bridges-head">
+        <span class="harmony-bridges-key">${k.rootName} ${k.modKey === 'min' ? 'menor' : 'mayor'}</span>
+        <small>${chordName} es el grado ${k.role}</small>
+        <button type="button" class="ghost-btn" data-goto="${k.rootPc}" data-mod="${k.modKey}">Ir a ${k.rootName} →</button>
+      </div>
+      <div class="harmony-bridges-chords">${k.chords.map((c, i) => `<span class="harmony-bridges-chord${i === idx ? ' pivot' : ''}">${c}</span>`).join('')}</div>
+    </div>`;
+  }).join('') + `</div>
+    <p class="bridges-tip">El acorde de paso comparte notas con el de destino: por eso sirve de pivote para modular sin forzar. Convertí la selección en dominante y viajá a su cuarta: <b>${chordName}7 → ${fourth}</b>.</p>`;
+  panel.querySelectorAll('[data-goto]').forEach(btn => {
+    btn.onclick = () => harmonGoToKey(Number(btn.dataset.goto), btn.dataset.mod);
+  });
 }
 
 function renderHarmonyDominantes() {
@@ -560,6 +724,24 @@ function renderHarmonyDominantes() {
   const { major, minor } = harmonTwoFiveOne();
   majEl.innerHTML = join(major);
   minEl.innerHTML = join(minor);
+
+  const degrees = harmonyDegrees(harmonyKey.mod);
+  const selected = degrees.find(d => d.degree === harmonySelected);
+  const subEl = document.getElementById('harmony-dom-sub');
+  const lineEl = document.getElementById('harmony-dom-sub-line');
+  const optsEl = document.getElementById('harmony-dom-opts');
+  if (subEl && selected) {
+    const dom = harmonSecondaryDominant(selected);
+    const sig = harmonSignatureFor(harmonyRootIdx(), harmonyKey.mod);
+    const sub = harmonSpellPc((harmonyRootIdx() + selected.interval + 1) % 12, sig) + '7';
+    lineEl.innerHTML = `${dom.name} <b>⇄</b> ${sub} <b>·</b> mismo tritono`;
+    const opts = harmonDominantOptions(selected);
+    optsEl.innerHTML = opts.map((o, i) =>
+      `<button type="button" class="harmony-dom-opt" data-opt="${i}" title="${o.note}"><b>${o.label}</b><small>${o.note}</small></button>`).join('');
+    optsEl.querySelectorAll('.harmony-dom-opt').forEach(btn => {
+      btn.onclick = () => harmonyPlayMotion(opts[Number(btn.dataset.opt)].motion);
+    });
+  }
 }
 
 function setHarmonyMode(mode) {
@@ -601,6 +783,9 @@ const HARMONY_PROG_PALETTES = {
   glue:       { label: 'Glue / Puente', step: 1, dom: 0.6, axis: 0,    tritone: 0,      borrow: 0.15, glueBias: 1.8, seventh: false, unison: 0 },
   tritone:    { label: 'Tritono',    step: 0.4, dom: 1.0,  axis: 1.0,  tritone: 1.6,   borrow: 0.2,  glueBias: 0,   seventh: true,  unison: 0 },
   bartok:     { label: 'Bartók',     step: 0.3, dom: 0.6,  axis: 2.0,  tritone: 1.2,   borrow: 0.1,  glueBias: 0,   seventh: false, unison: 0 },
+  cadencias:  { label: 'Cadencias 6-2-5-1', step: 0, dom: 0, axis: 0, tritone: 0, borrow: 1, glueBias: 0, seventh: true, unison: 0, seed: ['vi', 'ii', 'V', 'I'] },
+  canon:      { label: 'Pachelbel / Canon', step: 0, dom: 0, axis: 0, tritone: 0, borrow: 1, glueBias: 0, seventh: false, unison: 0, seed: ['I', 'V', 'vi', 'iii', 'IV', 'I', 'IV', 'V', 'I'] },
+  plagal:     { label: 'Plagal 4-4m', step: 0, dom: 0, axis: 0, tritone: 0, borrow: 1, glueBias: 0, seventh: false, unison: 0, seed: ['IV', 'I', 'IV', 'iv', 'I', 'bVII', 'IV', 'I'] },
   libre:      { label: 'Libre',      step: 0.7, dom: 0.8,  axis: 0.6,  tritone: 0.6,   borrow: 0.5,  glueBias: 0.5, seventh: false, unison: 0.2 },
 };
 
@@ -627,7 +812,7 @@ function harmonProgStep(name, mod, rootIdx, def, quality) {
   const base = (rootIdx + def.interval + 12) % 12;
   return {
     degree: def.degree,
-    name: HARMONY_NOTES[base] + quality,
+    name: harmonSpellPc(base, harmonSignatureFor(rootIdx, mod)) + quality,
     quality,
     rootPc: base,
     origin: def.origin,
@@ -637,6 +822,13 @@ function harmonProgStep(name, mod, rootIdx, def, quality) {
 
 function harmonProgGlue(prevNotes, nextNotes) {
   return nextNotes.filter(pc => prevNotes.includes(pc)).length;
+}
+
+// "Glue tensions" (Chord Extensions): notas del próximo acorde que aún no toca este.
+function harmonGlueTension(cur, next) {
+  const shared = cur.notes.filter(pc => next.notes.includes(pc));
+  const tension = next.notes.filter(pc => !cur.notes.includes(pc));
+  return { shared, tension };
 }
 
 function harmonProgCandidates(mod, rootIdx, palette, fromIdx, fromDef, fromNotes) {
@@ -667,7 +859,7 @@ function harmonProgCandidates(mod, rootIdx, palette, fromIdx, fromDef, fromNotes
     degrees.forEach((to, toIdx) => {
       if (toIdx === fromIdx) return;
       const domRoot = (rootIdx + to.interval + 7) % 12;
-      const domName = HARMONY_NOTES[domRoot] + '7';
+      const domName = harmonSpellPc(domRoot, harmonSignatureFor(rootIdx, mod)) + '7';
       candidates.push({ toIdx, kind: 'secdom', domName, domRoot, w: cfg.dom * 5 });
     });
   }
@@ -697,6 +889,22 @@ function harmonProgDomStep(domRoot, domName) {
 
 function harmonProgGenerate(len, mod, root, palette, tonicCheck) {
   const rootIdx = HARMONY_NOTES.indexOf(root);
+  const cfg = HARMONY_PROG_PALETTES[palette];
+  if (cfg && cfg.seed && mod === 'maj') {
+    const degrees = harmonyDegrees(mod);
+    const tonicStep = () => harmonProgStep(degrees[0].name, mod, rootIdx, degrees[0], harmonProgQual(mod, degrees[0].degree, palette));
+    const seeded = [];
+    cfg.seed.forEach(deg => {
+      const def = degrees.find(d => d.degree === deg);
+      if (def) seeded.push(harmonProgStep(def.name, mod, rootIdx, def, harmonProgQual(mod, deg, palette)));
+    });
+    if (seeded.length) {
+      const steps = [];
+      for (let n = 0; n < len; n++) steps.push(seeded[n % seeded.length]);
+      if (tonicCheck) steps[steps.length - 1] = tonicStep();
+      return steps;
+    }
+  }
   const degrees = harmonyDegrees(mod);
   const tonicIdx = 0;
   const steps = [];
@@ -792,7 +1000,13 @@ function harmonProgLabelsFor(steps, mod, rootIdx) {
     if (l.kind === 'prl') summary['prl'] = true;
   });
   steps.forEach(s => { if (s.origin === 'borrowed') summary['prestamo'] = true; });
-  const order = ['2-5-1', 'secdom', 'cadencia', 'cuartas', 'tritono', 'bartok', 'prl', 'prestamo'];
+  for (let i = 0; i + 1 < steps.length; i++) {
+    const deg = s => s.degree;
+    if (mod === 'maj' && deg(steps[i]) === 'vi' && deg(steps[i + 1]) === 'ii') summary['6-2-5-1'] = true;
+    if (mod === 'maj' && deg(steps[i]) === 'IV' && deg(steps[i + 1]) === 'iv') summary['4-4m'] = true;
+    if (mod === 'maj' && steps.length > 3 && deg(steps[0]) === 'I' && deg(steps[1]) === 'V' && deg(steps[2]) === 'vi' && deg(steps[3]) === 'iii') summary['canon'] = true;
+  }
+  const order = ['6-2-5-1', '4-4m', 'canon', '2-5-1', 'secdom', 'cadencia', 'cuartas', 'tritono', 'bartok', 'prl', 'prestamo'];
   return { labels: labels.map(l => l.t), summary: order.filter(k => summary[k]) };
 }
 
@@ -832,12 +1046,17 @@ function renderHarmonyProgDetail(el, steps, idx) {
   el.classList.remove('hidden');
   const prev = idx > 0 ? steps[idx - 1] : null;
   const prevTxt = prev ? `<p class="harmony-prog-prev">Desde <b>${prev.name}</b> (${harmonyProgLabels[idx - 1] || ''})</p>` : '';
+  const next = steps[idx + 1] || null;
+  const gt = next ? harmonGlueTension(step, next) : null;
+  const sig = harmonSignatureFor(harmonyRootIdx(), harmonyKey.mod);
+  const sp = (pc) => harmonSpellPc(pc, sig);
   const diagId = `harmony-prog-diagram-${idx}`;
   const chipsId = `harmony-prog-chips-${idx}`;
   el.innerHTML = `<p class="eyebrow">ACORDE GENERADO · ${step.degree}</p>
     <h4>${step.name}${step.origin === 'borrowed' ? ' <em>(préstamo)</em>' : ''}</h4>
     ${prevTxt}
-    <p class="harmony-prog-notes">${step.notes.map(pc => HARMONY_NOTES[pc]).join(' · ')}</p>
+    <p class="harmony-prog-notes">${step.notes.map(sp).join(' · ')}</p>
+    ${next && gt && gt.tension.length ? `<p class="harmony-glue-tension">Glue a <b>${next.name}</b> · probá añadir <b>${gt.tension.map(sp).join(' + ')}</b> (notas nuevas del próximo acorde), comparten ${gt.shared.map(sp).join(', ') || 'ninguna'}.</p>` : ''}
     <div id="${diagId}" class="harmony-prog-diagram"></div>
     <div id="${chipsId}" class="harmony-voicing-chips harmony-voicing-chips-grid"></div>
     <button type="button" class="ghost-btn" data-harmony-prog-regen>Generar de nuevo</button>`;
@@ -900,8 +1119,7 @@ function renderHarmonyMyProg() {
   if (keyEl) keyEl.innerHTML = `Base: <b>${harmonyKey.root} · ${harmonyVariant().label}</b> — grados <b>${mod === 'min' ? 'menores' : 'mayores'}</b>`;
   picker.innerHTML = degrees.map(def => {
     const q = harmonProgQual(mod, def.degree, { seventh: harmonyMyProgSeven });
-    const name = HARMONY_NOTES[(harmonyRootIdx() + def.interval) % 12] + q;
-    return `<button type="button" class="harmony-deg" data-deg="${def.degree}">${def.degree}<small>${name}</small></button>`;
+    return `<button type="button" class="harmony-deg" data-deg="${def.degree}">${def.degree}<small>${harmonSpellPc(((harmonyRootIdx() + def.interval) % 12 + 12) % 12, harmonSignatureFor(harmonyRootIdx(), mod)) + q}</small></button>`;
   }).join('');
   picker.querySelectorAll('.harmony-deg').forEach(btn => {
     btn.onclick = () => harmonyMyProgAdd(btn.dataset.deg);
@@ -929,8 +1147,13 @@ function renderHarmonyMyProgDetail() {
   el.classList.remove('hidden');
   const diagId = 'harmony-myprog-diagram';
   const chipsId = 'harmony-myprog-voicing-chips';
+  const next = steps[idx + 1] || null;
+  const gt = next ? harmonGlueTension(step, next) : null;
+  const sig = harmonSignatureFor(harmonyRootIdx(), harmonyKey.mod);
+  const sp = (pc) => harmonSpellPc(pc, sig);
   el.innerHTML = `<p class="eyebrow">ACORDE · ${step.degree}</p><h4>${step.name}</h4>
-    <p class="harmony-prog-notes">${step.notes.map(pc => HARMONY_NOTES[pc]).join(' · ')}</p>
+    <p class="harmony-prog-notes">${step.notes.map(sp).join(' · ')}</p>
+    ${next && gt && gt.tension.length ? `<p class="harmony-glue-tension">Glue a <b>${next.name}</b> · probá añadir <b>${gt.tension.map(sp).join(' + ')}</b> (notas nuevas del próximo acorde), comparten ${gt.shared.map(sp).join(', ') || 'ninguna'}.</p>` : ''}
     <div id="${diagId}" class="harmony-prog-diagram"></div>
     <div id="${chipsId}" class="harmony-voicing-chips harmony-voicing-chips-grid"></div>`;
   const voicing = getChordVoicing ? getChordVoicing(step.name, harmonyCurrentVoicing(step.name)) : null;
@@ -988,8 +1211,9 @@ function renderHarmonyNexts() {
   el.innerHTML = edges.map(([, to, label]) => {
     const def = degrees.find(d => d.degree === to);
     const q = harmonProgQual(mod, to, 'pop');
-    const name = HARMONY_NOTES[(rootIdx + def.interval) % 12] + q;
-    return `<button type="button" class="harmony-next" data-idx="${to}">${name}<small>${label}</small></button>`;
+    const name = harmonSpellPc(((rootIdx + def.interval) % 12 + 12) % 12, harmonSignatureFor(rootIdx, mod)) + q;
+    const glue = harmonEdgeGlue(mod, harmonyKey.root, selected.degree, to);
+    return `<button type="button" class="harmony-next" data-idx="${to}">${name}<small>${label} · pegamento ${glue}/3</small></button>`;
   }).join('') + `<button type="button" class="harmony-next" data-secdom="${secDom.name}"><b>${secDom.name}</b><small>V de ${selected.degree} (secundaria)</small></button>`;
   el.querySelectorAll('.harmony-next').forEach(btn => {
     btn.onclick = () => {
@@ -1209,8 +1433,8 @@ function harmonyPlayProgression() {
 function initializeHarmony() {
   const keySelect = document.getElementById('harmony-key');
   if (!keySelect) return;
-  keySelect.innerHTML = HARMONY_NOTES.map(note => `<option value="${note}">${note}</option>`).join('');
-  keySelect.value = harmonyKey.root;
+  keySelect.innerHTML = HARMONY_CANONICAL.map((name, pc) => `<option value="${name}">${name}</option>`).join('');
+  keySelect.value = harmonSpellName(harmonyRootIdx());
 
   const variantSelect = document.getElementById('harmony-variant');
   if (variantSelect) {
@@ -1223,7 +1447,7 @@ function initializeHarmony() {
   }
 
   keySelect.addEventListener('change', () => {
-    harmonyKey.root = keySelect.value;
+    harmonyKey.root = HARMONY_NOTES[HARMONY_CANONICAL.indexOf(keySelect.value)];
     resetHarmony();
   });
 
@@ -1237,6 +1461,9 @@ function initializeHarmony() {
   if (btn251maj) btn251maj.addEventListener('click', () => harmonSet251('maj'));
   const btn251min = document.getElementById('harmony-251-minor');
   if (btn251min) btn251min.addEventListener('click', () => harmonSet251('min'));
+
+  const domTritone = document.getElementById('harmony-dom-tritone-link');
+  if (domTritone) domTritone.addEventListener('click', () => openStudyMode('tritone'));
 
   const crossNav = document.getElementById('harmony-cross-nav');
   if (crossNav) {

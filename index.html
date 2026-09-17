@@ -91,6 +91,7 @@
         <button type="button" class="seg-btn" data-hmode="prox">Proximidad</button>
         <button type="button" class="seg-btn" data-hmode="cadencias">Cadencias</button>
         <button type="button" class="seg-btn" data-hmode="dominantes">Dominantes</button>
+        <button type="button" class="seg-btn" data-hmode="puentes">Puentes</button>
         <button type="button" class="seg-btn" data-hmode="prog">Progresiones</button>
       </div>
       <button id="harmony-clear" class="ghost-btn">Limpiar recorrido</button>
@@ -175,7 +176,15 @@
             <div class="harmony-251"><button type="button" class="ghost-btn" id="harmony-251-major">Ver mayor</button><span id="harmony-251-major-names"></span></div>
             <div class="harmony-251"><button type="button" class="ghost-btn" id="harmony-251-minor">Ver menor</button><span id="harmony-251-minor-names"></span></div>
           </div>
+          <div id="harmony-dom-sub" class="harmony-dom-sub">
+            <p class="label">EL DOMINANTE · SUSTITUTO TRITONAL</p>
+            <div id="harmony-dom-sub-line" class="harmony-dom-chain"></div>
+            <div id="harmony-dom-opts" class="harmony-dom-opts"></div>
+            <p class="bridges-tip">Tocá una opción para escuchar el camino. El vii° y el aumentado son los hermanos del dominante (vol. 1).</p>
+            <button type="button" class="ghost-btn" id="harmony-dom-tritone-link">Ver en Tritono →</button>
+          </div>
         </div>
+        <div id="harmony-bridges" class="harmony-bridges hidden"></div>
       </aside>
     </div>
   </section>

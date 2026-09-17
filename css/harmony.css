@@ -167,3 +167,35 @@
 .harmony-lines line.kind-tension { stroke: #ff8f7d; }
 .harmony-lines line.kind-bind { opacity: .55; }
 .harmony-lines line.active { stroke: #9b6cff; stroke-width: .75; stroke-dasharray: none; }
+
+/* --- pegamento (notas en común) en las aristas --- */
+.harmony-lines line.glue-2 { stroke: #e7c47c; stroke-width: .8; stroke-dasharray: none; opacity: .95; }
+
+/* --- panel del dominante: sustituto tritonal y opciones --- */
+.harmony-dom-sub { margin-top: 16px; padding-top: 12px; border-top: 1px solid #343735; }
+.harmony-dom-sub .bridges-tip { margin: 10px 0 8px; }
+.harmony-dom-opts { display: grid; gap: 6px; margin: 8px 0; }
+.harmony-dom-opt { display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; color: var(--ink); background: #252826; border: 1px solid #626760; cursor: pointer; font: 11px 'DM Mono', monospace; text-align: left; transition: border-color .15s, color .15s; }
+.harmony-dom-opt:hover { border-color: var(--accent); }
+.harmony-dom-opt b { color: #e7c47c; font-weight: 700; }
+.harmony-dom-opt small { color: var(--muted); font: 10px 'DM Mono', monospace; }
+.harmony-dom-opt:hover b { color: var(--accent); }
+
+/* --- vista puentes (acordes pivote) --- */
+.harmony-bridges { margin-top: 18px; padding-top: 14px; border-top: 1px solid #343735; }
+.harmony-bridges.hidden { display: none; }
+.harmony-bridges-list { display: grid; gap: 10px; }
+.harmony-bridges-card { padding: 10px 12px; background: rgba(155, 108, 255, .08); border: 1px solid rgba(155, 108, 255, .22); }
+.harmony-bridges-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 8px; }
+.harmony-bridges-key { color: var(--accent); font: 700 15px 'Libre Baskerville', serif; }
+.harmony-bridges-head small { color: var(--muted); font: 10px 'DM Mono', monospace; }
+.harmony-bridges-head .ghost-btn { margin-left: auto; padding: 5px 8px; font-size: 11px; }
+.harmony-bridges-chords { display: flex; flex-wrap: wrap; gap: 4px; }
+.harmony-bridges-chord { padding: 3px 7px; color: var(--muted); border: 1px solid #3c403b; font: 10px 'DM Mono', monospace; }
+.harmony-bridges-chord.pivot { color: #352a1a; background: #e7c47c; border-color: #f3d99b; font-weight: 700; }
+.bridges-tip { margin: 10px 0 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
+.bridges-tip b { color: var(--ink); }
+
+/* --- glue tensions: notas del próximo acorde sobre el actual --- */
+.harmony-glue-tension { margin: 8px 0 4px; padding: 7px 9px; color: var(--muted); background: rgba(231, 196, 124, .08); border-left: 2px solid #e7c47c; font: 11px 'DM Mono', monospace; line-height: 1.5; }
+.harmony-glue-tension b { color: #e7c47c; }
