@@ -396,13 +396,15 @@
 
       <p class="metric muted">{metric}</p>
 
-      <p class="label mt">RECORRIDO</p>
-      <div class="path">
-        {#each pathNodes as node, i (i + node.deg)}
-          <button type="button" class="path-chip mono" class:on={node.deg === $harmonySelected} onclick={() => selectDegree(node.deg)}>{node.deg} · {node.name}</button>
-          {#if i < pathNodes.length - 1}<b class="arrow">→</b>{/if}
-        {/each}
-      </div>
+      <details class="collapse" open>
+        <summary>RECORRIDO</summary>
+        <div class="path">
+          {#each pathNodes as node, i (i + node.deg)}
+            <button type="button" class="path-chip mono" class:on={node.deg === $harmonySelected} onclick={() => selectDegree(node.deg)}>{node.deg} · {node.name}</button>
+            {#if i < pathNodes.length - 1}<b class="arrow">→</b>{/if}
+          {/each}
+        </div>
+      </details>
 
       <div class="play-row">
         {#if voicing}
@@ -422,46 +424,46 @@
         </div>
       {/if}
 
-      <div class="timbre">
-        <Field label="Sonido">
-          <select class="sel" value={$harmonySound} onchange={(e) => harmonySound.set((e.currentTarget as HTMLSelectElement).value)}>
-            <option value="synth">Synth</option>
-            <option value="pluck">Cuerda (K-S)</option>
-          </select>
-        </Field>
-        <Field label="Rasgueo">
-          <select class="sel" value={$harmonyStrumStyle} onchange={(e) => harmonyStrumStyle.set((e.currentTarget as HTMLSelectElement).value)}>
-            <option value="arpeggio">Arpegiado</option>
-            <option value="block">Bloque</option>
-          </select>
-        </Field>
-        <label class="check-inline">
-          <input type="checkbox" checked={$harmonyStrumBass} onchange={(e) => harmonyStrumBass.set((e.currentTarget as HTMLInputElement).checked)} />
-          bajo de raíz
-        </label>
-      </div>
+      <details class="collapse">
+        <summary>SONIDO</summary>
+        <div class="timbre">
+          <Field label="Sonido">
+            <select class="sel" value={$harmonySound} onchange={(e) => harmonySound.set((e.currentTarget as HTMLSelectElement).value)}>
+              <option value="synth">Synth</option>
+              <option value="pluck">Cuerda (K-S)</option>
+            </select>
+          </Field>
+          <Field label="Rasgueo">
+            <select class="sel" value={$harmonyStrumStyle} onchange={(e) => harmonyStrumStyle.set((e.currentTarget as HTMLSelectElement).value)}>
+              <option value="arpeggio">Arpegiado</option>
+              <option value="block">Bloque</option>
+            </select>
+          </Field>
+          <label class="check-inline">
+            <input type="checkbox" checked={$harmonyStrumBass} onchange={(e) => harmonyStrumBass.set((e.currentTarget as HTMLInputElement).checked)} />
+            bajo de raíz
+          </label>
+        </div>
+      </details>
 
       {#if $harmonyMode !== 'prog'}
-      <div class="nexts">
-        <p class="label mt">PUEDE SEGUIR CON</p>
-        <div class="next-list">
+      <details class="collapse" open>
+        <summary>PUEDE SEGUIR CON</summary>
+        <div class="chip-row nexts">
           {#each nexts as n (n.to)}
-            <button type="button" class="next" onclick={() => selectDegree(n.to)}>
-              {n.name}<small>{n.label} · pegamento {n.glue}/3</small>
-            </button>
+            <Chip onclick={() => selectDegree(n.to)}>{n.name}<small> · {n.label} {n.glue}/3</small></Chip>
           {/each}
           {#if secDom}
-            <button type="button" class="next" onclick={() => hear(secDom.name)}>
-              <b>{secDom.name}</b><small>V de {selDef?.degree} (secundaria)</small>
-            </button>
+            <Chip onclick={() => hear(secDom.name)}>{secDom.name}<small> · V de {selDef?.degree}</small></Chip>
           {/if}
         </div>
-      </div>
+      </details>
       {/if}
 
       {#if $harmonyMode === 'dominantes'}
-        <div class="dom-panel">
-          <p class="label mt">CADENA DE DOMINANTES</p>
+        <details class="collapse" open>
+          <summary>CADENA DE DOMINANTES</summary>
+          <div class="dom-panel">
           <div class="chain">
             {#each chain as c, i (i + c)}
               <button type="button" class="chain-link mono" onclick={() => hear(c)}>{c}</button>
@@ -487,7 +489,8 @@
             {/each}
           </div>
           <button class="btn btn-ghost btn-sm mt" onclick={toTritone}>Ver en Tritono →</button>
-        </div>
+          </div>
+        </details>
       {/if}
 
       {#if $harmonyMode === 'cadencias' && mod === 'min'}
@@ -498,8 +501,9 @@
       {/if}
 
       {#if $harmonyMode === 'puentes'}
-        <div class="bridges">
-          <p class="label mt">PUENTES · {selChord} es pivote en</p>
+        <details class="collapse" open>
+          <summary>PUENTES · {selChord} es pivote en</summary>
+          <div class="bridges">
           {#each pivots as p (p.modKey + p.rootPc)}
             <div class="bridge-card">
               <div class="bridge-head">
@@ -515,7 +519,8 @@
             </div>
           {/each}
           <p class="hint">El acorde pivote vive en varias tonalidades: por eso sirve para modular sin forzar.</p>
-        </div>
+          </div>
+        </details>
       {/if}
     </Panel>
   </section>
@@ -639,16 +644,17 @@
   .selected-notes { font-size: 11px; color: var(--muted); margin: 10px 0 0; }
   .timbre { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 14px; margin-top: 16px; }
 
-  .nexts { margin-top: 6px; }
-  .next-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-  .next {
-    display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
-    padding: 8px 11px; background: #121414; border: 1px solid #555954; border-radius: 2px;
-    color: var(--color-ink); cursor: pointer; text-align: left;
+  .collapse { margin-top: 12px; border: 1px solid var(--line); border-radius: 2px; }
+  .collapse summary {
+    cursor: pointer; padding: 8px 10px; background: #121414; color: var(--muted);
+    font: 700 9px var(--font-mono); letter-spacing: 1.4px; text-transform: uppercase;
+    list-style: none; user-select: none;
   }
-  .next:hover { border-color: var(--accent); background: #181b1a; }
-  .next b { font: 600 13px var(--font-mono); }
-  .next small { font: 10px var(--font-mono); color: var(--muted); }
+  .collapse summary::-webkit-details-marker { display: none; }
+  .collapse summary::before { content: '▸ '; color: var(--accent); }
+  .collapse[open] > summary::before { content: '▾ '; }
+  .collapse > :not(summary) { padding: 10px; }
+  .collapse .nexts { margin: 0; }
 
   .dom-panel { margin-top: 8px; }
   .chain { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 8px; }
