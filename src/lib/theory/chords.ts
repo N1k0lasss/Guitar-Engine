@@ -86,7 +86,7 @@ export function getFingering(root: string, quality: string): Fingering {
     return { frets: shapes.E.map(f => (f === null ? null : f + offset)), label: 'Forma móvil de E (7ª disminuida)' };
   }
 
-  const shapeRoot = ['E', 'A'][rootIdx % 2];
+  const shapeRoot = ['E', 'A'][rootIdx % 2] as 'E' | 'A';
   const offset = (rootIdx - pcOf(shapeRoot) + 12) % 12;
   const base = shapes[shapeRoot] || shapes.E;
   return { frets: base.map(f => (f === null ? null : f + offset)), label: `Forma móvil de ${shapeRoot}` };

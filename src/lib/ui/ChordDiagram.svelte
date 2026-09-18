@@ -9,7 +9,7 @@
     quality?: string;
   } = $props();
 
-  const toneSet = $derived(new Set(tones.map(t => NOTES[NOTES.indexOf(t as never)] ?? t)));
+  const toneSet = $derived(new Set<string>(tones.map(t => NOTES[NOTES.indexOf(t as never)] ?? t)));
   const family = $derived(qualityFamilyOf({ quality } as never));
   const dotColor = $derived(qualityColor(family));
 </script>

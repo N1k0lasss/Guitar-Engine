@@ -1,6 +1,7 @@
 import { writable } from 'svelte/store';
 import { autoCorrelate, analyzeTuner } from './autocorrelate';
 import { registerFrameHandler, getTimeData, getSampleRate } from './engine';
+import { createThrottle } from './throttle';
 
 export interface TunerFrame {
   freq: number;
@@ -13,14 +14,21 @@ export interface TunerFrame {
 
 export const tunerFrame = writable<TunerFrame>({ freq: -1, note: '--', cents: 0, clamped: 0, tuned: false, active: false });
 
+const throttleFrame = createThrottle(tunerFrame);
+let lastActive = false;
+
 export function tunerLoop(timeData: Float32Array, sampleRate: number): void {
   const freq = autoCorrelate(timeData, sampleRate);
   const analysis = analyzeTuner(freq);
   if (!analysis) {
-    tunerFrame.set({ freq: -1, note: '--', cents: 0, clamped: 0, tuned: false, active: false });
+    const silent: TunerFrame = { freq: -1, note: '--', cents: 0, clamped: 0, tuned: false, active: false };
+    if (lastActive) { throttleFrame.flushNow(silent); lastActive = false; }
+    else throttleFrame.set(silent);
     return;
   }
-  tunerFrame.set({ ...analysis, active: true });
+  const frame: TunerFrame = { ...analysis, active: true };
+  if (!lastActive) { throttleFrame.flushNow(frame); lastActive = true; }
+  else throttleFrame.set(frame);
 }
 
 export function registerTunerFrameHandler(): void {

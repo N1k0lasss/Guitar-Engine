@@ -1,6 +1,7 @@
 import { writable, get } from 'svelte/store';
 import { CHORD_TYPES, getChordInfo } from '../theory/chords';
 import { registerFrameHandler, getFreqData, getSampleRate, getFftSize } from './engine';
+import { createThrottle } from './throttle';
 
 let smoothedChroma = new Array<number>(12).fill(0);
 let candidateName: string | null = null;
@@ -14,15 +15,18 @@ export const chordHistory = writable<string[]>([]);
 export const chordNotesList = writable<string[]>([]);
 export const chordInProgress = writable(false);
 
+const throttleCurrent = createThrottle(chordCurrent);
+const throttleInProgress = createThrottle(chordInProgress);
+
 export function resetChordTracking(): void {
   smoothedChroma = new Array(12).fill(0);
   candidateName = null;
   candidateFrames = 0;
   stableName = null;
   chordCooldownUntil = 0;
-  chordCurrent.set(null);
+  throttleCurrent.flushNow(null);
   chordConfidence.set('Esperando una señal clara...');
-  chordInProgress.set(false);
+  throttleInProgress.flushNow(false);
 }
 
 function getChroma(data: Float32Array, sampleRate: number, fftSize: number): number[] | null {
@@ -84,11 +88,11 @@ export function chordLoop(data: Float32Array, sampleRate: number, fftSize: numbe
 
   const chroma = getChroma(data, sampleRate, fftSize);
   if (!chroma) {
-    chordCurrent.set(null);
+    throttleCurrent.flushNow(null);
     chordConfidence.set('Escuchando una señal clara...');
     candidateName = null;
     candidateFrames = 0;
-    chordInProgress.set(false);
+    throttleInProgress.flushNow(false);
     return;
   }
 
@@ -96,11 +100,11 @@ export function chordLoop(data: Float32Array, sampleRate: number, fftSize: numbe
   const result = detectChord(smoothedChroma);
   if (!result) return;
 
-  chordInProgress.set(true);
+  throttleInProgress.set(true);
   if (candidateName === result.name) candidateFrames += 1;
   else { candidateName = result.name; candidateFrames = 1; }
   stableName = candidateFrames >= 4 ? result.name : stableName;
-  chordCurrent.set(stableName || result.name);
+  throttleCurrent.set(stableName || result.name);
   chordConfidence.set(candidateFrames < 4
     ? 'Confirmando...'
     : `Señal estable · coincidencia ${Math.round(Math.min(result.score / 0.7, 1) * 100)}%`);

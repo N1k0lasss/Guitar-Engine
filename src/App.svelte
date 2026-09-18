@@ -1,25 +1,37 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import type { Component } from 'svelte';
   import { activeView, go, readoutOf, type ViewId } from './lib/nav';
   import { audioStatus, audioError, startAudio, stopAudio, engineSetMode } from './lib/audio/engine';
   import { registerChordFrameHandler, resetChordTracking } from './lib/audio/chordStore';
   import { registerTunerFrameHandler } from './lib/audio/tunerStore';
 
-  import ChordsView from './views/ChordsView.svelte';
-  import TunerView from './views/TunerView.svelte';
-  import HarmonyView from './views/HarmonyView.svelte';
-  import ModesView from './views/ModesView.svelte';
-  import CartographyView from './views/CartographyView.svelte';
-  import SaboresView from './views/SaboresView.svelte';
-  import EjesView from './views/EjesView.svelte';
-  import TensionsView from './views/TensionsView.svelte';
-  import PRLView from './views/PRLView.svelte';
-  import TritoneView from './views/TritoneView.svelte';
-  import ProximityView from './views/ProximityView.svelte';
-  import CircleView from './views/CircleView.svelte';
-  import ScalesView from './views/ScalesView.svelte';
-  import PolychordsView from './views/PolychordsView.svelte';
-  import VoicingsView from './views/VoicingsView.svelte';
+  const VIEW_MODULES = {
+    chords: () => import('./views/ChordsView.svelte'),
+    tuner: () => import('./views/TunerView.svelte'),
+    harmony: () => import('./views/HarmonyView.svelte'),
+    modes: () => import('./views/ModesView.svelte'),
+    cartography: () => import('./views/CartographyView.svelte'),
+    sabores: () => import('./views/SaboresView.svelte'),
+    ejes: () => import('./views/EjesView.svelte'),
+    tensions: () => import('./views/TensionsView.svelte'),
+    prl: () => import('./views/PRLView.svelte'),
+    tritone: () => import('./views/TritoneView.svelte'),
+    proximity: () => import('./views/ProximityView.svelte'),
+    circle: () => import('./views/CircleView.svelte'),
+    scales: () => import('./views/ScalesView.svelte'),
+    polychords: () => import('./views/PolychordsView.svelte'),
+    voicings: () => import('./views/VoicingsView.svelte'),
+  } satisfies Record<ViewId, () => Promise<{ default: Component }>>;
+
+  let loadedViews = $state<Partial<Record<ViewId, Component>>>({});
+
+  $effect(() => {
+    const view = $activeView;
+    if (!loadedViews[view]) {
+      VIEW_MODULES[view]().then(m => { loadedViews[view] = m.default; });
+    }
+  });
 
   interface NavItem { id: ViewId; label: string; }
   interface NavGroup { name: string; items: NavItem[]; }
@@ -116,21 +128,51 @@
     </nav>
 
     <main class="stage">
-      <div class="view-wrap" class:hidden={$activeView !== 'chords'}><ChordsView /></div>
-      <div class="view-wrap" class:hidden={$activeView !== 'tuner'}><TunerView /></div>
-      <div class="view-wrap" class:hidden={$activeView !== 'harmony'}><HarmonyView /></div>
-      <div class="view-wrap" class:hidden={$activeView !== 'modes'}><ModesView /></div>
-      <div class="view-wrap" class:hidden={$activeView !== 'cartography'}><CartographyView /></div>
-      <div class="view-wrap" class:hidden={$activeView !== 'sabores'}><SaboresView /></div>
-      <div class="view-wrap" class:hidden={$activeView !== 'ejes'}><EjesView /></div>
-      <div class="view-wrap" class:hidden={$activeView !== 'tensions'}><TensionsView /></div>
-      <div class="view-wrap" class:hidden={$activeView !== 'prl'}><PRLView /></div>
-      <div class="view-wrap" class:hidden={$activeView !== 'tritone'}><TritoneView /></div>
-      <div class="view-wrap" class:hidden={$activeView !== 'proximity'}><ProximityView /></div>
-      <div class="view-wrap" class:hidden={$activeView !== 'circle'}><CircleView /></div>
-      <div class="view-wrap" class:hidden={$activeView !== 'scales'}><ScalesView /></div>
-      <div class="view-wrap" class:hidden={$activeView !== 'polychords'}><PolychordsView /></div>
-      <div class="view-wrap" class:hidden={$activeView !== 'voicings'}><VoicingsView /></div>
+      {#if loadedViews.chords}{@const Cmp = loadedViews.chords}
+        <div class="view-wrap" class:hidden={$activeView !== 'chords'}><Cmp /></div>
+      {/if}
+      {#if loadedViews.tuner}{@const Cmp = loadedViews.tuner}
+        <div class="view-wrap" class:hidden={$activeView !== 'tuner'}><Cmp /></div>
+      {/if}
+      {#if loadedViews.harmony}{@const Cmp = loadedViews.harmony}
+        <div class="view-wrap" class:hidden={$activeView !== 'harmony'}><Cmp /></div>
+      {/if}
+      {#if loadedViews.modes}{@const Cmp = loadedViews.modes}
+        <div class="view-wrap" class:hidden={$activeView !== 'modes'}><Cmp /></div>
+      {/if}
+      {#if loadedViews.cartography}{@const Cmp = loadedViews.cartography}
+        <div class="view-wrap" class:hidden={$activeView !== 'cartography'}><Cmp /></div>
+      {/if}
+      {#if loadedViews.sabores}{@const Cmp = loadedViews.sabores}
+        <div class="view-wrap" class:hidden={$activeView !== 'sabores'}><Cmp /></div>
+      {/if}
+      {#if loadedViews.ejes}{@const Cmp = loadedViews.ejes}
+        <div class="view-wrap" class:hidden={$activeView !== 'ejes'}><Cmp /></div>
+      {/if}
+      {#if loadedViews.tensions}{@const Cmp = loadedViews.tensions}
+        <div class="view-wrap" class:hidden={$activeView !== 'tensions'}><Cmp /></div>
+      {/if}
+      {#if loadedViews.prl}{@const Cmp = loadedViews.prl}
+        <div class="view-wrap" class:hidden={$activeView !== 'prl'}><Cmp /></div>
+      {/if}
+      {#if loadedViews.tritone}{@const Cmp = loadedViews.tritone}
+        <div class="view-wrap" class:hidden={$activeView !== 'tritone'}><Cmp /></div>
+      {/if}
+      {#if loadedViews.proximity}{@const Cmp = loadedViews.proximity}
+        <div class="view-wrap" class:hidden={$activeView !== 'proximity'}><Cmp /></div>
+      {/if}
+      {#if loadedViews.circle}{@const Cmp = loadedViews.circle}
+        <div class="view-wrap" class:hidden={$activeView !== 'circle'}><Cmp /></div>
+      {/if}
+      {#if loadedViews.scales}{@const Cmp = loadedViews.scales}
+        <div class="view-wrap" class:hidden={$activeView !== 'scales'}><Cmp /></div>
+      {/if}
+      {#if loadedViews.polychords}{@const Cmp = loadedViews.polychords}
+        <div class="view-wrap" class:hidden={$activeView !== 'polychords'}><Cmp /></div>
+      {/if}
+      {#if loadedViews.voicings}{@const Cmp = loadedViews.voicings}
+        <div class="view-wrap" class:hidden={$activeView !== 'voicings'}><Cmp /></div>
+      {/if}
     </main>
   </div>
 </div>
