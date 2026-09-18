@@ -96,7 +96,7 @@
     <p class="readout">{readoutOf($activeView)}</p>
 
     <div class="audio-controls">
-      <span class="status">
+      <span class="status" role="status" aria-live="polite">
         <i class="status-dot {$audioStatus}"></i>
         {#if $audioStatus === 'live'}Escuchando{:else if $audioStatus === 'error'}{$audioError || 'Micrófono bloqueado'}{:else}Detenido{/if}
       </span>

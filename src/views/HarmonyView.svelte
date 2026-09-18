@@ -253,7 +253,7 @@
   </Field>
   <div class="field view-seg">
     <span>Vista</span>
-    <SegTabs items={TABS} value={$harmonyMode} onchange={(id) => harmonyMode.set(id as HarmonyMode)} label="Vista de armonía" />
+    <SegTabs items={TABS} value={$harmonyMode} onchange={(id) => harmonyMode.set(id as HarmonyMode)} label="Vista de armonía" controls="harmony-panel" />
   </div>
   <button class="btn btn-ghost btn-sm clear" onclick={clearPath}>Limpiar recorrido</button>
 </Panel>
@@ -328,7 +328,7 @@
   <section class="layout">
     <Panel class="map-panel">
       <div class="map-wrap">
-        <svg viewBox="0 0 100 100" class="map" preserveAspectRatio="xMidYMid meet">
+        <svg viewBox="0 0 100 100" class="map" preserveAspectRatio="xMidYMid meet" role="group" aria-label="Mapa de grados de {displayRoot(key.root)} {mod}">
           <defs>
             <marker id="harmony-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="3" markerHeight="3" orient="auto-start-reverse">
               <path fill="context-stroke" d="M 0 0 L 10 5 L 0 10 z"></path>

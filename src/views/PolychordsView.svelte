@@ -2,6 +2,7 @@
   import { writable } from 'svelte/store';
   import { NOTES } from '../lib/theory/notes';
   import { POLY_TEMPLATES, POLY_BASE_QUALITIES, POLY_TRIAD_QUALITIES, POLY_BASE_LABELS, POLY_TRIAD_LABELS, polyFindName, polyCountDissonance, polyIntervals } from '../lib/theory/polychords';
+  import SegTabs from '../lib/ui/SegTabs.svelte';
 
   const bassRoot = writable(0);
   const bassQ = writable('');
@@ -28,15 +29,18 @@
   <p class="sub">Apoyá una tríada sobre otra. El atlas bautiza la unión, mide disonancias (semitonos y tritonos) y la reconoce como estructura superior.</p>
 </div>
 
+<div id="poly-panel" role="tabpanel" aria-labelledby="{$bassQ}-tab">
 <section class="panel builder">
   <div class="stack">
     <div class="stack-row">
       <span class="stack-label">Base (bajo)</span>
-      <div class="seg">
-        {#each POLY_BASE_QUALITIES as q (q)}
-          <button type="button" class:on={$bassQ === q} onclick={() => bassQ.set(q)}>{POLY_BASE_LABELS[q]}</button>
-        {/each}
-      </div>
+      <SegTabs
+        items={POLY_BASE_QUALITIES.map(q => ({ id: q, label: POLY_BASE_LABELS[q] }))}
+        value={$bassQ}
+        onchange={(id) => bassQ.set(id)}
+        label="Calidad del bajo"
+        controls="poly-panel"
+      />
       <div class="rootrow">
         {#each NOTES as n, i (i)}
           <button type="button" class="rootchip" class:on={$bassRoot === i} onclick={() => bassRoot.set(i)}>{n}</button>
@@ -46,11 +50,13 @@
 
     <div class="stack-row">
       <span class="stack-label">Tríada superior</span>
-      <div class="seg">
-        {#each POLY_TRIAD_QUALITIES as q (q)}
-          <button type="button" class:on={$triQ === q} onclick={() => triQ.set(q)}>{POLY_TRIAD_LABELS[q]}</button>
-        {/each}
-      </div>
+      <SegTabs
+        items={POLY_TRIAD_QUALITIES.map(q => ({ id: q, label: POLY_TRIAD_LABELS[q] }))}
+        value={$triQ}
+        onchange={(id) => triQ.set(id)}
+        label="Calidad de la tríada superior"
+        controls="poly-panel"
+      />
       <div class="rootrow">
         {#each NOTES as n, i (i)}
           <button type="button" class="rootchip" class:on={$triRoot === i} onclick={() => triRoot.set(i)}>{n}</button>
@@ -77,6 +83,7 @@
     </div>
   </div>
 </section>
+</div>
 
 <style>
   .sub { color: var(--muted); max-width: 62ch; line-height: 1.5; font-size: 12px; }

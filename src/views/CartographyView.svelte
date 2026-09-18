@@ -1,6 +1,7 @@
 <script lang="ts">
   import { writable } from 'svelte/store';
   import { CARTO_MODES, cartoEdges, cartoBFS, cartoLayout, cartoNote, cartoChord, cartoFlavor } from '../lib/theory/cartography';
+  import SegTabs from '../lib/ui/SegTabs.svelte';
   import { onCross } from '../lib/cross';
 
   const ROOT_NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
@@ -83,17 +84,21 @@
   </label>
   <div class="field">
     <span>Voicing</span>
-    <div class="seg">
-      <button type="button" class:on={!$tetrad} onclick={() => tetrad.set(false)}>Tríadas</button>
-      <button type="button" class:on={$tetrad} onclick={() => tetrad.set(true)}>Tétradas</button>
-    </div>
+    <SegTabs
+      items={[{ id: 'triads', label: 'Tríadas' }, { id: 'tetrads', label: 'Tétradas' }]}
+      value={$tetrad ? 'tetrads' : 'triads'}
+      onchange={(id) => tetrad.set(id === 'tetrads')}
+      label="Voicing"
+      controls="carto-panel"
+    />
   </div>
 </section>
 
+<div id="carto-panel" role="tabpanel" aria-labelledby="{($tetrad ? 'tetrads' : 'triads')}-tab">
 <section class="carto-layout">
   <section class="panel carto-graph-panel">
     <p class="eyebrow">GRAFO · CLIC EN UN MODO</p>
-    <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" class="carto-svg">
+    <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" class="carto-svg" role="group" aria-label="Grafo de los 13 modos">
       {#each edges as [i, j] (`${i}-${j}`)}
         {@const st = edgeState(i, j)}
         <line class="carto-edge" class:active={st === 'active'} class:dimmed={st === 'dimmed'}
@@ -143,6 +148,7 @@
     </div>
   </section>
 </section>
+</div>
 
 <style>
   .carto-toolbar { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; margin-bottom: 12px; }

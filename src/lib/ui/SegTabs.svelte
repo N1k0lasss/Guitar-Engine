@@ -4,11 +4,13 @@
     value,
     onchange,
     label,
+    controls,
   }: {
     items: { id: string; label: string }[];
     value: string;
     onchange: (id: string) => void;
     label?: string;
+    controls?: string;
   } = $props();
 
   function onKeydown(e: KeyboardEvent) {
@@ -34,6 +36,7 @@
       id="{item.id}-tab"
       class:on={item.id === value}
       aria-selected={item.id === value}
+      aria-controls={controls}
       tabindex={item.id === value ? 0 : -1}
       onclick={() => onchange(item.id)}
     >{item.label}</button>

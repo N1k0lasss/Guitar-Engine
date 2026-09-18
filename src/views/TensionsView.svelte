@@ -3,6 +3,7 @@
   import { NOTES } from '../lib/theory/notes';
   import { TENSION_DATA, tensionKind, tensionNote, tenBasePcs, tenTensionCounts, tenRuling, tenFullNotes, type TensionQuality } from '../lib/theory/tensions';
   import { onCross } from '../lib/cross';
+  import SegTabs from '../lib/ui/SegTabs.svelte';
 
   const root = writable('C');
   const quality = writable<TensionQuality>('maj7');
@@ -22,17 +23,21 @@
 </div>
 
 <section class="panel controls-panel">
-  <div class="seg">
-    {#each [['maj7', 'maj7'], ['m7', 'm7'], ['7', 'Dominante 7']] as [id, label] (id)}
-      <button type="button" class:on={$quality === id} onclick={() => quality.set(id as TensionQuality)}>{label}</button>
-    {/each}
-  </div>
+  <SegTabs
+    items={[{ id: 'maj7', label: 'maj7' }, { id: 'm7', label: 'm7' }, { id: '7', label: 'Dominante 7' }]}
+    value={$quality}
+    onchange={(id) => quality.set(id as TensionQuality)}
+    label="Calidad del acorde"
+    controls="ten-panel"
+  />
   <div class="rootrow">
     {#each ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'] as n (n)}
       <button type="button" class="rootchip" class:on={$root === n} onclick={() => root.set(n)}>{n}</button>
     {/each}
   </div>
 </section>
+
+<div id="ten-panel" role="tabpanel" aria-labelledby="{$quality}-tab">
 
 <section class="panel base-panel">
   <p class="eyebrow">ACORDE BASE</p>
@@ -67,6 +72,8 @@
   {/each}
 </section>
 
+</div>
+
 <style>
   .view-head { margin-bottom: 12px; }
   .sub { color: var(--muted); max-width: 62ch; line-height: 1.5; font-size: 12px; }
@@ -86,7 +93,7 @@
   .tcard-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
   .tlabel { font-family: var(--font-display); font-size: 18px; font-weight: 700; letter-spacing: -0.4px; color: var(--accent); }
   .tnote { font-family: var(--font-mono); font-size: 12px; color: var(--ink); }
-  .tkind { color: var(--muted); font: 9px 'DM Mono', monospace; letter-spacing: 1.3px; text-transform: uppercase; margin: 6px 0; }
+  .tkind { color: var(--muted); font: 9px var(--font-mono); letter-spacing: 1.3px; text-transform: uppercase; margin: 6px 0; }
   .tcard[data-kind="estable"] .tkind { color: #8ca66c; }
   .tcard[data-kind="color"] .tkind { color: #6e91a3; }
   .tcard[data-kind="fricción"] .tkind { color: #a45a46; }

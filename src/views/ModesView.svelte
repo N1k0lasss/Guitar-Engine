@@ -1,6 +1,7 @@
 <script lang="ts">
   import { writable } from 'svelte/store';
   import { MODE_DATA, modeNote, modeScale, modeChordName, modeTensionName } from '../lib/theory/modes';
+  import SegTabs from '../lib/ui/SegTabs.svelte';
 
   const ROOT_NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
@@ -41,13 +42,17 @@
   </label>
   <div class="field">
     <span>Acorde</span>
-    <div class="seg">
-      <button type="button" class:on={!$tetrad} onclick={() => tetrad.set(false)}>Tríada</button>
-      <button type="button" class:on={$tetrad} onclick={() => tetrad.set(true)}>Tétrada</button>
-    </div>
+    <SegTabs
+      items={[{ id: 'triad', label: 'Tríada' }, { id: 'tetrad', label: 'Tétrada' }]}
+      value={$tetrad ? 'tetrad' : 'triad'}
+      onchange={(id) => tetrad.set(id === 'tetrad')}
+      label="Tipo de acorde"
+      controls="modes-panel"
+    />
   </div>
 </section>
 
+<div id="modes-panel" role="tabpanel" aria-labelledby="{($tetrad ? 'tetrad' : 'triad')}-tab">
 <section class="modes-layout">
   <section class="panel modes-wheel-panel">
     <div class="modes-wheel" aria-label="Selector de modos musicales">
@@ -86,6 +91,7 @@
     </div>
   </aside>
 </section>
+</div>
 
 <style>
   .modes-toolbar { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 14px; margin-bottom: 12px; }

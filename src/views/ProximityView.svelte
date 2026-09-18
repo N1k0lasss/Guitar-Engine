@@ -2,6 +2,7 @@
   import { writable } from 'svelte/store';
   import { NOTES } from '../lib/theory/notes';
   import { PROX_QUALITIES, PROX_QUALITY_LABELS, findNeighbors, findCommonChords, proxCommonCounts, proxBridgeScan, proxCanonicalName, type ProxNeighbor } from '../lib/theory/proximity';
+  import SegTabs from '../lib/ui/SegTabs.svelte';
 
   const root = writable('C');
   const quality = writable('');
@@ -47,13 +48,16 @@
       <button type="button" class="qualchip" class:on={$quality === q} onclick={() => quality.set(q)}>{PROX_QUALITY_LABELS[q]}</button>
     {/each}
   </div>
-  <div class="seg">
-    {#each [1, 2, 3] as m (m)}
-      <button type="button" class:on={$moves === m} onclick={() => moves.set(m)}>mover {m} nota{m > 1 ? 's' : ''}</button>
-    {/each}
-  </div>
+  <SegTabs
+    items={Array.from({ length: 3 }, (_, i) => { const m = i + 1; return { id: String(m), label: `mover ${m} nota${m > 1 ? 's' : ''}` }; })}
+    value={String($moves)}
+    onchange={(id) => moves.set(+id)}
+    label="Desplazamiento de voces"
+    controls="proc-panel"
+  />
 </section>
 
+<div id="proc-panel" role="tabpanel" aria-labelledby="{String($moves)}-tab">
 <section class="layout">
   <section class="panel neighbors-panel">
     <p class="eyebrow">VECINOS · {$root}{$quality === 'm' ? 'm' : $quality}</p>
@@ -81,10 +85,14 @@
         <button type="button" class="picknote" class:on={$selected.includes(i)} onclick={() => toggleNote(i)}>{n}</button>
       {/each}
     </div>
-    <div class="seg mt">
-      {#each [['any', 'cualquiera'], ['two', 'exactamente 2'], ['exact', 'todas']] as [id, label] (id)}
-        <button type="button" class:on={$mode === id} onclick={() => mode.set(id as 'any')}>{label}</button>
-      {/each}
+    <div class="mt">
+      <SegTabs
+        items={[{ id: 'any', label: 'cualquiera' }, { id: 'two', label: 'exactamente 2' }, { id: 'exact', label: 'todas' }]}
+        value={$mode}
+        onchange={(id) => mode.set(id as 'any' | 'two' | 'exact')}
+        label="Modo de notas en común"
+        controls="proc-panel"
+      />
     </div>
     <div class="common-list">
       {#each commonChords.slice(0, 30) as c (c.name + c.m)}
@@ -97,6 +105,7 @@
     </div>
   </section>
 </section>
+</div>
 
 <section class="panel frequency-panel">
   <p class="eyebrow">FRECUENCIA DE NOTAS EN EL POOL</p>
@@ -146,9 +155,6 @@
   .qualrow { display: flex; flex-wrap: wrap; gap: 0.3rem; }
   .qualchip { font-size: 0.72rem; padding: 0.34rem 0.6rem; border: 1px solid var(--line); border-radius: 2px; background: transparent; color: var(--muted); cursor: pointer; }
   .qualchip.on { color: var(--accent); border-color: var(--accent); }
-  .seg { display: inline-flex; flex-wrap: wrap; gap: 3px; }
-  .seg button { border: 1px solid var(--line); background: var(--panel-raised); color: var(--muted); font-size: 0.75rem; padding: 0.4rem 0.7rem; border-radius: 2px; cursor: pointer; }
-  .seg button.on { background: var(--accent); color: var(--ink); }
   .mt { margin-top: 0.75rem; }
   .layout { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); margin-bottom: 12px; }
   .layout > .panel { max-height: min(48vh, 440px); overflow-y: auto; }

@@ -3,6 +3,7 @@
   import { NOTES } from '../lib/theory/notes';
   import { getChordVoicings } from '../lib/theory/voicings';
   import { VOICING_QUALITIES, DROP_TYPES, INVERSION_LABELS, getVoicingData, voiBestFretPosition } from '../lib/theory/voicings';
+  import SegTabs from '../lib/ui/SegTabs.svelte';
   import { onCrossAny } from '../lib/cross';
 
   const root = writable('Cmaj7');
@@ -33,23 +34,30 @@
 </div>
 
 <section class="panel controls-panel">
-  <div class="seg quality-seg">
-    {#each Object.entries(VOICING_QUALITIES) as [id, def] (id)}
-      <button type="button" class:on={$quality === id} onclick={() => quality.set(id)}>{def.label}</button>
-    {/each}
-  </div>
-  <div class="seg">
-    {#each INVERSION_LABELS as label, i (i)}
-      <button type="button" class:on={$inversion === i} onclick={() => inversion.set(i)}>{label}</button>
-    {/each}
-  </div>
-  <div class="seg drops">
-    {#each DROP_TYPES as d (d.id)}
-      <button type="button" class:on={$drop === d.id} onclick={() => drop.set(d.id)} title={d.desc}>{d.label}</button>
-    {/each}
-  </div>
+  <SegTabs
+    items={Object.entries(VOICING_QUALITIES).map(([id, def]) => ({ id, label: def.label }))}
+    value={$quality}
+    onchange={(id) => quality.set(id)}
+    label="Calidad"
+    controls="voices-panel"
+  />
+  <SegTabs
+    items={INVERSION_LABELS.map((label, i) => ({ id: String(i), label }))}
+    value={String($inversion)}
+    onchange={(id) => inversion.set(+id)}
+    label="Inversión"
+    controls="voices-panel"
+  />
+  <SegTabs
+    items={DROP_TYPES.map(d => ({ id: d.id, label: d.label }))}
+    value={$drop}
+    onchange={(id) => drop.set(id)}
+    label="Drop"
+    controls="voices-panel"
+  />
 </section>
 
+<div id="voices-panel" role="tabpanel" aria-labelledby="{$quality}-tab">
 <section class="layout">
   <section class="panel info-panel">
     <p class="eyebrow">NOMBRE</p>
@@ -95,6 +103,7 @@
     <p class="muted mt">El intervalo 0 es la fundamental. Los drops reordenan las voces por octavas.</p>
   </section>
 </section>
+</div>
 
 <style>
   .view-head { margin-bottom: 12px; }

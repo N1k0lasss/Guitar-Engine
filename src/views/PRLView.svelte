@@ -2,6 +2,7 @@
   import { writable } from 'svelte/store';
   import { notesFromPcs } from '../lib/theory/notes';
   import { PRL_OP_INFO, prlTransformations, prlMoveLabel } from '../lib/theory/prl';
+  import SegTabs from '../lib/ui/SegTabs.svelte';
 
   const root = writable('C');
   const quality = writable('');
@@ -21,12 +22,16 @@
       <button type="button" class="rootchip" class:on={$root === n} onclick={() => root.set(n)}>{n}</button>
     {/each}
   </div>
-  <div class="seg">
-    <button type="button" class:on={$quality === ''} onclick={() => quality.set('')}>Mayor</button>
-    <button type="button" class:on={$quality === 'm'} onclick={() => quality.set('m')}>Menor</button>
-  </div>
+  <SegTabs
+    items={[{ id: 'major', label: 'Mayor' }, { id: 'minor', label: 'Menor' }]}
+    value={$quality === 'm' ? 'minor' : 'major'}
+    onchange={(id) => quality.set(id === 'minor' ? 'm' : '')}
+    label="Calidad del acorde"
+    controls="prl-panel"
+  />
 </section>
 
+<div id="prl-panel" role="tabpanel" aria-labelledby="{(($quality === 'm' ? 'minor' : 'major'))}-tab">
 <section class="panel result-panel">
   <p class="eyebrow">ACORDE BASE · {name}</p>
   <div class="cards">
@@ -51,6 +56,7 @@
     {/each}
   </div>
 </section>
+</div>
 
 <style>
   .sub { color: var(--muted); max-width: 62ch; line-height: 1.5; font-size: 12px; }

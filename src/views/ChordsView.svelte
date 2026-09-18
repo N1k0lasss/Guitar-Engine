@@ -38,7 +38,7 @@
           >{note}</span>
         {/each}
       </div>
-      <p class="constellation-caption">
+      <p class="constellation-caption" role="status" aria-live="polite">
         {#if active}{active} · {chordNotes.join(' · ')}{:else}Esperando una señal para trazar las notas.{/if}
       </p>
     </div>
