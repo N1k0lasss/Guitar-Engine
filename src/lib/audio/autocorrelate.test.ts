@@ -63,4 +63,22 @@ describe('centrado y detección', () => {
     expect(stray.tuned).toBe(false);
     expect(stray.clamped).toBe(50);
   });
+
+  it('analyzeTuner: clamp a ±50 cent en la escala del meter', () => {
+    const high = analyzeTuner(329.63 * Math.pow(2, 60 / 1200))!;
+    expect(high.note).toBe('E4');
+    expect(high.cents).toBeGreaterThan(50);
+    expect(high.clamped).toBe(50);
+    const low = analyzeTuner(329.63 * Math.pow(2, -60 / 1200))!;
+    expect(low.note).toBe('E4');
+    expect(low.cents).toBeLessThan(-50);
+    expect(low.clamped).toBe(-50);
+  });
+
+  it('analyzeTuner: la zona de afinado es ±5 cent', () => {
+    const flat = analyzeTuner(329.633 * Math.pow(2, -3 / 1200))!;
+    expect(flat.tuned).toBe(true);
+    const off = analyzeTuner(329.633 * Math.pow(2, -6 / 1200))!;
+    expect(off.tuned).toBe(false);
+  });
 });

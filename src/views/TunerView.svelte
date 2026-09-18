@@ -30,12 +30,21 @@
   <p class="label">LISTEN / REPEAT / NOTICE</p>
   <div class="tuner-note">{note}</div>
   <div class="tuner-freq">{freqText}</div>
-  <div class="meter" aria-label="Indicador de afinación">
-    <span class="meter-mark mark-left">♭</span>
-    <span class="meter-mark mark-center">0</span>
-    <span class="meter-mark mark-right">♯</span>
-    <div class="meter-needle" style="left: {needleLeft}%; background: {needleColor}"></div>
-    <div class="meter-center"></div>
+  <div
+    class="meter"
+    role="meter"
+    aria-label="Desviación de la afinación de {$tunerFrame.note}"
+    aria-valuemin="-50"
+    aria-valuemax="50"
+    aria-valuenow="{Math.round(active ? $tunerFrame.clamped : 0)}"
+    aria-valuetext="{active ? (($tunerFrame.tuned ? 'afinado' : ($tunerFrame.cents < 0 ? 'grave' : 'agudo')) + ', ' + Math.round($tunerFrame.cents) + ' cent') : 'sin señal'}"
+  >
+    <span class="meter-zone" aria-hidden="true"></span>
+    <span class="meter-mark mark-left" aria-hidden="true">♭</span>
+    <span class="meter-mark mark-center" aria-hidden="true">0</span>
+    <span class="meter-mark mark-right" aria-hidden="true">♯</span>
+    <div class="meter-needle" aria-hidden="true" style="left: {needleLeft}%; background: {needleColor}"></div>
+    <div class="meter-center" aria-hidden="true"></div>
   </div>
   <p class="tuner-hint">{hint}</p>
 </section>
@@ -107,6 +116,16 @@
     box-shadow: 0 0 14px currentColor;
     transform: translateX(-50%);
     transition: left .15s ease, background .15s;
+  }
+  .meter-zone {
+    position: absolute;
+    bottom: 0;
+    left: 45%;
+    width: 10%;
+    height: 64px;
+    background: rgba(76, 175, 80, .07);
+    border-left: 1px solid rgba(76, 175, 80, .45);
+    border-right: 1px solid rgba(76, 175, 80, .45);
   }
   .meter-center {
     position: absolute;
