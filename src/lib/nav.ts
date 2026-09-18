@@ -1,4 +1,4 @@
-import { writable, get } from 'svelte/store';
+import { writable } from 'svelte/store';
 import { engineSetMode } from './audio/engine';
 
 export type ViewId =
@@ -32,10 +32,4 @@ export function go(view: ViewId): void {
 
 export function readoutOf(view: ViewId): string {
   return MODE_READOUTS[view] || 'ESTUDIO ARMÓNICO';
-}
-
-export const isLiveView = (view: ViewId): boolean => view === 'chords' || view === 'tuner';
-
-export function syncActiveView(): ViewId {
-  return get(activeView);
 }

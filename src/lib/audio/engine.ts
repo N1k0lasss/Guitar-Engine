@@ -1,10 +1,9 @@
-import { writable, get } from 'svelte/store';
+import { writable } from 'svelte/store';
 
 export type AudioStatus = 'idle' | 'live' | 'error';
 
 export const audioStatus = writable<AudioStatus>('idle');
 export const audioError = writable('');
-export const audioPaused = writable(false);
 
 let ctx: AudioContext | null = null;
 let analyser: AnalyserNode | null = null;
@@ -24,10 +23,6 @@ export function registerFrameHandler(key: string, fn: () => void): void {
 
 export function engineSetMode(next: string): void {
   mode = next;
-}
-
-export function getWav(): AudioContext | null {
-  return ctx;
 }
 
 export function ensureWav(): AudioContext | null {
@@ -78,7 +73,6 @@ export async function startAudio(): Promise<void> {
     running = true;
     audioStatus.set('live');
     audioError.set('');
-    audioPaused.set(false);
     loop();
   } catch (error) {
     running = false;
@@ -103,16 +97,12 @@ export function stopAudio(): void {
     rafId = null;
   }
   audioStatus.set('idle');
-  audioPaused.set(false);
 }
 
 function loop(): void {
   if (!running) return;
-  const pause = get(audioPaused);
-  if (!pause) {
-    const handler = handlers.get(mode);
-    if (handler) handler();
-  }
+  const handler = handlers.get(mode);
+  if (handler) handler();
   rafId = requestAnimationFrame(loop);
 }
 

@@ -1,4 +1,4 @@
-import { writable, get } from 'svelte/store';
+import { writable } from 'svelte/store';
 
 export interface CrossFields {
   harmonyRoot: string | null;
@@ -30,21 +30,8 @@ export function sendCross(fields: Partial<CrossFields>): void {
   cross.update(c => ({ ...c, ...fields }));
 }
 
-export function takeCross<K extends keyof CrossFields>(key: K): CrossFields[K] {
-  const value = get(cross)[key];
-  if (value !== null && value !== undefined) {
-    cross.update(c => ({ ...c, [key]: null }));
-    return value;
-  }
-  return null;
-}
-
-export function clearCross(): void {
-  cross.set({ ...empty });
-}
-
-// Views stay mounted, so init-time takeCross() misses later sends. Use this to
-// react to a pending field whenever it arrives (and consume it once).
+// Views stay mounted, so avoid init-time reads; react to a pending field
+// whenever it arrives (and consume it once).
 export function onCross<K extends keyof CrossFields>(
   key: K,
   fn: (value: NonNullable<CrossFields[K]>) => void,

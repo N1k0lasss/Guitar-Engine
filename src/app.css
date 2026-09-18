@@ -116,8 +116,8 @@ select option, select optgroup { background: var(--panel); color: var(--ink); }
   text-transform: uppercase;
 }
 
-.view-head, .view-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 14px; margin: 12px 0 14px; }
-.view-head h2, .view-heading h2 {
+.view-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 14px; margin: 12px 0 14px; }
+.view-head h2 {
   font-family: "Manrope Variable", sans-serif;
   font-weight: 500;
   font-size: clamp(19px, 2vw, 27px);
@@ -150,8 +150,6 @@ select option, select optgroup { background: var(--panel); color: var(--ink); }
   border: 1px solid var(--line);
   border-radius: 2px;
 }
-.panel-title { font-family: var(--font-display); font-size: 12px; font-weight: 600; }
-.panel-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
 
 /* ============  Botones  ============ */
 
@@ -175,15 +173,6 @@ select option, select optgroup { background: var(--panel); color: var(--ink); }
 
 .btn-quiet { background: transparent; border-color: transparent; color: var(--muted); padding: 6px 8px; font-weight: 400; }
 .btn-quiet:hover { color: var(--ink); }
-
-.btn-icon {
-  width: 24px; height: 24px; padding: 0;
-  display: inline-grid; place-items: center;
-  border-radius: 50%;
-  background: transparent; border: 1px solid var(--line);
-  color: var(--muted); cursor: pointer;
-}
-.btn-icon:hover { color: var(--accent); border-color: var(--accent); }
 
 /* ============  Segmented control  ============ */
 
@@ -229,25 +218,6 @@ input.ctl[type="number"] { background-image: none; padding-right: 10px; }
 
 /* ============  Check (toggle)  ============ */
 
-.check {
-  display: inline-flex; align-items: center; gap: 8px;
-  cursor: pointer; font-size: 12px; color: var(--ink); user-select: none;
-}
-.check input { display: none; }
-.check .box {
-  width: 32px; height: 17px; border-radius: 999px;
-  background: var(--panel-raised); border: 1px solid var(--line);
-  position: relative; transition: background .18s; flex: none;
-}
-.check .box::after {
-  content: ''; position: absolute; top: 50%; left: 2px; width: 12px; height: 12px;
-  transform: translateY(-50%);
-  background: var(--muted); border-radius: 50%;
-  transition: transform .18s, background .18s;
-}
-.check input:checked + .box { background: var(--accent); border-color: var(--accent); }
-.check input:checked + .box::after { transform: translate(15px, -50%); background: #050606; }
-
 .check-inline { display: inline-flex; align-items: center; gap: 7px; font-size: 11px; color: var(--muted); cursor: pointer; }
 .check-inline input { accent-color: var(--accent); }
 
@@ -265,59 +235,10 @@ input.ctl[type="number"] { background-image: none; padding-right: 10px; }
 
 /* ============  Nodos / tarjetas (look final)  ============ */
 
-.node-round { color: var(--ink); background: #121414; border: 1px solid #555954; border-radius: 50%; }
-.node-card { color: var(--ink); background: #121414; border: 1px solid #555954; border-radius: 2px; }
-.node-round:hover, .node-round.sel, .node-round.selected,
-.node-card:hover, .node-card.sel, .node-card.selected { background: #181b1a; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255, 85, 124, .12); }
-
-.map-surface { background-color: #080909; border: 1px solid var(--line); border-radius: 2px; }
-
 .study-hint { margin: 12px 0 0; color: var(--muted); font-size: 11px; text-align: center; }
 .muted { color: var(--muted); }
 .hidden { display: none !important; }
 .notes-line { font-family: "DM Mono", monospace; font-size: 13px; color: var(--muted); }
-
-/* ============  Diagrama de acorde  ============ */
-
-.diagram { display: grid; grid-template-columns: repeat(6, minmax(36px, 1fr)); gap: 6px; max-width: 390px; }
-.diagram-cell {
-  min-height: 58px; display: grid; place-items: center; align-content: space-between;
-  padding: 6px 3px;
-  border-bottom: 1px solid rgba(255, 255, 255, .28);
-  background: repeating-linear-gradient(to bottom, transparent 0 20px, rgba(255, 255, 255, .1) 21px 22px);
-  border-radius: 2px;
-}
-.string-label { color: var(--muted); font: 11px "DM Mono", monospace; }
-.open, .mute { color: var(--muted); font: 19px "DM Mono", monospace; }
-.dot {
-  display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%;
-  background: var(--accent);
-  color: #050606; font: 12px "DM Mono", monospace; font-weight: 500;
-}
-
-/* ============  Mástil / escala  ============ */
-
-.fretboard { --fret-cols: 15; }
-.fret-numbers {
-  display: grid; gap: 1px;
-  color: var(--muted); font: 10px "DM Mono", monospace; text-align: center;
-  margin-bottom: 4px;
-}
-.fret-grid {
-  display: grid; gap: 1px;
-  background: var(--line);
-  border: 1px solid var(--line);
-  border-radius: 2px; overflow: hidden;
-}
-.fret-cell {
-  min-height: 34px; display: grid; place-items: center;
-  font: 12px "DM Mono", monospace;
-  background: #080909;
-  color: transparent;
-}
-.fret-cell.in-scale { color: var(--ink); }
-.fret-cell.root-note { color: #050606; background: var(--accent); font-weight: 700; }
-.fret-cell.in-scale:not(.root-note) { background: color-mix(in srgb, var(--accent) 15%, #080909); }
 
 /* ============  Constelación  ============ */
 
