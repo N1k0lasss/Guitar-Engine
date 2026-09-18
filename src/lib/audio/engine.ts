@@ -104,7 +104,6 @@ export function stopAudio(): void {
   }
   audioStatus.set('idle');
   audioPaused.set(false);
-  handlers.clear();
 }
 
 function loop(): void {

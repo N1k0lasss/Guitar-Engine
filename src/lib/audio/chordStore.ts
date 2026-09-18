@@ -22,8 +22,6 @@ export function resetChordTracking(): void {
   chordCooldownUntil = 0;
   chordCurrent.set(null);
   chordConfidence.set('Esperando una señal clara...');
-  chordHistory.set([]);
-  chordNotesList.set([]);
   chordInProgress.set(false);
 }
 
