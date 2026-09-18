@@ -4,6 +4,11 @@
   import { getChordInfo } from '../lib/theory/chords';
   import { getChordVoicings } from '../lib/theory/voicings';
   import ChordDiagram from '../lib/ui/ChordDiagram.svelte';
+  import SegTabs from '../lib/ui/SegTabs.svelte';
+  import Field from '../lib/ui/Field.svelte';
+  import Chip from '../lib/ui/Chip.svelte';
+  import Panel from '../lib/ui/Panel.svelte';
+  import SignalBadge from '../lib/ui/SignalBadge.svelte';
   import {
     HARMONY_VARIANTS, harmonyKey, harmonyMode, harmonySelected, harmonyPath,
     harmonyHarmonic, harmonyDegrees, harmonyEdges, harmonyPositions, harmonyRootIdx,
@@ -230,48 +235,42 @@
     <p class="eyebrow">ARMONÍA ILUSTRADA</p>
     <h2>Seguí las conexiones entre acordes</h2>
   </div>
-  <span class="signal-badge">Mapa · {variant.label}</span>
+  <SignalBadge label={`Mapa · ${variant.label}`} />
 </div>
 
-<section class="panel toolbar">
-  <label class="field">
-    <span>Tonalidad</span>
+<div id="harmony-panel" role="tabpanel" aria-labelledby="{$harmonyMode}-tab">
+
+<Panel class="toolbar">
+  <Field label="Tonalidad">
     <select class="sel" value={displayRoot(key.root)} onchange={(e) => setRoot((e.currentTarget as HTMLSelectElement).value)}>
       {#each ROOT_OPTIONS as r (r)}<option value={r}>{r}</option>{/each}
     </select>
-  </label>
-  <label class="field">
-    <span>Escala</span>
+  </Field>
+  <Field label="Escala">
     <select class="sel" value={key.variant} onchange={(e) => setVariant((e.currentTarget as HTMLSelectElement).value)}>
       {#each Object.entries(HARMONY_VARIANTS) as [id, v] (id)}<option value={id}>{v.label}</option>{/each}
     </select>
-  </label>
+  </Field>
   <div class="field view-seg">
     <span>Vista</span>
-    <div class="seg">
-      {#each TABS as tab (tab.id)}
-        <button type="button" class:on={$harmonyMode === tab.id} onclick={() => harmonyMode.set(tab.id)}>{tab.label}</button>
-      {/each}
-    </div>
+    <SegTabs items={TABS} value={$harmonyMode} onchange={(id) => harmonyMode.set(id as HarmonyMode)} label="Vista de armonía" />
   </div>
   <button class="btn btn-ghost btn-sm clear" onclick={clearPath}>Limpiar recorrido</button>
-</section>
+</Panel>
 
 {#if $harmonyMode === 'prog'}
-  <section class="panel prog-controls">
+  <Panel class="prog-controls">
     <div class="prog-row">
-      <label class="field">
-        <span>Estilo</span>
+      <Field label="Estilo">
         <select class="sel" value={$harmonyProgPalette} onchange={(e) => { harmonyProgPalette.set((e.currentTarget as HTMLSelectElement).value); if (key.root) onHarmonyGenerate(key.root, mod); }}>
           {#each Object.entries(HARMONY_PROG_PALETTES) as [id, p] (id)}<option value={id}>{p.label}</option>{/each}
         </select>
-      </label>
-      <label class="field">
-        <span>Pasos</span>
+      </Field>
+      <Field label="Pasos">
         <select class="sel" value={$harmonyProgLength} onchange={(e) => { harmonyProgLength.set(+((e.currentTarget as HTMLSelectElement).value)); onHarmonyGenerate(key.root, mod); }}>
           {#each [4, 6, 8, 12, 16] as n (n)}<option value={n}>{n}</option>{/each}
         </select>
-      </label>
+      </Field>
       <label class="check-inline">
         <input type="checkbox" checked={$harmonyProgTonic} onchange={(e) => harmonyProgTonic.set((e.currentTarget as HTMLInputElement).checked)} />
         terminar en tónica
@@ -280,18 +279,17 @@
         <input type="checkbox" checked={$harmonyProgMap} onchange={(e) => harmonyProgMap.set((e.currentTarget as HTMLInputElement).checked)} />
         marcar en el mapa
       </label>
-      <label class="field">
-        <span>Tempo</span>
+      <Field label="Tempo">
         <input class="ctl" type="number" min="40" max="200" step="2" value={$harmonyProgTempo} onchange={(e) => harmonyProgTempo.set(+((e.currentTarget as HTMLInputElement).value))} />
-      </label>
+      </Field>
       <button class="btn btn-ghost btn-sm" onclick={() => onHarmonyGenerate(key.root, mod)}>Generar</button>
       {#if $harmonyProgSeq.length}
         <button class="btn btn-ghost btn-sm" onclick={hearProg}>▶ Tocar progresión</button>
       {/if}
     </div>
-  </section>
+  </Panel>
 
-  <section class="panel myprog">
+  <Panel class="myprog">
     <div class="row-head">
       <p class="eyebrow">TU PROGRESIÓN</p>
       <div class="row-actions">
@@ -307,9 +305,9 @@
     </div>
     <div class="chip-row">
       {#each degrees as d (d.degree)}
-        <button type="button" class="chip" class:on={$harmonyMyProg.includes(d.degree)} onclick={() => toggleMyProg(d.degree)}>
+        <Chip toggle on={$harmonyMyProg.includes(d.degree)} onclick={() => toggleMyProg(d.degree)}>
           {d.degree} · {harmonChordName(mod, key.root, d)}
-        </button>
+        </Chip>
       {/each}
     </div>
     <p class="hint">Tocá un grado para sumarlo a tu recorrido; el orden define la progresión.</p>
@@ -324,11 +322,11 @@
         {/each}
       </div>
     {/if}
-  </section>
+  </Panel>
 {/if}
 
   <section class="layout">
-    <section class="panel map-panel">
+    <Panel class="map-panel">
       <div class="map-wrap">
         <svg viewBox="0 0 100 100" class="map" preserveAspectRatio="xMidYMid meet">
           <defs>
@@ -384,9 +382,9 @@
         {#if meta.legend.far}<i class="dot far"></i> {meta.legend.far}{/if}
       </div>
       <p class="hint">{meta.hint}</p>
-    </section>
+    </Panel>
 
-    <aside class="panel detail-panel">
+    <Panel class="detail-panel">
       <p class="eyebrow">CONEXIÓN SELECCIONADA</p>
       <h3 class="big mono">{selDef?.degree} · {selChord}</h3>
       <p class="desc">{selDef?.description}</p>
@@ -419,26 +417,24 @@
       {#if selVoicings.length > 1}
         <div class="chip-row">
           {#each selVoicings as v (v.id)}
-            <button type="button" class="chip" class:on={voicing?.id === v.id} onclick={() => pickVoicing(v.id)} title={v.label}>{v.label}</button>
+            <Chip toggle on={voicing?.id === v.id} onclick={() => pickVoicing(v.id)}>{v.label}</Chip>
           {/each}
         </div>
       {/if}
 
       <div class="timbre">
-        <label class="field">
-          <span>Sonido</span>
+        <Field label="Sonido">
           <select class="sel" value={$harmonySound} onchange={(e) => harmonySound.set((e.currentTarget as HTMLSelectElement).value)}>
             <option value="synth">Synth</option>
             <option value="pluck">Cuerda (K-S)</option>
           </select>
-        </label>
-        <label class="field">
-          <span>Rasgueo</span>
+        </Field>
+        <Field label="Rasgueo">
           <select class="sel" value={$harmonyStrumStyle} onchange={(e) => harmonyStrumStyle.set((e.currentTarget as HTMLSelectElement).value)}>
             <option value="arpeggio">Arpegiado</option>
             <option value="block">Bloque</option>
           </select>
-        </label>
+        </Field>
         <label class="check-inline">
           <input type="checkbox" checked={$harmonyStrumBass} onchange={(e) => harmonyStrumBass.set((e.currentTarget as HTMLInputElement).checked)} />
           bajo de raíz
@@ -521,11 +517,11 @@
           <p class="hint">El acorde pivote vive en varias tonalidades: por eso sirve para modular sin forzar.</p>
         </div>
       {/if}
-    </aside>
+    </Panel>
   </section>
 
 {#if $harmonyMode === 'prog' && $harmonyProgSeq.length}
-  <section class="panel prog-gen">
+  <Panel class="prog-gen">
     <p class="eyebrow">PROGRESIÓN GENERADA</p>
     <div class="prog-chain">
       {#each $harmonyProgSeq as step, i (i + step.name)}
@@ -549,12 +545,13 @@
         {#each $harmonyProgSummary as s (s)}<span class="summary-chip">{s}</span>{/each}
       </div>
     {/if}
-  </section>
+  </Panel>
 {/if}
+</div>
 
 <style>
   .toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; margin-bottom: 12px; }
-  .toolbar .field { min-width: 120px; }
+  :global(.toolbar .field) { min-width: 120px; }
   .view-seg { flex: 1 1 100%; }
   .clear { margin-left: auto; }
   .btn-sm { padding: 6px 10px; font-size: 11px; }
@@ -622,7 +619,7 @@
   .hint { margin-top: 10px; color: var(--muted); font-size: 12px; line-height: 1.5; }
 
   .detail-panel { max-height: min(46vh, 450px); overflow-y: auto; }
-  .detail-panel .eyebrow { margin-bottom: 4px; }
+  :global(.detail-panel .eyebrow) { margin-bottom: 4px; }
   .big {
     font-family: var(--font-display);
     font-size: clamp(22px, 2.2vw, 30px);

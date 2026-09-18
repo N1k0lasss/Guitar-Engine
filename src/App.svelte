@@ -187,7 +187,7 @@
   .brand strong { display: block; font-family: var(--font-display); font-size: 13px; font-weight: 600; letter-spacing: .2px; }
   .tagline { display: block; margin-top: 2px; font: 8px var(--font-mono); letter-spacing: 1.1px; text-transform: uppercase; color: var(--ink); }
   .readout { flex: 1; text-align: right; margin-right: 14px; font: 8px var(--font-mono); letter-spacing: 1.4px; text-transform: uppercase; color: var(--color-muted); }
-  @media (max-width: 760px) { .readout { display: none; } }
+  @media (max-width: 860px) { .readout { display: none; } }
   .audio-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
   .status { display: inline-flex; align-items: center; gap: 6px; font: 10px var(--font-mono); color: var(--color-muted); margin-right: 4px; }
   .status-dot { width: 7px; height: 7px; border-radius: 50%; background: #5e615c; }

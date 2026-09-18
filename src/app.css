@@ -23,21 +23,26 @@
 
   --radius-panel: 2px;
   --shadow-soft: none;
+
+  /* Escala de breakpoints compartida por todo el app */
+  --breakpoint-sm: 700px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-nav: 860px;
 }
 
 :root {
-  --ink: #e9e8e2;
-  --muted: #858783;
-  --line: #343735;
-  --panel: #0d0e0e;
-  --panel-raised: #171919;
-  --accent: #ff557c;
-  --accent-dark: #d43f62;
+  --ink: var(--color-ink);
+  --muted: var(--color-muted);
+  --line: var(--color-line);
+  --panel: var(--color-el);
+  --panel-raised: var(--color-el2);
+  --accent: var(--color-accent);
+  --accent-dark: var(--color-accentdark);
   --warm: #5bb8ff;
-  --bg: #050606;
-  --success: #86d58b;
+  --bg: var(--color-bg);
+  --success: var(--color-good);
   --info: #5bb8ff;
-  --yellow: #f2c86b;
+  --yellow: var(--color-warn);
 
   --major: #ff526d;
   --minor: #55baff;
@@ -63,14 +68,14 @@
   --sp-7: 3rem;
 }
 
-/* --- Acento por modo --- */
-body[data-mode="tuner"] { --accent: #86d58b; --accent-dark: #5aa765; --color-accent: #86d58b; }
-body[data-mode="harmony"], body[data-mode="cartography"], body[data-mode="circle"] { --accent: #5bb8ff; --accent-dark: #3388c9; --color-accent: #5bb8ff; }
-body[data-mode="modes"], body[data-mode="scales"] { --accent: #f2c86b; --accent-dark: #c49c3f; --color-accent: #f2c86b; }
-body[data-mode="tensions"], body[data-mode="tritone"], body[data-mode="prl"] { --accent: #c794ff; --accent-dark: #9568cd; --color-accent: #c794ff; }
-body[data-mode="proximity"], body[data-mode="ejes"], body[data-mode="sabores"] { --accent: #ff9b6e; --accent-dark: #d36d45; --color-accent: #ff9b6e; }
-body[data-mode="polychords"] { --accent: #c794ff; --accent-dark: #9568cd; --color-accent: #c794ff; }
-body[data-mode="voicings"] { --accent: #5bb8ff; --accent-dark: #3388c9; --color-accent: #5bb8ff; }
+/* --- Acento por modo (fuente única: --color-accent / --color-accentdark) --- */
+body[data-mode="tuner"] { --color-accent: #86d58b; --color-accentdark: #5aa765; }
+body[data-mode="harmony"], body[data-mode="cartography"], body[data-mode="circle"] { --color-accent: #5bb8ff; --color-accentdark: #3388c9; }
+body[data-mode="modes"], body[data-mode="scales"] { --color-accent: #f2c86b; --color-accentdark: #c49c3f; }
+body[data-mode="tensions"], body[data-mode="tritone"], body[data-mode="prl"] { --color-accent: #c794ff; --color-accentdark: #9568cd; }
+body[data-mode="proximity"], body[data-mode="ejes"], body[data-mode="sabores"] { --color-accent: #ff9b6e; --color-accentdark: #d36d45; }
+body[data-mode="polychords"] { --color-accent: #c794ff; --color-accentdark: #9568cd; }
+body[data-mode="voicings"] { --color-accent: #5bb8ff; --color-accentdark: #3388c9; }
 
 * { box-sizing: border-box; }
 
@@ -86,11 +91,11 @@ body {
     linear-gradient(90deg, rgba(255, 255, 255, .014) 1px, transparent 1px);
   background-size: auto, auto, 32px 32px, 32px 32px;
   background-attachment: fixed;
-  font-family: "DM Mono", ui-monospace, monospace;
+  font-family: var(--font-mono);
   -webkit-font-smoothing: antialiased;
 }
 
-h1, h2, h3, h4 { font-family: "Manrope Variable", ui-sans-serif, sans-serif; }
+h1, h2, h3, h4 { font-family: var(--font-display); }
 
 button { font: inherit; color: inherit; }
 button:disabled { opacity: .38; cursor: not-allowed; }
@@ -111,14 +116,14 @@ select option, select optgroup { background: var(--panel); color: var(--ink); }
 .eyebrow, .label {
   margin: 0 0 3px;
   color: var(--accent);
-  font: 500 9px "DM Mono", monospace;
+  font: 500 9px var(--font-mono);
   letter-spacing: 1.3px;
   text-transform: uppercase;
 }
 
 .view-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 14px; margin: 12px 0 14px; }
 .view-head h2 {
-  font-family: "Manrope Variable", sans-serif;
+  font-family: var(--font-display);
   font-weight: 500;
   font-size: clamp(19px, 2vw, 27px);
   letter-spacing: -.7px;
@@ -132,7 +137,7 @@ select option, select optgroup { background: var(--panel); color: var(--ink); }
   background: transparent;
   border: 1px solid var(--line);
   border-radius: 2px;
-  font: 9px "DM Mono", monospace;
+  font: 9px var(--font-mono);
   white-space: nowrap;
 }
 .signal-badge::before {
@@ -196,7 +201,7 @@ select option, select optgroup { background: var(--panel); color: var(--ink); }
 
 .field { display: flex; flex-direction: column; gap: 4px; }
 .field > span, .field > label.lbl {
-  font: 9px "DM Mono", monospace; letter-spacing: 1.2px;
+  font: 9px var(--font-mono); letter-spacing: 1.2px;
   text-transform: uppercase; color: var(--muted);
 }
 
@@ -207,7 +212,7 @@ select option, select optgroup { background: var(--panel); color: var(--ink); }
   color: var(--ink);
   border-radius: 2px;
   padding: 7px 26px 7px 9px;
-  font: 12px "DM Mono", monospace;
+  font: 12px var(--font-mono);
   cursor: pointer;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' stroke='%23858783' stroke-width='1.5' fill='none' stroke-linecap='round'/></svg>");
   background-repeat: no-repeat; background-position: right 9px center;
@@ -226,7 +231,7 @@ input.ctl[type="number"] { background-image: none; padding-right: 10px; }
 .chip {
   display: inline-flex; align-items: center; gap: 5px;
   padding: 5px 8px; border-radius: 2px;
-  font: 11px "DM Mono", monospace;
+  font: 11px var(--font-mono);
   color: var(--ink);
   background: var(--panel-raised);
   border: 1px solid var(--line);
@@ -238,7 +243,7 @@ input.ctl[type="number"] { background-image: none; padding-right: 10px; }
 .study-hint { margin: 12px 0 0; color: var(--muted); font-size: 11px; text-align: center; }
 .muted { color: var(--muted); }
 .hidden { display: none !important; }
-.notes-line { font-family: "DM Mono", monospace; font-size: 13px; color: var(--muted); }
+.notes-line { font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
 
 /* ============  Constelación  ============ */
 
@@ -264,7 +269,7 @@ input.ctl[type="number"] { background-image: none; padding-right: 10px; }
   width: 32px; height: 32px;
   color: #525650; background: #0d0e0e;
   border: 1px solid #383b38; border-radius: 50%;
-  font: 9px "DM Mono", monospace;
+  font: 9px var(--font-mono);
   transform: rotate(var(--note-angle)) translateY(-132px) rotate(calc(var(--note-angle) * -1));
   transition: color .25s, background .25s, border-color .25s, box-shadow .25s, opacity .25s;
 }
@@ -292,7 +297,7 @@ input.ctl[type="number"] { background-image: none; padding-right: 10px; }
 
 .constellation-caption {
   max-width: 270px; margin: 17px 0 0;
-  color: var(--muted); font: 10px/1.6 "DM Mono", monospace; text-align: center;
+  color: var(--muted); font: 10px/1.6 var(--font-mono); text-align: center;
 }
 
 /* ============  Animaciones  ============ */
