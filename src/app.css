@@ -46,13 +46,13 @@
 
   --major: #ff526d;
   --minor: #55baff;
-  --dominant: #c794ff;
-  --diminished: #f2c86b;
+  --dominant: #ff9b6e;
+  --diminished: #c794ff;
 
   --q-major: #ff526d;
   --q-minor: #55baff;
-  --q-dominant: #c794ff;
-  --q-dim: #f2c86b;
+  --q-dominant: #ff9b6e;
+  --q-dim: #c794ff;
   --q-aug: #86d58b;
 
   --radius-pill: 2px;
