@@ -7,7 +7,7 @@ const OUT = 'docs/screenshots';
 
 const GROUPS = {
   chords: 'Detectar', tuner: 'Detectar',
-  harmony: 'Explorar', circle: 'Explorar', scales: 'Explorar',
+  harmony: 'Explorar', triads: 'Explorar', circle: 'Explorar', scales: 'Explorar',
   modes: 'Explorar', cartography: 'Explorar', sabores: 'Explorar',
   tensions: 'Color', polychords: 'Color', voicings: 'Color', ejes: 'Color',
   prl: 'Vínculos', tritone: 'Vínculos', proximity: 'Vínculos',
@@ -17,6 +17,7 @@ const VIEWS = [
   ['chords', 'Acordes'],
   ['tuner', 'Afinador'],
   ['harmony', 'Armonía'],
+  ['triads', 'Triadas'],
   ['circle', 'Círculo 5tas'],
   ['scales', 'Escalas'],
   ['modes', 'Modos'],

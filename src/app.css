@@ -70,7 +70,7 @@
 
 /* --- Acento por modo (fuente única: --color-accent / --color-accentdark) --- */
 body[data-mode="tuner"] { --color-accent: #86d58b; --color-accentdark: #5aa765; }
-body[data-mode="harmony"], body[data-mode="cartography"], body[data-mode="circle"] { --color-accent: #5bb8ff; --color-accentdark: #3388c9; }
+body[data-mode="harmony"], body[data-mode="cartography"], body[data-mode="circle"], body[data-mode="triads"] { --color-accent: #5bb8ff; --color-accentdark: #3388c9; }
 body[data-mode="modes"], body[data-mode="scales"] { --color-accent: #f2c86b; --color-accentdark: #c49c3f; }
 body[data-mode="tensions"], body[data-mode="tritone"], body[data-mode="prl"] { --color-accent: #c794ff; --color-accentdark: #9568cd; }
 body[data-mode="proximity"], body[data-mode="ejes"], body[data-mode="sabores"] { --color-accent: #ff9b6e; --color-accentdark: #d36d45; }

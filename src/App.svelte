@@ -22,6 +22,7 @@
     scales: () => import('./views/ScalesView.svelte'),
     polychords: () => import('./views/PolychordsView.svelte'),
     voicings: () => import('./views/VoicingsView.svelte'),
+    triads: () => import('./views/TriadsView.svelte'),
   } satisfies Record<ViewId, () => Promise<{ default: Component }>>;
 
   let loadedViews = $state<Partial<Record<ViewId, Component>>>({});
@@ -43,6 +44,7 @@
     ] },
     { name: 'Explorar', items: [
       { id: 'harmony', label: 'Armonía' },
+      { id: 'triads', label: 'Triadas' },
       { id: 'circle', label: 'Círculo 5tas' },
       { id: 'scales', label: 'Escalas' },
       { id: 'modes', label: 'Modos' },
@@ -172,6 +174,9 @@
       {/if}
       {#if loadedViews.voicings}{@const Cmp = loadedViews.voicings}
         <div class="view-wrap" class:hidden={$activeView !== 'voicings'}><Cmp /></div>
+      {/if}
+      {#if loadedViews.triads}{@const Cmp = loadedViews.triads}
+        <div class="view-wrap" class:hidden={$activeView !== 'triads'}><Cmp /></div>
       {/if}
     </main>
   </div>

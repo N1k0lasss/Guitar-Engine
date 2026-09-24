@@ -3,7 +3,8 @@ import { engineSetMode } from './audio/engine';
 
 export type ViewId =
   | 'chords' | 'tuner' | 'harmony' | 'modes' | 'cartography' | 'sabores' | 'ejes'
-  | 'tensions' | 'prl' | 'tritone' | 'proximity' | 'circle' | 'scales' | 'polychords' | 'voicings';
+  | 'tensions' | 'prl' | 'tritone' | 'proximity' | 'circle' | 'scales' | 'polychords' | 'voicings'
+  | 'triads';
 
 export const MODE_READOUTS: Record<ViewId, string> = {
   chords: 'CAPTURA CROMÁTICA',
@@ -21,6 +22,7 @@ export const MODE_READOUTS: Record<ViewId, string> = {
   scales: 'MAPA DE ESCALA',
   polychords: 'SUPERPOSICIÓN DE VOCES',
   voicings: 'INVERSIONES / DROPS',
+  triads: 'TRÍADAS EN EL MÁSTIL',
 };
 
 export const activeView = writable<ViewId>('chords');
